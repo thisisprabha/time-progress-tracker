@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Modal,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -46,6 +47,21 @@ const WaterGlassIcon = ({ isHalfFull = true }) => (
   </Svg>
 );
 
+const SettingsIcon = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.settingsButton}>
+    <Svg width="24" height="24" viewBox="0 0 24 24">
+      <Path
+        d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5M19.43 12.97c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"
+        fill="#666666"
+        stroke="#666666"
+        strokeWidth="0.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  </TouchableOpacity>
+);
+
 const TallyCounter = ({ total, completed, label, value, unit }) => {
   const renderTallyMark = (index, isCrossed) => (
     <View key={index} style={styles.tallyMark}>
@@ -78,6 +94,8 @@ export default function TimeProgressScreen() {
 
   const [perspective, setPerspective] = useState(null); // 'half-full' or 'half-empty'
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [timeMode, setTimeMode] = useState('24h'); // '24h' or '9-5'
   const [timeData, setTimeData] = useState({
     yearProgress: 0,
     monthProgress: 0,
@@ -90,6 +108,8 @@ export default function TimeProgressScreen() {
     hoursLeftToday: 0,
     daysCrossed: 0,
     hoursCompleted: 0,
+    officeHoursCompleted: 0,
+    officeHoursLeft: 0,
   });
 
   const [fontsLoaded] = useFonts({
@@ -98,20 +118,26 @@ export default function TimeProgressScreen() {
     Kalam_700Bold,
   });
 
-  // Load saved perspective on app start
+  // Load saved settings on app start
   useEffect(() => {
-    const loadPerspective = async () => {
+    const loadSettings = async () => {
       try {
         const savedPerspective = await AsyncStorage.getItem("userPerspective");
+        const savedTimeMode = await AsyncStorage.getItem("timeMode");
+        
         if (savedPerspective) {
           setPerspective(savedPerspective);
           setHasCompletedOnboarding(true);
         }
+        
+        if (savedTimeMode) {
+          setTimeMode(savedTimeMode);
+        }
       } catch (error) {
-        console.error("Error loading perspective:", error);
+        console.error("Error loading settings:", error);
       }
     };
-    loadPerspective();
+    loadSettings();
   }, []);
 
   const calculateTimeProgress = useCallback(() => {
@@ -143,7 +169,7 @@ export default function TimeProgressScreen() {
     );
     const daysCrossed = currentDate - 1; // Days that have been completed
 
-    // Day progress
+    // Day progress (24-hour mode)
     const startOfDay = new Date(currentYear, currentMonth, currentDate);
     const endOfDay = new Date(currentYear, currentMonth, currentDate + 1);
     const dayTotal = endOfDay - startOfDay;
@@ -152,6 +178,28 @@ export default function TimeProgressScreen() {
     const dayCompleted = Math.round(dayProgress);
     const hoursLeftToday = Math.ceil((endOfDay - now) / (1000 * 60 * 60));
     const hoursCompleted = currentHour + (currentMinute > 30 ? 1 : 0); // Round to nearest hour
+
+    // Office hours progress (9-5 mode)
+    const startOfOfficeDay = new Date(currentYear, currentMonth, currentDate, 9, 0);
+    const endOfOfficeDay = new Date(currentYear, currentMonth, currentDate, 17, 0);
+    const officeHoursTotal = 8; // 9 AM to 5 PM = 8 hours
+    let officeHoursCompleted = 0;
+    let officeHoursLeft = 8;
+
+    if (now >= startOfOfficeDay && now <= endOfOfficeDay) {
+      // Currently in office hours
+      const officeElapsed = now - startOfOfficeDay;
+      officeHoursCompleted = Math.min(Math.floor(officeElapsed / (1000 * 60 * 60)), 8);
+      officeHoursLeft = officeHoursTotal - officeHoursCompleted;
+    } else if (now > endOfOfficeDay) {
+      // Office hours completed
+      officeHoursCompleted = 8;
+      officeHoursLeft = 0;
+    } else {
+      // Before office hours
+      officeHoursCompleted = 0;
+      officeHoursLeft = 8;
+    }
 
     setTimeData({
       yearProgress,
@@ -165,6 +213,8 @@ export default function TimeProgressScreen() {
       hoursLeftToday,
       daysCrossed,
       hoursCompleted,
+      officeHoursCompleted,
+      officeHoursLeft,
     });
   }, []);
 
@@ -187,6 +237,32 @@ export default function TimeProgressScreen() {
     }
   }, []);
 
+  const handleTimeModeChange = useCallback(async (mode) => {
+    await Haptics.selectionAsync();
+    setTimeMode(mode);
+    setShowSettings(false);
+
+    // Save time mode to storage
+    try {
+      await AsyncStorage.setItem("timeMode", mode);
+    } catch (error) {
+      console.error("Error saving time mode:", error);
+    }
+  }, []);
+
+  const handlePerspectiveChange = useCallback(async (newPerspective) => {
+    await Haptics.selectionAsync();
+    setPerspective(newPerspective);
+    setShowSettings(false);
+
+    // Save perspective to storage
+    try {
+      await AsyncStorage.setItem("userPerspective", newPerspective);
+    } catch (error) {
+      console.error("Error saving perspective:", error);
+    }
+  }, []);
+
   const renderTallyCounter = useCallback(
     (label, value, unit, perspective) => {
       let total, completed;
@@ -204,9 +280,14 @@ export default function TimeProgressScreen() {
         total = daysInMonth;
         completed = timeData.daysCrossed; // Always show days completed as crossed
       } else {
-        // Today
-        total = 24;
-        completed = timeData.hoursCompleted; // Always show hours completed as crossed
+        // Today - depends on time mode
+        if (timeMode === '9-5') {
+          total = 8; // Office hours
+          completed = timeData.officeHoursCompleted;
+        } else {
+          total = 24; // 24-hour mode
+          completed = timeData.hoursCompleted;
+        }
       }
 
       return (
@@ -219,7 +300,7 @@ export default function TimeProgressScreen() {
         />
       );
     },
-    [timeData],
+    [timeData, timeMode],
   );
 
   if (!fontsLoaded) {
@@ -229,6 +310,13 @@ export default function TimeProgressScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
+
+      {/* Settings Icon */}
+      {hasCompletedOnboarding && (
+        <View style={[styles.header, { top: insets.top + 10 }]}>
+          <SettingsIcon onPress={() => setShowSettings(true)} />
+        </View>
+      )}
 
       <View
         style={[
@@ -273,8 +361,8 @@ export default function TimeProgressScreen() {
               <>
                 {renderTallyCounter(
                   "Today",
-                  timeData.hoursCompleted,
-                  "hours completed",
+                  timeMode === '9-5' ? timeData.officeHoursCompleted : timeData.hoursCompleted,
+                  timeMode === '9-5' ? "office hours completed" : "hours completed",
                   perspective,
                 )}
 
@@ -296,8 +384,8 @@ export default function TimeProgressScreen() {
               <>
                 {renderTallyCounter(
                   "Today",
-                  timeData.hoursLeftToday,
-                  "hours left",
+                  timeMode === '9-5' ? timeData.officeHoursLeft : timeData.hoursLeftToday,
+                  timeMode === '9-5' ? "office hours left" : "hours left",
                   perspective,
                 )}
 
@@ -319,6 +407,97 @@ export default function TimeProgressScreen() {
           </View>
         )}
       </View>
+
+      {/* Settings Modal */}
+      <Modal
+        visible={showSettings}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowSettings(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Settings</Text>
+            
+            {/* Perspective Setting */}
+            <View style={styles.settingSection}>
+              <Text style={styles.settingLabel}>Glass Perspective</Text>
+              <View style={styles.settingButtons}>
+                <TouchableOpacity
+                  onPress={() => handlePerspectiveChange("half-full")}
+                  style={[
+                    styles.settingButton,
+                    perspective === "half-full" && styles.settingButtonActive,
+                  ]}
+                >
+                  <Text style={[
+                    styles.settingButtonText,
+                    perspective === "half-full" && styles.settingButtonTextActive,
+                  ]}>
+                    Half Full
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handlePerspectiveChange("half-empty")}
+                  style={[
+                    styles.settingButton,
+                    perspective === "half-empty" && styles.settingButtonActive,
+                  ]}
+                >
+                  <Text style={[
+                    styles.settingButtonText,
+                    perspective === "half-empty" && styles.settingButtonTextActive,
+                  ]}>
+                    Half Empty
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Time Mode Setting */}
+            <View style={styles.settingSection}>
+              <Text style={styles.settingLabel}>Today's Time Mode</Text>
+              <View style={styles.settingButtons}>
+                <TouchableOpacity
+                  onPress={() => handleTimeModeChange("24h")}
+                  style={[
+                    styles.settingButton,
+                    timeMode === "24h" && styles.settingButtonActive,
+                  ]}
+                >
+                  <Text style={[
+                    styles.settingButtonText,
+                    timeMode === "24h" && styles.settingButtonTextActive,
+                  ]}>
+                    24 Hours
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleTimeModeChange("9-5")}
+                  style={[
+                    styles.settingButton,
+                    timeMode === "9-5" && styles.settingButtonActive,
+                  ]}
+                >
+                  <Text style={[
+                    styles.settingButtonText,
+                    timeMode === "9-5" && styles.settingButtonTextActive,
+                  ]}>
+                    9-5 Office Hours
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setShowSettings(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -420,5 +599,101 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(34, 34, 34, 0.7)",
     borderRadius: 1,
     transform: [{ rotate: "45deg" }],
+  },
+  header: {
+    position: "absolute",
+    right: 20,
+    zIndex: 10,
+  },
+  settingsButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#ffffff",
+    borderRadius: 20,
+    padding: 30,
+    margin: 20,
+    maxWidth: 320,
+    width: "90%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontFamily: "Kalam_700Bold",
+    fontSize: 24,
+    color: "#222222",
+    textAlign: "center",
+    marginBottom: 30,
+  },
+  settingSection: {
+    marginBottom: 25,
+  },
+  settingLabel: {
+    fontFamily: "Kalam_400Regular",
+    fontSize: 16,
+    color: "#666666",
+    marginBottom: 12,
+  },
+  settingButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  settingButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#e0e0e0",
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+  },
+  settingButtonActive: {
+    borderColor: "#222222",
+    backgroundColor: "#222222",
+  },
+  settingButtonText: {
+    fontFamily: "Kalam_400Regular",
+    fontSize: 14,
+    color: "#666666",
+  },
+  settingButtonTextActive: {
+    fontFamily: "Kalam_700Bold",
+    color: "#ffffff",
+  },
+  closeButton: {
+    marginTop: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    backgroundColor: "#f5f5f5",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    fontFamily: "Kalam_700Bold",
+    fontSize: 16,
+    color: "#222222",
   },
 });
