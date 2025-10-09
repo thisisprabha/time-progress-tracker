@@ -1,13 +1,17 @@
 {
 	"expo": {
-    "name": "Create mobile app",
+    "name": "Time Progress Tracker",
 		"version": "1.0.0",
+		"description": "Track your daily, monthly, and yearly progress with a unique perspective-based approach. Choose your glass perspective and see time differently.",
+		"slug": "time-progress-tracker",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "automatic",
 		"newArchEnabled": true,
 		"ios": {
 			"supportsTablet": true,
+			"bundleIdentifier": "com.timeprogresstracker.app",
+			"buildNumber": "1",
 			"infoPlist": {
 				"ITSAppUsesNonExemptEncryption": false
 			}
@@ -21,7 +25,8 @@
 				"android.permission.RECORD_AUDIO",
 				"android.permission.MODIFY_AUDIO_SETTINGS"
 			],
-			"package": "xyz.create.CreateExpoEnvironment"
+			"package": "com.timeprogresstracker.app",
+			"versionCode": 1
 		},
 		"plugins": [
 			[
