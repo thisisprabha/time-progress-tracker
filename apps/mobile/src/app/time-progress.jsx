@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 2.5,
     height: 24,
-    backgroundColor: "rgba(34, 34, 34, 0.7)",
+    backgroundColor: "rgba(34, 34, 34, 0.4)",
     borderRadius: 1,
     transform: [{ rotate: "45deg" }],
   },
