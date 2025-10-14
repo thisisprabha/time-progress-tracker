@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@android:color/transparent">
+
+    <TextView
+        android:id="@+id/today_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Today"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:fontFamily="cursive"
+        android:gravity="start" />
+
+    <TextView
+        android:id="@+id/today_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="6h left"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:fontFamily="cursive"
+        android:gravity="start" />
+
+    <TextView
+        android:id="@+id/month_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This Month"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:fontFamily="cursive"
+        android:gravity="start" />
+
+    <TextView
+        android:id="@+id/month_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="19 days left"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:fontFamily="cursive"
+        android:gravity="start" />
+
+</LinearLayout>

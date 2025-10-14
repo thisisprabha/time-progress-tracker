@@ -31,7 +31,7 @@ class TimeProgressWidget : AppWidgetProvider() {
 
     companion object {
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            val views = RemoteViews(context.packageName, R.layout.time_progress_widget)
+            val views = RemoteViews(context.packageName, R.layout.time_progress_widget_simple)
             
             // Calculate time progress
             val timeData = calculateTimeProgress(context)
@@ -44,13 +44,6 @@ class TimeProgressWidget : AppWidgetProvider() {
             views.setTextViewText(R.id.month_label, "This Month")
             views.setTextViewText(R.id.month_text, getProgressText(timeData.monthCompleted, timeData.monthTotal, " days", timeData.perspective))
             
-            // Update Year progress
-            views.setTextViewText(R.id.year_label, "This Year")
-            views.setTextViewText(R.id.year_text, getProgressText(timeData.yearCompleted, timeData.yearTotal, " days", timeData.perspective))
-            
-            // Create tally marks for each section
-            createTallyMarks(context, views, timeData)
-            
             // Set click intent to open app
             val intent = Intent(context, MainActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -61,46 +54,33 @@ class TimeProgressWidget : AppWidgetProvider() {
         
         private fun createTallyMarks(context: Context, views: RemoteViews, timeData: TimeData) {
             // Create Today tally marks
-            createTallyMarksForSection(context, views, R.id.today_completed_marks, R.id.today_remaining_marks, timeData.todayCompleted, timeData.todayTotal)
+            createTallyMarksForSection(views, R.id.today_completed_marks, R.id.today_remaining_marks, timeData.todayCompleted, timeData.todayTotal)
             
             // Create Month tally marks
-            createTallyMarksForSection(context, views, R.id.month_completed_marks, R.id.month_remaining_marks, timeData.monthCompleted, timeData.monthTotal)
+            createTallyMarksForSection(views, R.id.month_completed_marks, R.id.month_remaining_marks, timeData.monthCompleted, timeData.monthTotal)
             
             // Create Year tally marks
-            createTallyMarksForSection(context, views, R.id.year_completed_marks, R.id.year_remaining_marks, timeData.yearCompleted, timeData.yearTotal)
+            createTallyMarksForSection(views, R.id.year_completed_marks, R.id.year_remaining_marks, timeData.yearCompleted, timeData.yearTotal)
         }
         
-        private fun createTallyMarksForSection(context: Context, views: RemoteViews, completedContainerId: Int, remainingContainerId: Int, completed: Int, total: Int) {
+        private fun createTallyMarksForSection(views: RemoteViews, completedContainerId: Int, remainingContainerId: Int, completed: Int, total: Int) {
             val remaining = total - completed
             
-            // Clear existing views
-            views.removeAllViews(completedContainerId)
-            views.removeAllViews(remainingContainerId)
-            
-            // Add completed marks (X marks) - limit to 20 for display, slightly duller
+            // Create tally marks as text strings
             val maxDisplay = 20
             val completedToShow = minOf(completed, maxDisplay)
-            for (i in 0 until completedToShow) {
-                val textView = TextView(context).apply {
-                    text = "✗"
-                    textSize = 12f
-                    setTextColor(context.getColor(android.R.color.black).withAlpha(153)) // 60% opacity
-                    typeface = android.graphics.Typeface.DEFAULT
-                }
-                views.addView(completedContainerId, textView)
-            }
-            
-            // Add remaining marks (I marks) - limit to 20 for display, full opacity
             val remainingToShow = minOf(remaining, maxDisplay)
-            for (i in 0 until remainingToShow) {
-                val textView = TextView(context).apply {
-                    text = "|"
-                    textSize = 12f
-                    setTextColor(context.getColor(android.R.color.black)) // Full opacity
-                    typeface = android.graphics.Typeface.DEFAULT
-                }
-                views.addView(remainingContainerId, textView)
-            }
+            
+            val completedMarks = "✗".repeat(completedToShow)
+            val remainingMarks = "|".repeat(remainingToShow)
+            
+            // Set text for completed marks (duller)
+            views.setTextViewText(completedContainerId, completedMarks)
+            views.setTextColor(completedContainerId, android.graphics.Color.argb(153, 0, 0, 0)) // 60% opacity
+            
+            // Set text for remaining marks (full opacity)
+            views.setTextViewText(remainingContainerId, remainingMarks)
+            views.setTextColor(remainingContainerId, android.graphics.Color.BLACK) // Full opacity
         }
         
         private fun calculateTimeProgress(context: Context): TimeData {

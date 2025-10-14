@@ -53,18 +53,24 @@
             android:layout_marginTop="4dp">
 
             <!-- Completed marks (X marks) -->
-            <LinearLayout
+            <TextView
                 android:id="@+id/today_completed_marks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                android:text="✗✗✗✗✗"
+                android:textSize="12sp"
+                android:fontFamily="cursive"
+                android:gravity="start" />
 
             <!-- Remaining marks (I marks) -->
-            <LinearLayout
+            <TextView
                 android:id="@+id/today_remaining_marks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:text="|||||"
+                android:textSize="12sp"
+                android:fontFamily="cursive"
+                android:gravity="start"
                 android:layout_marginTop="2dp" />
 
         </LinearLayout>
@@ -117,18 +123,24 @@
             android:layout_marginTop="4dp">
 
             <!-- Completed marks (X marks) -->
-            <LinearLayout
+            <TextView
                 android:id="@+id/month_completed_marks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                android:text="✗✗✗✗✗✗✗✗✗✗✗✗"
+                android:textSize="12sp"
+                android:fontFamily="cursive"
+                android:gravity="start" />
 
             <!-- Remaining marks (I marks) -->
-            <LinearLayout
+            <TextView
                 android:id="@+id/month_remaining_marks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:text="||||||||||||||||||||"
+                android:textSize="12sp"
+                android:fontFamily="cursive"
+                android:gravity="start"
                 android:layout_marginTop="2dp" />
 
         </LinearLayout>
