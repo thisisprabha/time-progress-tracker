@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  Platform,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,6 +19,16 @@ import {
   Kalam_400Regular,
   Kalam_700Bold,
 } from "@expo-google-fonts/kalam";
+
+// Conditionally import AdMob for Android only
+let MobileAds, BannerAd, BannerAdSize, TestIds;
+if (Platform.OS === 'android') {
+  const GoogleMobileAds = require('react-native-google-mobile-ads');
+  MobileAds = GoogleMobileAds.MobileAds;
+  BannerAd = GoogleMobileAds.BannerAd;
+  BannerAdSize = GoogleMobileAds.BannerAdSize;
+  TestIds = GoogleMobileAds.TestIds;
+}
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -96,6 +107,8 @@ export default function TimeProgressScreen() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [timeMode, setTimeMode] = useState('24h'); // '24h' or '9-5'
+  const [adLoaded, setAdLoaded] = useState(false);
+  const [adTimeout, setAdTimeout] = useState(false);
   const [timeData, setTimeData] = useState({
     yearProgress: 0,
     monthProgress: 0,
@@ -139,6 +152,36 @@ export default function TimeProgressScreen() {
     };
     loadSettings();
   }, []);
+
+  // Initialize AdMob (Android only)
+  useEffect(() => {
+    if (Platform.OS === 'android' && MobileAds) {
+      MobileAds()
+        .setRequestConfiguration({
+          // Set your test device IDs here
+          testDeviceIdentifiers: ['EMULATOR'],
+        })
+        .then(() => {
+          // Initialize the Google Mobile Ads SDK
+          return MobileAds().initialize();
+        })
+        .then(() => {
+          console.log('AdMob initialized successfully');
+        })
+        .catch((error) => {
+          console.error('AdMob initialization failed:', error);
+        });
+
+      // Set ad timeout fallback
+      const timer = setTimeout(() => {
+        if (!adLoaded) {
+          setAdTimeout(true);
+        }
+      }, 12000); // 12 seconds timeout
+
+      return () => clearTimeout(timer);
+    }
+  }, [adLoaded]);
 
   const calculateTimeProgress = useCallback(() => {
     const now = new Date();
@@ -498,6 +541,30 @@ export default function TimeProgressScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* AdMob Banner (Android only) */}
+      {Platform.OS === 'android' && (
+        <View style={[styles.bannerContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+          {BannerAd && !adTimeout ? (
+            <BannerAd
+              unitId={TestIds.BANNER}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+              onAdLoaded={() => {
+                console.log('Banner ad loaded');
+                setAdLoaded(true);
+              }}
+              onAdFailedToLoad={(error) => {
+                console.error('Banner ad failed to load:', error);
+                setAdTimeout(true);
+              }}
+            />
+          ) : (
+            <View style={styles.adPlaceholder}>
+              <Text style={styles.adPlaceholderText}>Ad (test)</Text>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -695,5 +762,33 @@ const styles = StyleSheet.create({
     fontFamily: "Kalam_700Bold",
     fontSize: 16,
     color: "#222222",
+  },
+  bannerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    alignItems: 'center',
+    paddingTop: 8,
+  },
+  adPlaceholder: {
+    height: 50,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+  },
+  adPlaceholderText: {
+    fontFamily: 'Kalam_400Regular',
+    fontSize: 14,
+    color: '#999999',
   },
 });
