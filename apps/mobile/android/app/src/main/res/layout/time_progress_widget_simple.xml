@@ -2,50 +2,93 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
-    android:background="@android:color/transparent">
+    android:background="@drawable/widget_background_rounded">
 
-    <TextView
-        android:id="@+id/today_label"
+    <!-- Today Section -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Today"
-        android:textSize="14sp"
-        android:textColor="@android:color/black"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/today_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Today"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:fontFamily="cursive"
+            android:gravity="start" />
+
+        <TextView
+            android:id="@+id/today_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="6h left"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            android:fontFamily="cursive"
+            android:gravity="end" />
+
+    </LinearLayout>
+
+    <!-- Today Tally Marks -->
+    <TextView
+        android:id="@+id/today_tally"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorPrimary"
         android:fontFamily="cursive"
-        android:gravity="start" />
+        android:gravity="start"
+        android:layout_marginBottom="4dp" />
 
-    <TextView
-        android:id="@+id/today_text"
+    <!-- Month Section -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="6h left"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:fontFamily="cursive"
-        android:gravity="start" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
 
+        <TextView
+            android:id="@+id/month_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="This Month"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:fontFamily="cursive"
+            android:gravity="start" />
+
+        <TextView
+            android:id="@+id/month_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="19 days left"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            android:fontFamily="cursive"
+            android:gravity="end" />
+
+    </LinearLayout>
+
+    <!-- Month Tally Marks -->
     <TextView
-        android:id="@+id/month_label"
+        android:id="@+id/month_tally"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="This Month"
-        android:textSize="14sp"
-        android:textColor="@android:color/black"
-        android:fontFamily="cursive"
-        android:gravity="start" />
-
-    <TextView
-        android:id="@+id/month_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="19 days left"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:text="✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗✗"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorPrimary"
         android:fontFamily="cursive"
         android:gravity="start" />
 
