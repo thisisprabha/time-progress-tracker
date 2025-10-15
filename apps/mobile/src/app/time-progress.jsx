@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Dimensions,
   Modal,
   Platform,
+  Animated,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,46 +33,96 @@ if (Platform.OS === 'android') {
 
 const { width: screenWidth } = Dimensions.get("window");
 
-const WaterGlassIcon = ({ isHalfFull = true }) => (
-  <Svg width="120" height="160" viewBox="0 0 120 160">
-    {/* Glass outline */}
-    <Path
-      d="M30 20 L90 20 L85 140 L35 140 Z"
-      fill="none"
-      stroke="#666666"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+const WaterGlassIcon = ({ isHalfFull = true }) => {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-    {/* Water */}
-    <Path
-      d="M32 80 L88 80 L84.5 138 L36.5 138 Z"
-      fill={isHalfFull ? "#333333" : "transparent"}
-      opacity={isHalfFull ? 0.6 : 0}
-    />
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, []);
 
-    {/* Water surface line */}
-    {isHalfFull && (
-      <Path d="M32 80 L88 80" stroke="#333333" strokeWidth="2" opacity={0.8} />
-    )}
-  </Svg>
-);
+  return (
+    <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+      <Svg width="120" height="160" viewBox="0 0 120 160">
+        {/* Glass outline */}
+        <Path
+          d="M30 20 L90 20 L85 140 L35 140 Z"
+          fill="none"
+          stroke="#666666"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
 
-const SettingsIcon = ({ onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.settingsButton}>
-    <Svg width="24" height="24" viewBox="0 0 24 24">
-      <Path
-        d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5M19.43 12.97c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"
-        fill="#666666"
-        stroke="#666666"
-        strokeWidth="0.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  </TouchableOpacity>
-);
+        {/* Water */}
+        <Path
+          d="M32 80 L88 80 L84.5 138 L36.5 138 Z"
+          fill={isHalfFull ? "#333333" : "transparent"}
+          opacity={isHalfFull ? 0.6 : 0}
+        />
+
+        {/* Water surface line */}
+        {isHalfFull && (
+          <Path d="M32 80 L88 80" stroke="#333333" strokeWidth="2" opacity={0.8} />
+        )}
+      </Svg>
+    </Animated.View>
+  );
+};
+
+const SettingsIcon = ({ onPress }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity 
+        onPress={onPress} 
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={styles.settingsButton}
+      >
+        <Svg width="24" height="24" viewBox="0 0 24 24">
+          <Path
+            d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5M19.43 12.97c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"
+            fill="#666666"
+            stroke="#666666"
+            strokeWidth="0.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 const TallyCounter = ({ total, completed, label, value, unit }) => {
   const renderTallyMark = (index, isCrossed) => (
@@ -109,6 +160,7 @@ export default function TimeProgressScreen() {
   const [timeMode, setTimeMode] = useState('24h'); // '24h' or '9-5'
   const [adLoaded, setAdLoaded] = useState(false);
   const [adTimeout, setAdTimeout] = useState(false);
+  const modalScaleAnim = useRef(new Animated.Value(0)).current;
   const [timeData, setTimeData] = useState({
     yearProgress: 0,
     monthProgress: 0,
@@ -182,6 +234,24 @@ export default function TimeProgressScreen() {
       return () => clearTimeout(timer);
     }
   }, [adLoaded]);
+
+  // Modal animation effect
+  useEffect(() => {
+    if (showSettings) {
+      Animated.spring(modalScaleAnim, {
+        toValue: 1,
+        tension: 100,
+        friction: 8,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(modalScaleAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [showSettings]);
 
   const calculateTimeProgress = useCallback(() => {
     const now = new Date();
@@ -378,7 +448,7 @@ export default function TimeProgressScreen() {
             </View>
 
             <Text style={styles.questionText}>
-              Is this glass half full or half empty?
+              How do you see this glass?{'\n'}Your perspective shapes how you'll track time.
             </Text>
 
             <View style={styles.perspectiveButtons}>
@@ -405,21 +475,21 @@ export default function TimeProgressScreen() {
                 {renderTallyCounter(
                   "Today",
                   timeMode === '9-5' ? timeData.officeHoursCompleted : timeData.hoursCompleted,
-                  timeMode === '9-5' ? "office hours completed" : "hours completed",
+                  timeMode === '9-5' ? "office hours done" : "hours done",
                   perspective,
                 )}
 
                 {renderTallyCounter(
                   "This Month",
                   timeData.daysCrossed,
-                  "days crossed",
+                  "days done",
                   perspective,
                 )}
 
                 {renderTallyCounter(
                   "This Year",
                   timeData.yearCompleted,
-                  "% completed",
+                  "% done",
                   perspective,
                 )}
               </>
@@ -428,21 +498,21 @@ export default function TimeProgressScreen() {
                 {renderTallyCounter(
                   "Today",
                   timeMode === '9-5' ? timeData.officeHoursLeft : timeData.hoursLeftToday,
-                  timeMode === '9-5' ? "office hours left" : "hours left",
+                  timeMode === '9-5' ? "office hours remaining" : "hours remaining",
                   perspective,
                 )}
 
                 {renderTallyCounter(
                   "This Month",
                   timeData.daysLeftInMonth,
-                  "days left",
+                  "days remaining",
                   perspective,
                 )}
 
                 {renderTallyCounter(
                   "This Year",
                   timeData.yearPercentLeft,
-                  "% left",
+                  "% remaining",
                   perspective,
                 )}
               </>
@@ -455,11 +525,27 @@ export default function TimeProgressScreen() {
       <Modal
         visible={showSettings}
         transparent={true}
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setShowSettings(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <Animated.View 
+            style={[
+              styles.modalContent,
+              {
+                transform: [
+                  { scale: modalScaleAnim },
+                  { 
+                    translateY: modalScaleAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [50, 0],
+                    })
+                  }
+                ],
+                opacity: modalScaleAnim,
+              }
+            ]}
+          >
             <Text style={styles.modalTitle}>Settings</Text>
             
             {/* AdMob Banner in Settings (Android only) */}
@@ -486,7 +572,7 @@ export default function TimeProgressScreen() {
             
             {/* Perspective Setting */}
             <View style={styles.settingSection}>
-              <Text style={styles.settingLabel}>Glass Perspective</Text>
+              <Text style={styles.settingLabel}>Your Mindset</Text>
               <View style={styles.settingButtons}>
                 <TouchableOpacity
                   onPress={() => handlePerspectiveChange("half-full")}
@@ -521,7 +607,7 @@ export default function TimeProgressScreen() {
 
             {/* Time Mode Setting */}
             <View style={styles.settingSection}>
-              <Text style={styles.settingLabel}>Today's Time Mode</Text>
+              <Text style={styles.settingLabel}>Daily Tracking</Text>
               <View style={styles.settingButtons}>
                 <TouchableOpacity
                   onPress={() => handleTimeModeChange("24h")}
@@ -560,7 +646,7 @@ export default function TimeProgressScreen() {
             >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
 
