@@ -48,6 +48,12 @@ npx expo run:ios
 - **Time Format**: Switch between 24h and 9-5 office hours
 - **Persistent Storage**: Settings saved across app sessions
 
+### 💰 Monetization (Android)
+- **Google AdMob Integration**: Banner ads with test configuration
+- **Dual Ad Placement**: Main screen bottom + Settings modal top
+- **Fallback System**: "Ad (test)" placeholder with 12-second timeout
+- **Non-Intrusive**: Ads positioned to maintain user experience
+
 ## 📱 How to Use
 
 ### Main App
@@ -73,6 +79,7 @@ npx expo run:ios
 - **React Native Reanimated** for animations
 - **iOS WidgetKit** (Swift/SwiftUI) for iOS widgets
 - **Android AppWidgetProvider** (Kotlin) for Android widgets
+- **Google AdMob** (react-native-google-mobile-ads) for monetization
 
 ### Project Structure
 ```
