@@ -1,156 +1,213 @@
-# Time Progress Tracker 📊
+# Time Progress Tracker
 
-A beautiful React Native app that tracks your daily, monthly, and yearly progress with a unique perspective-based approach. Choose your glass perspective and see time differently!
+A unique time tracking app that helps you visualize your daily, monthly, and yearly progress with a perspective-based approach. Choose between optimistic (glass half-full) or pessimistic (glass half-empty) views to see time differently.
 
-## 🚀 Quick Start
+## 🚀 Features
+
+### Core Functionality
+- **Perspective-Based Tracking**: Switch between optimistic and pessimistic views
+- **Multiple Time Modes**: 24-hour format or 9-5 office hours
+- **Visual Progress**: Tally marks (✗ for completed, | for remaining) instead of boring progress bars
+- **Handwritten Style**: Custom fonts for a personal, handwritten feel
+- **Real-time Updates**: Live progress tracking throughout the day
+
+### Time Tracking
+- **Today**: Hours completed/remaining (24h or 9-5 mode)
+- **This Month**: Days completed/remaining in current month
+- **This Year**: Days completed/remaining in current year
+
+### Cross-Platform Support
+- **iOS App**: Native iOS app with WidgetKit widgets
+- **Android App**: Native Android app with AppWidgetProvider widgets
+- **Web App**: Progressive Web App (PWA) support
+
+## 📱 Native Widgets
+
+### iOS Widget
+- **Small**: Shows hours left/completed for today
+- **Medium**: Shows today and month progress with tally marks
+- **Large**: Shows all three (today, month, year) with visual progress
+
+### Android Widget
+- **Dynamic Sizing**: Adapts to content height
+- **Rounded Corners**: 12dp radius for modern look
+- **Theme Support**: Automatically adapts to light/dark themes
+- **Tally Marks**: Visual progress with ✗ and | characters
+
+## 🛠 Technical Stack
+
+- **Framework**: React Native with Expo
+- **Platform**: iOS, Android, Web
+- **State Management**: React hooks with AsyncStorage
+- **Styling**: StyleSheet with custom fonts
+- **Widgets**: 
+  - iOS: WidgetKit (Swift/SwiftUI)
+  - Android: AppWidgetProvider (Kotlin)
+- **Build System**: EAS Build for deployment
+
+## 📦 Installation & Setup
 
 ### Prerequisites
 - Node.js (v18+)
-- Expo CLI: `npm install -g @expo/cli`
-- Expo Go app on your phone (iOS/Android)
+- npm or yarn
+- Expo CLI
+- iOS Simulator (for iOS development)
+- Android Studio (for Android development)
 
-### Installation & Run
+### Quick Start
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/time-progress-tracker.git
+cd time-progress-tracker
+
 # Install dependencies
 cd apps/mobile
 npm install
 
 # Start development server
 npx expo start
-
-# Scan QR code with Expo Go app
-# OR open in browser: http://localhost:8081
 ```
 
-## ✨ Features
-
-### 🎯 Core Functionality
-- **Time Progress Tracking**: See how much of today, this month, and this year has passed
-- **Perspective Toggle**: Switch between "Half Full" (optimistic) and "Half Empty" (pessimistic) views
-- **Time Modes**: Choose between 24-hour format or 9-5 office hours
-- **Haptic Feedback**: Feel vibrations when interacting (mobile)
-- **Smooth Animations**: Beautiful transitions and micro-interactions
-
-### 🎨 Design
-- **Handwritten Font**: Consistent Kalam font throughout
-- **Modern UI**: Clean, intuitive interface
-- **Responsive**: Works on phones, tablets, and web
-- **Dark/Light Mode**: Automatic theme switching
-
-### ⚙️ Settings
-- **Settings Icon**: Gear icon in top-right corner
-- **Perspective Control**: Toggle between optimistic/pessimistic views
-- **Time Format**: Switch between 24h and 9-5 office hours
-- **Persistent Storage**: Settings saved across app sessions
-
-## 📱 How to Use
-
-1. **Open the app** - You'll see your time progress with current perspective
-2. **Tap settings icon** (⚙️) in top-right corner
-3. **Choose perspective**: Half Full (optimistic) or Half Empty (pessimistic)
-4. **Select time mode**: 24 Hours or 9-5 Office Hours
-5. **Settings auto-save** - Your preferences are remembered
-
-## 🛠️ Technical Details
-
-### Built With
-- **React Native** with Expo SDK 54
-- **Expo Router** for navigation
-- **AsyncStorage** for data persistence
-- **React Native SVG** for icons
-- **React Native Reanimated** for animations
-
-### Project Structure
-```
-apps/mobile/
-├── src/app/
-│   ├── index.jsx          # App entry point
-│   └── time-progress.jsx  # Main component
-├── app.json               # Expo configuration
-└── package.json           # Dependencies
-```
-
-### Key Components
-- **TimeProgress**: Main component with progress calculations
-- **SettingsIcon**: Gear icon with press handler
-- **SettingsModal**: Modal for changing preferences
-- **TallyCounter**: Animated progress indicators
-
-## 🎯 What It Does
-
-### Time Calculations
-- **Today**: Hours completed vs total hours (24h or 8h office)
-- **This Month**: Days completed vs total days in month
-- **This Year**: Days completed vs total days in year
-
-### Perspective Logic
-- **Half Full**: Shows completed time (what you've accomplished)
-- **Half Empty**: Shows remaining time (what's left to do)
-
-### Office Hours Mode
-- **9 AM - 5 PM**: 8-hour workday calculation
-- **Weekdays Only**: Excludes weekends from calculations
-- **Real-time Updates**: Updates every minute
-
-## 🔧 Development
-
-### Available Scripts
+### Development Commands
 ```bash
-npm start          # Start Expo development server
-npm run web        # Run in web browser
-npm run ios        # Run on iOS simulator
-npm run android    # Run on Android emulator
+# Start Expo development server
+npx expo start
+
+# Run on iOS simulator
+npx expo run:ios
+
+# Run on Android device/emulator
+npx expo run:android
+
+# Build for production
+npx eas build --platform all
 ```
-
-### Environment Setup
-- **Web**: `http://localhost:8081`
-- **Mobile**: Scan QR code with Expo Go
-- **Simulator**: Use iOS Simulator or Android Studio
-
-## 📦 Deployment
-
-### Build for Production
-```bash
-# Install EAS CLI
-npm install -g @expo/eas-cli
-
-# Login to Expo
-eas login
-
-# Build for app stores
-eas build --platform all
-```
-
-### App Store Submission
-- **Android**: Google Play Store ready
-- **iOS**: Apple App Store ready
-- **Bundle ID**: `com.timeprogresstracker.app`
 
 ## 🎨 Customization
 
-### Colors & Themes
-- Modify colors in `time-progress.jsx` styles
-- Add new themes in the StyleSheet
-- Customize animations in Reanimated components
+### Changing Perspectives
+- Tap the settings icon (⚙️) in the top right
+- Choose between "Optimistic" or "Pessimistic"
+- Settings are automatically saved
 
-### Features
-- Add new time calculations
-- Implement new perspective modes
-- Add notification reminders
-- Create data export functionality
+### Time Mode Selection
+- In settings, choose between:
+  - **24h**: Full day tracking (24 hours)
+  - **9-5**: Office hours tracking (9 AM to 5 PM)
 
-## 🐛 Troubleshooting
+### Widget Configuration
+- **iOS**: Long press widget → Edit Widget → Configure
+- **Android**: Widget automatically uses app settings
 
-### Common Issues
-- **Version Mismatch**: Use `npx expo install --fix`
-- **Metro Cache**: Run `npx expo start --clear`
-- **Dependencies**: Use `npm install --legacy-peer-deps`
+## 📱 Platform-Specific Setup
 
-### Mobile Testing
-- **Expo Go**: Scan QR code or enter URL manually
-- **Web Browser**: Works perfectly on mobile browsers
-- **Development Build**: Use `expo-dev-client` for custom builds
+### iOS Development
+```bash
+# Install iOS dependencies
+cd ios
+pod install
+
+# Run on iOS simulator
+npx expo run:ios
+```
+
+### Android Development
+```bash
+# Set up Android SDK
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+# Run on Android device
+npx expo run:android
+```
+
+## 🚀 Deployment
+
+### App Store (iOS)
+1. Build with EAS: `npx eas build --platform ios`
+2. Upload to App Store Connect
+3. Submit for review
+
+### Google Play Store (Android)
+1. Build with EAS: `npx eas build --platform android`
+2. Upload to Google Play Console
+3. Submit for review
+
+### Web Deployment
+1. Build web version: `npx expo export --platform web`
+2. Deploy to hosting service (Vercel, Netlify, etc.)
+
+## 📊 Widget Implementation
+
+### iOS Widget (WidgetKit)
+- **Location**: `ios/TimeProgressWidget/`
+- **Language**: Swift with SwiftUI
+- **Features**: Multiple sizes, configuration, live updates
+
+### Android Widget (AppWidgetProvider)
+- **Location**: `android/app/src/main/java/com/timeprogresstracker/app/widget/`
+- **Language**: Kotlin
+- **Features**: Dynamic sizing, theme support, rounded corners
+
+## 🔧 Configuration
+
+### App Configuration (`app.json`)
+```json
+{
+  "expo": {
+    "name": "Time Progress Tracker",
+    "slug": "time-progress-tracker",
+    "version": "1.0.0",
+    "platforms": ["ios", "android", "web"]
+  }
+}
+```
+
+### Widget Settings
+- **Update Frequency**: Every 15 minutes
+- **Resize Options**: All sizes supported
+- **Configuration**: Built-in settings panel
+
+## 📈 Progress Calculation
+
+### Time Logic
+- **Today**: Current hour vs total hours (24 or 8)
+- **Month**: Current day vs total days in month
+- **Year**: Current day vs total days in year
+
+### Perspective Logic
+- **Optimistic**: Shows completed progress ("5h completed")
+- **Pessimistic**: Shows remaining progress ("19h left")
+
+## 🎯 Future Enhancements
+
+- [ ] Custom time ranges
+- [ ] Multiple time zones
+- [ ] Progress notifications
+- [ ] Data export/import
+- [ ] Widget themes
+- [ ] Apple Watch support
+- [ ] Wear OS support
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test on both platforms
+5. Submit a pull request
+
+## 📞 Support
+
+For issues and questions:
+- Create an issue on GitHub
+- Check the documentation
+- Review the troubleshooting guide
 
 ---
 
-**Made with ❤️ using React Native & Expo**
+**Built with ❤️ using React Native and Expo**
