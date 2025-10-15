@@ -7,96 +7,12 @@
     android:padding="12dp"
     android:background="@drawable/widget_background_rounded">
 
-    <!-- Today Section -->
-    <LinearLayout
+    <!-- Widget Content as Single Image -->
+    <ImageView
+        android:id="@+id/widget_content_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-
-        <TextView
-            android:id="@+id/today_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Today"
-            android:textSize="12sp"
-            android:textColor="@android:color/black"
-            android:fontFamily="cursive"
-            android:gravity="start" />
-
-        <TextView
-            android:id="@+id/today_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="6h remaining"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:fontFamily="cursive"
-            android:gravity="end" />
-
-    </LinearLayout>
-
-    <!-- Month Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-
-        <TextView
-            android:id="@+id/month_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="This Month"
-            android:textSize="12sp"
-            android:textColor="@android:color/black"
-            android:fontFamily="cursive"
-            android:gravity="start" />
-
-        <TextView
-            android:id="@+id/month_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="19 days remaining"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:fontFamily="cursive"
-            android:gravity="end" />
-
-    </LinearLayout>
-
-    <!-- Year Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/year_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="This Year"
-            android:textSize="12sp"
-            android:textColor="@android:color/black"
-            android:fontFamily="cursive"
-            android:gravity="start" />
-
-        <TextView
-            android:id="@+id/year_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="25% remaining"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:fontFamily="cursive"
-            android:gravity="end" />
-
-    </LinearLayout>
+        android:scaleType="fitStart"
+        android:adjustViewBounds="true" />
 
 </LinearLayout>
