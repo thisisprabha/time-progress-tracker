@@ -6,20 +6,24 @@ A beautiful React Native app that tracks your daily, monthly, and yearly progres
 
 ### Prerequisites
 - Node.js (v18+)
-- Expo CLI: `npm install -g @expo/cli`
-- Expo Go app on your phone (iOS/Android)
+- Java 17+ (for Android builds)
+- Android SDK (for Android development)
+- Xcode (for iOS development on macOS)
 
 ### Installation & Run
 ```bash
 # Install dependencies
 cd apps/mobile
-npm install
+npm install --legacy-peer-deps
 
-# Start development server
-npx expo start
+# For development (with Metro bundler)
+npx expo start --dev-client --port 8081
 
-# Scan QR code with Expo Go app
-# OR open in browser: http://localhost:8081
+# For Android build
+npx expo run:android
+
+# For iOS build  
+npx expo run:ios
 ```
 
 ## ✨ Features
@@ -33,9 +37,10 @@ npx expo start
 
 ### 🎨 Design
 - **Handwritten Font**: Consistent Kalam font throughout
+- **Tally Mark Progress**: Visual progress indicators with X and | marks
 - **Modern UI**: Clean, intuitive interface
 - **Responsive**: Works on phones, tablets, and web
-- **Dark/Light Mode**: Automatic theme switching
+- **Native Widgets**: iOS and Android home screen widgets
 
 ### ⚙️ Settings
 - **Settings Icon**: Gear icon in top-right corner
@@ -45,20 +50,29 @@ npx expo start
 
 ## 📱 How to Use
 
+### Main App
 1. **Open the app** - You'll see your time progress with current perspective
 2. **Tap settings icon** (⚙️) in top-right corner
 3. **Choose perspective**: Half Full (optimistic) or Half Empty (pessimistic)
 4. **Select time mode**: 24 Hours or 9-5 Office Hours
 5. **Settings auto-save** - Your preferences are remembered
 
+### Native Widgets
+1. **iOS**: Long press home screen → Widgets → Time Progress Tracker
+2. **Android**: Long press home screen → Widgets → Time Progress Tracker
+3. **Widget sizes**: Small (hours), Medium (today + month), Large (all data)
+4. **Auto-updates**: Widgets refresh automatically every hour
+
 ## 🛠️ Technical Details
 
 ### Built With
-- **React Native** with Expo SDK 54
+- **React Native** with Expo SDK 54 (Bare Workflow)
 - **Expo Router** for navigation
 - **AsyncStorage** for data persistence
 - **React Native SVG** for icons
 - **React Native Reanimated** for animations
+- **iOS WidgetKit** (Swift/SwiftUI) for iOS widgets
+- **Android AppWidgetProvider** (Kotlin) for Android widgets
 
 ### Project Structure
 ```
@@ -66,6 +80,11 @@ apps/mobile/
 ├── src/app/
 │   ├── index.jsx          # App entry point
 │   └── time-progress.jsx  # Main component
+├── ios/                   # iOS native code
+│   └── TimeProgressWidget/  # iOS widget extension
+├── android/               # Android native code
+│   └── app/src/main/java/com/timeprogresstracker/app/
+│       └── widget/        # Android widget code
 ├── app.json               # Expo configuration
 └── package.json           # Dependencies
 ```
@@ -74,7 +93,9 @@ apps/mobile/
 - **TimeProgress**: Main component with progress calculations
 - **SettingsIcon**: Gear icon with press handler
 - **SettingsModal**: Modal for changing preferences
-- **TallyCounter**: Animated progress indicators
+- **TallyCounter**: Animated progress indicators with X/| marks
+- **iOS Widget**: Native SwiftUI widget with multiple sizes
+- **Android Widget**: Native Kotlin widget with simple layout
 
 ## 🎯 What It Does
 
@@ -91,6 +112,16 @@ apps/mobile/
 - **9 AM - 5 PM**: 8-hour workday calculation
 - **Weekdays Only**: Excludes weekends from calculations
 - **Real-time Updates**: Updates every minute
+
+### Native Widgets
+- **iOS Widget**: Advanced SwiftUI widget with tally marks and handwritten fonts
+  - Small: Hours left today (e.g., "5h left")
+  - Medium: Today + This Month progress with tally marks
+  - Large: All three (Today, Month, Year) with tally marks
+- **Android Widget**: Simple Kotlin widget with clean layout
+  - Shows hours left today and days left this month
+  - Handwritten font style with rounded white background
+  - Auto-refreshes every hour
 
 ## 🔧 Development
 
