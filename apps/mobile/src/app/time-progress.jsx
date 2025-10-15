@@ -462,6 +462,28 @@ export default function TimeProgressScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Settings</Text>
             
+            {/* AdMob Banner in Settings (Android only) */}
+            {Platform.OS === 'android' && (
+              <View style={styles.settingsAdContainer}>
+                {BannerAd ? (
+                  <BannerAd
+                    unitId={TestIds.BANNER}
+                    size={BannerAdSize.BANNER}
+                    onAdLoaded={() => {
+                      console.log('Settings banner ad loaded');
+                    }}
+                    onAdFailedToLoad={(error) => {
+                      console.error('Settings banner ad failed to load:', error);
+                    }}
+                  />
+                ) : (
+                  <View style={styles.settingsAdPlaceholder}>
+                    <Text style={styles.adPlaceholderText}>Ad (settings)</Text>
+                  </View>
+                )}
+              </View>
+            )}
+            
             {/* Perspective Setting */}
             <View style={styles.settingSection}>
               <Text style={styles.settingLabel}>Glass Perspective</Text>
@@ -790,5 +812,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Kalam_400Regular',
     fontSize: 14,
     color: '#999999',
+  },
+  settingsAdContainer: {
+    marginVertical: 16,
+    alignItems: 'center',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  settingsAdPlaceholder: {
+    height: 50,
+    width: '100%',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e8e8e8',
+    borderStyle: 'dashed',
   },
 });
