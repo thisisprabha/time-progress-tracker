@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:initialLayout="@layout/time_progress_widget_simple"
+    android:initialLayout="@layout/time_progress_widget_large"
     android:minWidth="180dp"
     android:minHeight="110dp"
+    android:maxResizeWidth="320dp"
+    android:maxResizeHeight="180dp"
     android:updatePeriodMillis="3600000"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:description="@string/widget_description" />
+    android:description="@string/widget_large_description" />

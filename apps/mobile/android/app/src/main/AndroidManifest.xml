@@ -37,15 +37,25 @@
       </intent-filter>
     </activity>
     
-    <!-- Time Progress Widget -->
-    <receiver android:name=".widget.TimeProgressWidget"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-        </intent-filter>
-        <meta-data android:name="android.appwidget.provider"
-            android:resource="@xml/time_progress_widget_info" />
-    </receiver>
+        <!-- Time Progress Widget Small (2x2) -->
+        <receiver android:name=".widget.TimeProgressWidgetSmall"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/time_progress_widget_small_info" />
+        </receiver>
+
+        <!-- Time Progress Widget Large (3x2) -->
+        <receiver android:name=".widget.TimeProgressWidgetLarge"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/time_progress_widget_large_info" />
+        </receiver>
     
   </application>
 </manifest>

@@ -4,5 +4,6 @@
   <string name="expo_runtime_version">1.0.0</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
-  <string name="widget_description">Track your daily, monthly, and yearly progress</string>
+    <string name="widget_small_description">Track today and monthly progress (compact)</string>
+    <string name="widget_large_description">Track daily, monthly, and yearly progress</string>
 </resources>
