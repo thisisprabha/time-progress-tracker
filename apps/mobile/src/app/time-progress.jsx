@@ -456,14 +456,14 @@ export default function TimeProgressScreen() {
                 onPress={() => handlePerspectiveSelect("half-full")}
                 style={[styles.perspectiveButton, styles.halfFullButton]}
               >
-                <Text style={styles.perspectiveButtonText}>Half Full</Text>
+                <Text style={[styles.perspectiveButtonText, styles.halfFullButtonText]}>Half Full</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => handlePerspectiveSelect("half-empty")}
                 style={[styles.perspectiveButton, styles.halfEmptyButton]}
               >
-                <Text style={styles.perspectiveButtonText}>Half Empty</Text>
+                <Text style={[styles.perspectiveButtonText, styles.halfEmptyButtonText]}>Half Empty</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -725,7 +725,12 @@ const styles = StyleSheet.create({
   perspectiveButtonText: {
     fontFamily: "Kalam_700Bold",
     fontSize: 16,
-    color: "#222222",
+  },
+  halfFullButtonText: {
+    color: "#222222", // Black text on white background
+  },
+  halfEmptyButtonText: {
+    color: "#ffffff", // White text on black background
   },
   progressSection: {
     gap: 60,
