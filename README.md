@@ -125,10 +125,12 @@ apps/mobile/
   - Small: Hours left today (e.g., "5h left")
   - Medium: Today + This Month progress with tally marks
   - Large: All three (Today, Month, Year) with tally marks
-- **Android Widget**: Simple Kotlin widget with clean layout
-  - Shows hours left today and days left this month
-  - Handwritten font style with rounded white background
-  - Auto-refreshes every hour
+- **Android Widget**: Kotlin widget with custom Kalam font rendering
+  - Small (2x2): Today + This Month progress
+  - Large (3x2): Today + This Month + This Year progress
+  - Custom font via bitmap rendering with TextBitmapUtils
+  - White background with 12dp rounded corners
+  - Auto-refreshes every hour and syncs with app settings
 
 ## 🔧 Development
 
@@ -148,15 +150,25 @@ npm run android    # Run on Android emulator
 ## 📦 Deployment
 
 ### Build for Production
+
+#### Android AAB (for Play Store):
 ```bash
-# Install EAS CLI
-npm install -g @expo/eas-cli
+cd apps/mobile/android
+./gradlew bundleRelease
+# Output: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+```
 
-# Login to Expo
-eas login
+#### Android APK (for sharing):
+```bash
+cd apps/mobile/android
+./gradlew assembleRelease
+# Output: apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+```
 
-# Build for app stores
-eas build --platform all
+#### iOS (via Xcode):
+```bash
+npx expo run:ios --configuration Release
+# Then archive in Xcode for App Store
 ```
 
 ### App Store Submission

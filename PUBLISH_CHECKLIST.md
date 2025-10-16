@@ -4,7 +4,10 @@ Use this end-to-end checklist to go from test build to production release. Check
 
 ### 1) AdMob — Switch from Test to Production IDs (no code changes yet)
 - [ ] Create/verify AdMob account at `https://admob.google.com`
-- [ ] Add an app in AdMob: Android → Production
+- [ ] **IMPORTANT**: App must be in Closed/Open Testing (not Internal) to be found by AdMob
+- [ ] Promote to Closed Testing in Play Console if needed (wait 2-4 hours)
+- [ ] Add an app in AdMob: Android → "Yes, it's listed on Google Play"
+- [ ] Search for package: `com.timeprogresstracker.app`
 - [ ] Note your AdMob App ID (format: ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY)
 - [ ] Create Banner ad units you need (Home + Settings): get Unit IDs (format: ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ)
 - [ ] Confirm Google Play services up to date on test device
