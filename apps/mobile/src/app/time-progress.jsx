@@ -411,19 +411,33 @@ export default function TimeProgressScreen() {
   }, []);
 
   const addCustomEvent = useCallback(async (event) => {
-    const newEvent = {
-      id: Date.now().toString(),
-      name: event.name,
-      date: event.date,
-      createdAt: new Date().toISOString(),
-    };
-    const updatedEvents = [...customEvents, newEvent];
-    await saveCustomEvents(updatedEvents);
+    try {
+      const newEvent = {
+        id: Date.now().toString(),
+        name: event.name,
+        date: event.date,
+        createdAt: new Date().toISOString(),
+      };
+      const updatedEvents = [...customEvents, newEvent];
+      await saveCustomEvents(updatedEvents);
+      
+      // Update widget after custom events are saved
+      updateWidgets();
+    } catch (error) {
+      console.error('Error adding custom event:', error);
+    }
   }, [customEvents, saveCustomEvents]);
 
   const deleteCustomEvent = useCallback(async (eventId) => {
-    const updatedEvents = customEvents.filter(event => event.id !== eventId);
-    await saveCustomEvents(updatedEvents);
+    try {
+      const updatedEvents = customEvents.filter(event => event.id !== eventId);
+      await saveCustomEvents(updatedEvents);
+      
+      // Update widget after custom events are saved
+      updateWidgets();
+    } catch (error) {
+      console.error('Error deleting custom event:', error);
+    }
   }, [customEvents, saveCustomEvents]);
 
   const calculateCustomEventProgress = useCallback((event) => {
