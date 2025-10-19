@@ -11,9 +11,9 @@ import com.timeprogresstracker.app.MainActivity
 import com.timeprogresstracker.app.R
 import java.util.Calendar
 
-class TimeProgressWidgetLarge : AppWidgetProvider() {
+class TimeProgressWidgetDark : AppWidgetProvider() {
 
-    private val TAG = "TimeProgressWidgetLarge"
+    private val TAG = "TimeProgressWidgetDark"
 
     override fun onUpdate(
         context: Context,
@@ -31,7 +31,7 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         Log.d(TAG, "updateAppWidget called for widget $appWidgetId")
-        val views = RemoteViews(context.packageName, R.layout.time_progress_widget_large)
+        val views = RemoteViews(context.packageName, R.layout.time_progress_widget_dark)
 
         // Read settings from SharedPreferences
         val prefs = context.getSharedPreferences("RKStorage", Context.MODE_PRIVATE)
@@ -142,12 +142,12 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
             lines.add(text to false) // Each line is not bold
         }
 
-        // Create bitmap with multi-line support
+        // Create bitmap with multi-line support - WHITE TEXT for dark theme
         val bitmap = TextBitmapUtils.createMultiLineTextBitmap(
             context = context,
             lines = lines,
             textSize = 20f, // Smaller text size for widget
-            textColor = android.graphics.Color.BLACK,
+            textColor = android.graphics.Color.WHITE, // WHITE TEXT for dark theme
             maxWidth = 350
         )
 
@@ -162,7 +162,7 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
             intent, 
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        views.setOnClickPendingIntent(R.id.widget_container_large, pendingIntent)
+        views.setOnClickPendingIntent(R.id.widget_container_dark, pendingIntent)
 
         // Update widget
         appWidgetManager.updateAppWidget(appWidgetId, views)

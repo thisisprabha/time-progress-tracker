@@ -1,10 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import TimeProgressWidget from '../components/TimeProgressWidget';
 
 const WidgetDemo = () => {
   return (
     <ScrollView style={styles.container}>
+      <TouchableOpacity 
+        onPress={() => router.back()}
+        style={styles.backButton}
+      >
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
+      
       <Text style={styles.header}>Widget Preview</Text>
       
       <View style={styles.section}>
@@ -41,6 +49,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 20,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 20,
+    backgroundColor: '#007AFF',
+    borderRadius: 6,
+  },
+  backButtonText: {
+    color: '#ffffff',
+    fontFamily: 'Kalam-Regular',
+    fontSize: 14,
   },
   header: {
     fontSize: 24,

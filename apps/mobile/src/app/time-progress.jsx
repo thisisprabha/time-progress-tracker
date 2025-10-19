@@ -14,8 +14,10 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router } from 'expo-router';
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
+import { updateWidgets } from '../utils/widgetUpdate';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 
@@ -162,8 +164,13 @@ export default function TimeProgressScreen() {
   const insets = useSafeAreaInsets();
 
   const [perspective, setPerspective] = useState(null); // 'half-full' or 'half-empty'
+  
+  // Debug wrapper for setPerspective
+  const debugSetPerspective = useCallback((newPerspective) => {
+    console.log("setPerspective called with:", newPerspective, "from:", new Error().stack?.split('\n')[2]);
+    setPerspective(newPerspective);
+  }, []);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showSettingsScreen, setShowSettingsScreen] = useState(false);
   const [timeMode, setTimeMode] = useState('24h'); // '24h' or '9-5'
   const [adLoaded, setAdLoaded] = useState(false);
@@ -173,7 +180,6 @@ export default function TimeProgressScreen() {
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventName, setNewEventName] = useState('');
   const [newEventDate, setNewEventDate] = useState('');
-  const modalScaleAnim = useRef(new Animated.Value(0)).current;
   const [timeData, setTimeData] = useState({
     yearProgress: 0,
     monthProgress: 0,
@@ -205,23 +211,36 @@ export default function TimeProgressScreen() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
+        // Add a small delay to ensure AsyncStorage is ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const savedPerspective = await AsyncStorage.getItem("userPerspective");
         const savedTimeMode = await AsyncStorage.getItem("timeMode");
+        const savedDisplayItems = await AsyncStorage.getItem("selectedDisplayItems");
         
-        if (savedPerspective) {
-          setPerspective(savedPerspective);
+        console.log("Loading settings - savedPerspective:", savedPerspective, "savedTimeMode:", savedTimeMode, "savedDisplayItems:", savedDisplayItems);
+        
+        if (savedPerspective && savedPerspective !== 'null') {
+          console.log("Setting perspective to:", savedPerspective);
+          debugSetPerspective(savedPerspective);
           setHasCompletedOnboarding(true);
         }
         
-        if (savedTimeMode) {
+        if (savedTimeMode && savedTimeMode !== 'null') {
+          console.log("Setting timeMode to:", savedTimeMode);
           setTimeMode(savedTimeMode);
+        }
+        
+        if (savedDisplayItems) {
+          console.log("Setting display items to:", JSON.parse(savedDisplayItems));
+          setSelectedDisplayItems(JSON.parse(savedDisplayItems));
         }
       } catch (error) {
         console.error("Error loading settings:", error);
       }
     };
     loadSettings();
-  }, []);
+  }, [debugSetPerspective]);
 
   // Initialize AdMob (Android only)
   useEffect(() => {
@@ -252,24 +271,6 @@ export default function TimeProgressScreen() {
       return () => clearTimeout(timer);
     }
   }, [adLoaded]);
-
-  // Modal animation effect
-  useEffect(() => {
-    if (showSettings) {
-      Animated.spring(modalScaleAnim, {
-        toValue: 1,
-        tension: 100,
-        friction: 8,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(modalScaleAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [showSettings]);
 
   const calculateTimeProgress = useCallback(() => {
     const now = new Date();
@@ -460,28 +461,18 @@ export default function TimeProgressScreen() {
       const updatedItems = selectedDisplayItems.filter(item => item !== itemType);
       setSelectedDisplayItems(updatedItems);
       await AsyncStorage.setItem('selectedDisplayItems', JSON.stringify(updatedItems));
+      // Update widget when settings change
+      updateWidgets();
     } else if (selectedDisplayItems.length < 3) {
       // Add item
       const updatedItems = [...selectedDisplayItems, itemType];
       setSelectedDisplayItems(updatedItems);
       await AsyncStorage.setItem('selectedDisplayItems', JSON.stringify(updatedItems));
+      // Update widget when settings change
+      updateWidgets();
     }
   }, [selectedDisplayItems]);
 
-  // Load saved display items
-  useEffect(() => {
-    const loadDisplayItems = async () => {
-      try {
-        const savedItems = await AsyncStorage.getItem('selectedDisplayItems');
-        if (savedItems) {
-          setSelectedDisplayItems(JSON.parse(savedItems));
-        }
-      } catch (error) {
-        console.error('Error loading display items:', error);
-      }
-    };
-    loadDisplayItems();
-  }, []);
 
   // Add Event Handler
   const handleAddEvent = useCallback(async () => {
@@ -634,12 +625,18 @@ export default function TimeProgressScreen() {
 
   const handlePerspectiveSelect = useCallback(async (selectedPerspective) => {
     await Haptics.selectionAsync();
-    setPerspective(selectedPerspective);
+    console.log("handlePerspectiveSelect called with:", selectedPerspective);
+    debugSetPerspective(selectedPerspective);
     setHasCompletedOnboarding(true);
 
     // Save perspective to storage
     try {
       await AsyncStorage.setItem("userPerspective", selectedPerspective);
+      console.log("Successfully saved perspective:", selectedPerspective);
+      
+      // Verify the save worked
+      const verifySave = await AsyncStorage.getItem("userPerspective");
+      console.log("Verification - saved value:", verifySave);
     } catch (error) {
       console.error("Error saving perspective:", error);
     }
@@ -647,12 +644,20 @@ export default function TimeProgressScreen() {
 
   const handleTimeModeChange = useCallback(async (mode) => {
     await Haptics.selectionAsync();
+    console.log("handleTimeModeChange called with:", mode);
     setTimeMode(mode);
-    setShowSettings(false);
 
     // Save time mode to storage
     try {
       await AsyncStorage.setItem("timeMode", mode);
+      console.log("Successfully saved timeMode:", mode);
+      
+      // Verify the save worked
+      const verifySave = await AsyncStorage.getItem("timeMode");
+      console.log("Verification - saved timeMode:", verifySave);
+      
+      // Update widget when settings change
+      updateWidgets();
     } catch (error) {
       console.error("Error saving time mode:", error);
     }
@@ -660,16 +665,55 @@ export default function TimeProgressScreen() {
 
   const handlePerspectiveChange = useCallback(async (newPerspective) => {
     await Haptics.selectionAsync();
-    setPerspective(newPerspective);
-    setShowSettings(false);
+    console.log("handlePerspectiveChange called with:", newPerspective);
+    debugSetPerspective(newPerspective);
 
     // Save perspective to storage
     try {
       await AsyncStorage.setItem("userPerspective", newPerspective);
+      console.log("Successfully saved perspective in settings:", newPerspective);
+      
+      // Verify the save worked
+      const verifySave = await AsyncStorage.getItem("userPerspective");
+      console.log("Verification - saved value:", verifySave);
+      
+      // Update widget when settings change
+      updateWidgets();
+      setShowSettings(false);
     } catch (error) {
       console.error("Error saving perspective:", error);
     }
   }, []);
+
+  const renderCustomEventCounter = useCallback((event, perspective, index) => {
+    const progress = calculateCustomEventProgress(event);
+    let label, total, completed, value, unit;
+    
+    label = event.name;
+    
+    if (progress.isPast) {
+      total = Math.abs(progress.daysLeft) + 30;
+      completed = Math.abs(progress.daysLeft);
+      value = progress.daysLeft;
+      unit = "days ago";
+    } else {
+      total = progress.daysLeft;
+      completed = 0;
+      value = progress.daysLeft;
+      unit = progress.isToday ? "Today!" : "days left";
+    }
+
+    return (
+      <TallyCounter
+        key={`custom-${event.id}-${index}`}
+        total={total}
+        completed={completed}
+        label={label}
+        value={value}
+        unit={unit}
+      />
+    );
+  }, [calculateCustomEventProgress]);
 
   const renderTallyCounter = useCallback(
     (itemType, perspective) => {
@@ -734,7 +778,7 @@ export default function TimeProgressScreen() {
           break;
 
         case 'custom':
-          // For custom events, we'll show the first custom event or a summary
+          // For custom events, show the first event only (others will be separate items)
           if (customEvents.length === 0) {
             label = "Custom Events";
             total = 0;
@@ -742,14 +786,22 @@ export default function TimeProgressScreen() {
             value = 0;
             unit = "No events";
           } else {
-            const firstEvent = customEvents[0];
-            const progress = calculateCustomEventProgress(firstEvent);
-            label = firstEvent.name;
-            total = 365; // Approximate days in a year
-            completed = progress.isPast ? Math.abs(progress.daysLeft) : 365 - progress.daysLeft;
-            value = progress.daysLeft;
-            unit = progress.isToday ? "Today!" : 
-                   progress.isPast ? "days ago" : "days left";
+            // Show the first custom event
+            const event = customEvents[0];
+            const progress = calculateCustomEventProgress(event);
+            label = event.name;
+            
+            if (progress.isPast) {
+              total = Math.abs(progress.daysLeft) + 30;
+              completed = Math.abs(progress.daysLeft);
+              value = progress.daysLeft;
+              unit = "days ago";
+            } else {
+              total = progress.daysLeft;
+              completed = 0;
+              value = progress.daysLeft;
+              unit = progress.isToday ? "Today!" : "days left";
+            }
           }
           break;
 
@@ -776,7 +828,7 @@ export default function TimeProgressScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Settings Icon */}
+      {/* Header Icons */}
       {hasCompletedOnboarding && (
         <View style={[styles.header, { top: insets.top + 10 }]}>
           <SettingsIcon onPress={() => setShowSettingsScreen(true)} />
@@ -824,9 +876,16 @@ export default function TimeProgressScreen() {
         ) : (
           /* Progress Section with Tally Marks */
           <View style={styles.progressSection}>
-            {selectedDisplayItems.map((itemType) => 
-              renderTallyCounter(itemType, perspective)
-            )}
+            {selectedDisplayItems.map((itemType) => {
+              if (itemType === 'custom') {
+                // For custom, show ALL custom events as separate items
+                return customEvents.map((event, index) => 
+                  renderCustomEventCounter(event, perspective, index)
+                );
+              } else {
+                return renderTallyCounter(itemType, perspective);
+              }
+            }).flat()}
           </View>
         )}
       </ScrollView>
@@ -1020,33 +1079,33 @@ export default function TimeProgressScreen() {
               <Text style={styles.settingLabel}>Notifications</Text>
               <Text style={styles.settingDescription}>Weekly progress updates every Monday at 9 AM based on your selected display items</Text>
             </View>
+
+            {/* Widget Sync Button */}
+            <View style={styles.settingSection}>
+              <TouchableOpacity 
+                style={styles.syncButton}
+                onPress={() => {
+                  updateWidgets();
+                  Haptics.selectionAsync();
+                }}
+              >
+                <Text style={styles.syncButtonText}>🔄 Sync to Widgets</Text>
+              </TouchableOpacity>
+              <Text style={styles.settingDescription}>Manually update your home screen widgets with current settings</Text>
+            </View>
           </ScrollView>
         </View>
       )}
+
+      {/* Add Event Modal */}
       <Modal
-        visible={showSettings}
+        visible={showAddEvent}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setShowSettings(false)}
+        onRequestClose={() => setShowAddEvent(false)}
       >
         <View style={styles.modalOverlay}>
-          <Animated.View 
-            style={[
-              styles.modalContent,
-              {
-                transform: [
-                  { scale: modalScaleAnim },
-                  { 
-                    translateY: modalScaleAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [50, 0],
-                    })
-                  }
-                ],
-                opacity: modalScaleAnim,
-              }
-            ]}
-          >
+          <Animated.View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Settings</Text>
             
             {/* AdMob Banner in Settings (Android only) */}
@@ -1219,6 +1278,20 @@ export default function TimeProgressScreen() {
             <View style={styles.settingSection}>
               <Text style={styles.settingLabel}>Notifications</Text>
               <Text style={styles.settingDescription}>Weekly progress updates every Monday at 9 AM based on your selected display items</Text>
+            </View>
+
+            {/* Widget Sync Button */}
+            <View style={styles.settingSection}>
+              <TouchableOpacity 
+                style={styles.syncButton}
+                onPress={() => {
+                  updateWidgets();
+                  Haptics.selectionAsync();
+                }}
+              >
+                <Text style={styles.syncButtonText}>🔄 Sync to Widgets</Text>
+              </TouchableOpacity>
+              <Text style={styles.settingDescription}>Manually update your home screen widgets with current settings</Text>
             </View>
 
             <TouchableOpacity
@@ -1469,6 +1542,25 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  widgetButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  widgetButtonText: {
+    fontSize: 18,
   },
   settingsButton: {
     padding: 8,
@@ -1573,6 +1665,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
+    fontFamily: 'Kalam-Regular',
+    fontSize: 14,
+    color: '#ffffff',
+  },
+  syncButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+  },
+  syncButtonText: {
     fontFamily: 'Kalam-Regular',
     fontSize: 14,
     color: '#ffffff',

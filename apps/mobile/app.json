@@ -22,12 +22,12 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ],
+      "permissions": [],
       "package": "com.timeprogresstracker.app",
-      "versionCode": 1
+      "versionCode": 2
+    },
+    "react-native-google-mobile-ads": {
+      "android_app_id": "ca-app-pub-3940256099942544~3347511713"
     },
     "plugins": [
       [
@@ -44,16 +44,6 @@
           "resizeMode": "contain"
         }
       ],
-      "expo-audio",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "useFrameworks": "static"
-          }
-        }
-      ],
-      "expo-video",
       "expo-secure-store",
       "expo-web-browser"
     ],
@@ -61,6 +51,11 @@
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },
+    "fonts": [
+      "./android/app/src/main/assets/fonts/Kalam-Regular.ttf",
+      "./android/app/src/main/assets/fonts/Kalam-Bold.ttf",
+      "./android/app/src/main/assets/fonts/Kalam-Light.ttf"
+    ],
     "experiments": {
       "typedRoutes": true
     },
