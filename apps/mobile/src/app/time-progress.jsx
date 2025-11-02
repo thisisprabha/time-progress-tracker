@@ -11,8 +11,11 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { Image } from "expo-image";
+import { Asset } from "expo-asset";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from 'expo-router';
 import { StatusBar } from "expo-status-bar";
@@ -163,6 +166,9 @@ const TallyCounter = ({ total, completed, label, value, unit }) => {
 
 export default function TimeProgressScreen() {
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  const [headerSvgUri, setHeaderSvgUri] = useState(null);
+  const [bottomSvgUri, setBottomSvgUri] = useState(null);
 
   const [perspective, setPerspective] = useState(null); // 'half-full' or 'half-empty'
   
@@ -471,6 +477,23 @@ export default function TimeProgressScreen() {
     loadCustomEvents();
   }, [loadCustomEvents]);
 
+  // Load SVG assets
+  useEffect(() => {
+    const loadSvgs = async () => {
+      try {
+        const headerAsset = Asset.fromModule(require('../../assets/svg/header-sunskybird.svg'));
+        const bottomAsset = Asset.fromModule(require('../../assets/svg/bottom-mountain.svg'));
+        
+        await Promise.all([headerAsset.downloadAsync(), bottomAsset.downloadAsync()]);
+        
+        setHeaderSvgUri(headerAsset.localUri || headerAsset.uri);
+        setBottomSvgUri(bottomAsset.localUri || bottomAsset.uri);
+      } catch (error) {
+        console.error('Error loading SVG assets:', error);
+      }
+    };
+    loadSvgs();
+  }, []);
 
   // Display Items Management
   const handleDisplayItemToggle = useCallback(async (itemType) => {
@@ -1006,19 +1029,28 @@ export default function TimeProgressScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header Icons */}
-      {hasCompletedOnboarding && (
-        <View style={[styles.header, { top: insets.top + 10 }]}>
-          <SettingsIcon onPress={() => setShowSettingsScreen(true)} />
+      {/* 1. Header SVG - Full width, below status bar */}
+      {hasCompletedOnboarding && headerSvgUri && (
+        <View style={[styles.headerSvgContainer, { top: insets.top }]}>
+          <Image
+            source={{ uri: headerSvgUri }}
+            style={styles.headerSvgFull}
+            contentFit="cover"
+          />
+          {/* Settings Icon overlay */}
+          <View style={[styles.headerIconOverlay, { top: 10 }]}>
+            <SettingsIcon onPress={() => setShowSettingsScreen(true)} />
+          </View>
         </View>
       )}
 
+      {/* ScrollView for middle content */}
       <ScrollView
         style={[
           styles.scrollView,
           {
-            paddingTop: insets.top + 40,
-            paddingBottom: insets.bottom + 40,
+            paddingTop: hasCompletedOnboarding && headerSvgUri ? (insets.top + 200) : (insets.top + 40),
+            paddingBottom: hasCompletedOnboarding && bottomSvgUri ? 250 : (insets.bottom + 40),
           },
         ]}
         contentContainerStyle={styles.scrollContent}
@@ -1052,70 +1084,36 @@ export default function TimeProgressScreen() {
             </View>
           </View>
         ) : (
-          /* Progress Section with Tally Marks */
-          <View style={styles.progressWrapper}>
-            {/* Top Decorative Visuals */}
-            <View style={styles.topVisuals}>
-              <Svg width={screenWidth} height={60} viewBox={`0 0 ${screenWidth} 60`} style={styles.decorativeSvg}>
-                <Path
-                  d={`M0,0 Q${screenWidth * 0.3},20 ${screenWidth * 0.5},10 T${screenWidth},0`}
-                  fill="none"
-                  stroke="#e0e0e0"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  opacity={0.4}
-                />
-                <Path
-                  d={`M0,10 Q${screenWidth * 0.4},30 ${screenWidth * 0.6},20 T${screenWidth},10`}
-                  fill="none"
-                  stroke="#d0d0d0"
-                  strokeWidth="1"
-                  strokeLinecap="round"
-                  opacity={0.3}
-                />
-              </Svg>
-            </View>
-
-            {/* Scaled Progress Items */}
-            <View style={styles.progressSectionContainer}>
-              <View style={[styles.progressSection, isSmallScreen && styles.progressSectionScaled]}>
-                {selectedDisplayItems.map((itemType) => {
-                  if (itemType === 'custom') {
-                    // For custom, show ALL custom events as separate items
-                    return customEvents.map((event, index) => 
-                      renderCustomEventCounter(event, perspective, index)
-                    );
-                  } else {
-                    return renderTallyCounter(itemType, perspective);
-                  }
-                }).flat()}
-              </View>
-            </View>
-
-            {/* Bottom Decorative Visuals */}
-            <View style={styles.bottomVisuals}>
-              <Svg width={screenWidth} height={60} viewBox={`0 0 ${screenWidth} 60`} style={styles.decorativeSvg}>
-                <Path
-                  d={`M0,60 Q${screenWidth * 0.3},40 ${screenWidth * 0.5},50 T${screenWidth},60`}
-                  fill="none"
-                  stroke="#e0e0e0"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  opacity={0.4}
-                />
-                <Path
-                  d={`M0,50 Q${screenWidth * 0.4},30 ${screenWidth * 0.6},40 T${screenWidth},50`}
-                  fill="none"
-                  stroke="#d0d0d0"
-                  strokeWidth="1"
-                  strokeLinecap="round"
-                  opacity={0.3}
-                />
-              </Svg>
+          /* 2. Middle Sections - Progress Items */
+          <View style={styles.progressSectionContainer}>
+            <View style={[styles.progressSection, isSmallScreen && styles.progressSectionScaled]}>
+              {selectedDisplayItems.map((itemType) => {
+                if (itemType === 'custom') {
+                  // For custom, show ALL custom events as separate items
+                  return customEvents.map((event, index) => 
+                    renderCustomEventCounter(event, perspective, index)
+                  );
+                } else {
+                  return renderTallyCounter(itemType, perspective);
+                }
+              }).flat()}
             </View>
           </View>
         )}
       </ScrollView>
+
+      {/* 3. Bottom Mountain SVG - Full width, touches both ends */}
+      {hasCompletedOnboarding && bottomSvgUri && (
+        <View style={[styles.bottomMountainContainer, { 
+          bottom: Platform.OS === 'android' && BannerAd && !adTimeout ? 70 : 0
+        }]}>
+          <Image
+            source={{ uri: bottomSvgUri }}
+            style={styles.bottomMountainImageFull}
+            contentFit="cover"
+          />
+        </View>
+      )}
 
       {/* Settings Full Screen Modal */}
       <Modal
@@ -1434,19 +1432,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffffff",
   },
+  headerSvgContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 200,
+    zIndex: 10,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  headerSvgFull: {
+    width: '100%',
+    height: '100%',
+    alignSelf: 'stretch',
+  },
+  headerIconOverlay: {
+    position: 'absolute',
+    right: 20,
+    top: 10,
+    zIndex: 11,
+  },
   content: {
     flex: 1,
     paddingHorizontal: 32,
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: 32,
+    paddingHorizontal: 40,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "flex-start",
     paddingTop: 20,
-    paddingBottom: 40,
+    paddingBottom: 10,
   },
   settingsModalContainer: {
     flex: 1,
@@ -1534,21 +1552,46 @@ const styles = StyleSheet.create({
   },
   progressWrapper: {
     width: '100%',
+    alignSelf: 'stretch',
   },
   topVisuals: {
-    width: '100%',
+    height: 150,
     marginBottom: 20,
+    overflow: 'hidden',
+  },
+  headerSvg: {
+    width: '100%',
+    height: '100%',
   },
   bottomVisuals: {
-    width: '100%',
+    height: 150,
     marginTop: 20,
+    overflow: 'hidden',
+    alignSelf: 'stretch',
   },
-  decorativeSvg: {
+  bottomSvg: {
     width: '100%',
+    height: '100%',
+  },
+  bottomMountainContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 200,
+    overflow: 'hidden',
+    zIndex: 0,
+    width: '100%',
+  },
+  bottomMountainImageFull: {
+    width: '100%',
+    height: '100%',
+    alignSelf: 'stretch',
   },
   progressSectionContainer: {
     width: '100%',
     alignItems: 'center',
+    marginTop: -30,
   },
   progressSection: {
     gap: 60,
@@ -1757,6 +1800,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#e0e0e0',
     alignItems: 'center',
     paddingTop: 8,
+    zIndex: 10,
   },
   adPlaceholder: {
     height: 50,
