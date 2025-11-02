@@ -461,11 +461,17 @@ export default function TimeProgressScreen() {
     const diffTime = eventDay.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
+    // Calculate weeks for events > 30 days
+    const weeksLeft = Math.ceil(Math.abs(diffDays) / 7);
+    const useWeeks = Math.abs(diffDays) > 30;
+    
     // Format date as DD/MM/YYYY
     const formattedDate = `${String(eventDate.getDate()).padStart(2, '0')}/${String(eventDate.getMonth() + 1).padStart(2, '0')}/${eventDate.getFullYear()}`;
     
     return {
       daysLeft: diffDays,
+      weeksLeft: weeksLeft,
+      useWeeks: useWeeks,
       isPast: diffDays < 0,
       isToday: diffDays === 0,
       formattedDate,
@@ -885,11 +891,18 @@ export default function TimeProgressScreen() {
     label = event.name;
     
     if (progress.isPast) {
-      // For past events, show days since as completed tally marks
-      total = Math.abs(progress.daysLeft);
-      completed = Math.abs(progress.daysLeft);
-      value = Math.abs(progress.daysLeft);
-      unit = "days ago";
+      // For past events, use weeks if > 30 days, otherwise days
+      if (progress.useWeeks) {
+        total = progress.weeksLeft;
+        completed = progress.weeksLeft;
+        value = progress.weeksLeft;
+        unit = "weeks ago";
+      } else {
+        total = Math.abs(progress.daysLeft);
+        completed = Math.abs(progress.daysLeft);
+        value = Math.abs(progress.daysLeft);
+        unit = "days ago";
+      }
     } else if (progress.isToday) {
       // For today's events, show as a single tally mark
       total = 1;
@@ -897,11 +910,18 @@ export default function TimeProgressScreen() {
       value = "Today!";
       unit = "";
     } else {
-      // For future events, show days left with no completed marks
-      total = progress.daysLeft;
-      completed = 0;
-      value = progress.daysLeft;
-      unit = "days left";
+      // For future events, use weeks if > 30 days, otherwise days
+      if (progress.useWeeks) {
+        total = progress.weeksLeft;
+        completed = 0;
+        value = progress.weeksLeft;
+        unit = "weeks left";
+      } else {
+        total = progress.daysLeft;
+        completed = 0;
+        value = progress.daysLeft;
+        unit = "days left";
+      }
     }
 
     return (
@@ -993,15 +1013,29 @@ export default function TimeProgressScreen() {
             label = event.name;
             
             if (progress.isPast) {
-              total = Math.abs(progress.daysLeft) + 30;
-              completed = Math.abs(progress.daysLeft);
-              value = progress.daysLeft;
-              unit = "days ago";
+              if (progress.useWeeks) {
+                total = progress.weeksLeft;
+                completed = progress.weeksLeft;
+                value = progress.weeksLeft;
+                unit = "weeks ago";
+              } else {
+                total = Math.abs(progress.daysLeft);
+                completed = Math.abs(progress.daysLeft);
+                value = Math.abs(progress.daysLeft);
+                unit = "days ago";
+              }
             } else {
-              total = progress.daysLeft;
-              completed = 0;
-              value = progress.daysLeft;
-              unit = progress.isToday ? "Today!" : "days left";
+              if (progress.useWeeks) {
+                total = progress.weeksLeft;
+                completed = 0;
+                value = progress.weeksLeft;
+                unit = "weeks left";
+              } else {
+                total = progress.daysLeft;
+                completed = 0;
+                value = progress.daysLeft;
+                unit = progress.isToday ? "Today!" : "days left";
+              }
             }
           }
           break;
@@ -1297,8 +1331,8 @@ export default function TimeProgressScreen() {
                             progress.isPast && styles.eventStatusPast
                           ]}>
                             {progress.isToday ? 'Today!' :
-                             progress.isPast ? `${Math.abs(progress.daysLeft)} days ago` :
-                             `${progress.daysLeft} days left`}
+                             progress.isPast ? (progress.useWeeks ? `${progress.weeksLeft} weeks ago` : `${Math.abs(progress.daysLeft)} days ago`) :
+                             (progress.useWeeks ? `${progress.weeksLeft} weeks left` : `${progress.daysLeft} days left`)}
                           </Text>
                           <TouchableOpacity
                             onPress={() => deleteCustomEvent(event.id)}
