@@ -31,7 +31,8 @@ if (Platform.OS === 'android') {
   TestIds = GoogleMobileAds.TestIds;
 }
 
-const { width: screenWidth } = Dimensions.get("window");
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+const isSmallScreen = screenHeight < 700 || screenWidth < 400;
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -454,10 +455,14 @@ export default function TimeProgressScreen() {
     const diffTime = eventDay.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
+    // Format date as DD/MM/YYYY
+    const formattedDate = `${String(eventDate.getDate()).padStart(2, '0')}/${String(eventDate.getMonth() + 1).padStart(2, '0')}/${eventDate.getFullYear()}`;
+    
     return {
       daysLeft: diffDays,
       isPast: diffDays < 0,
       isToday: diffDays === 0,
+      formattedDate,
     };
   }, []);
 
@@ -465,6 +470,7 @@ export default function TimeProgressScreen() {
   useEffect(() => {
     loadCustomEvents();
   }, [loadCustomEvents]);
+
 
   // Display Items Management
   const handleDisplayItemToggle = useCallback(async (itemType) => {
@@ -489,17 +495,68 @@ export default function TimeProgressScreen() {
 
 
   // Add Event Handler
+  const formatDateInput = useCallback((input) => {
+    // Remove all non-digits
+    const digitsOnly = input.replace(/\D/g, '');
+    
+    if (digitsOnly.length === 0) return '';
+    
+    // Handle different input lengths
+    if (digitsOnly.length <= 2) {
+      return digitsOnly;
+    } else if (digitsOnly.length <= 4) {
+      return `${digitsOnly.slice(0, 2)}/${digitsOnly.slice(2)}`;
+    } else {
+      const day = digitsOnly.slice(0, 2);
+      const month = digitsOnly.slice(2, 4);
+      const year = digitsOnly.slice(4, 8);
+      return `${day}/${month}/${year}`;
+    }
+  }, []);
+
+  const convertToISODate = useCallback((dateString) => {
+    // Handle empty input
+    if (!dateString) return '';
+    
+    // Extract digits
+    const digits = dateString.replace(/\D/g, '');
+    if (digits.length !== 8) return '';
+    
+    const day = parseInt(digits.slice(0, 2));
+    const month = parseInt(digits.slice(2, 4)) - 1; // JS months are 0-based
+    const year = parseInt(digits.slice(4, 8));
+    
+    // Validate date components
+    if (month < 0 || month > 11) return '';
+    if (day < 1 || day > 31) return '';
+    if (year < 2000 || year > 2100) return '';
+    
+    // Create and validate date object
+    const date = new Date(year, month, day);
+    if (isNaN(date.getTime())) return '';
+    
+    // Return ISO format YYYY-MM-DD
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }, []);
+
   const handleAddEvent = useCallback(async () => {
-    if (newEventName.trim() && newEventDate) {
+    const isoDate = convertToISODate(newEventDate);
+    if (newEventName.trim() && isoDate) {
       await addCustomEvent({
         name: newEventName.trim(),
-        date: newEventDate,
+        date: isoDate,
       });
       setNewEventName('');
       setNewEventDate('');
       setShowAddEvent(false);
+    } else {
+      Alert.alert(
+        "Invalid Date",
+        "Please enter a valid date in DD/MM/YYYY format",
+        [{ text: "OK" }]
+      );
     }
-  }, [newEventName, newEventDate, addCustomEvent]);
+  }, [newEventName, newEventDate, addCustomEvent, convertToISODate]);
 
   // Weekly Notifications - Only schedule once on app start
   const scheduleWeeklyNotification = useCallback(async () => {
@@ -575,6 +632,7 @@ export default function TimeProgressScreen() {
     const monthElapsed = now - startOfMonth;
     const monthCompleted = Math.round((monthElapsed / monthTotal) * 100);
     const daysCrossed = currentDate - 1;
+    const daysLeftInMonth = Math.floor((endOfMonth - now) / (1000 * 60 * 60 * 24));
 
     const startOfWeek = new Date(now);
     const dayOfWeek = now.getDay();
@@ -582,6 +640,7 @@ export default function TimeProgressScreen() {
     startOfWeek.setDate(now.getDate() - daysFromMonday);
     startOfWeek.setHours(0, 0, 0, 0);
     const daysCrossedInWeek = Math.floor((now - startOfWeek) / (1000 * 60 * 60 * 24));
+    const daysLeftInWeek = 7 - daysCrossedInWeek;
 
     const quarterNumber = Math.floor(currentMonth / 3) + 1;
     const startOfQuarter = new Date(currentYear, (quarterNumber - 1) * 3, 1);
@@ -589,46 +648,143 @@ export default function TimeProgressScreen() {
     const quarterTotal = endOfQuarter - startOfQuarter;
     const quarterElapsed = now - startOfQuarter;
     const quarterWeeksCompleted = Math.floor(Math.floor((now - startOfQuarter) / (1000 * 60 * 60 * 24)) / 7);
+    const quarterWeeksLeft = 13 - quarterWeeksCompleted;
 
     const hoursCompleted = currentHour + (currentMinute > 30 ? 1 : 0);
+    const hoursLeftToday = 24 - hoursCompleted;
     
     // Office hours calculation
     const startOfOfficeDay = new Date(currentYear, currentMonth, currentDate, 9, 0);
     const endOfOfficeDay = new Date(currentYear, currentMonth, currentDate, 17, 0);
     let officeHoursCompleted = 0;
+    let officeHoursLeft = 8;
     if (now >= startOfOfficeDay && now <= endOfOfficeDay) {
       const officeElapsed = now - startOfOfficeDay;
       officeHoursCompleted = Math.min(Math.floor(officeElapsed / (1000 * 60 * 60)), 8);
+      officeHoursLeft = 8 - officeHoursCompleted;
     } else if (now > endOfOfficeDay) {
       officeHoursCompleted = 8;
+      officeHoursLeft = 0;
     }
     
     selectedDisplayItems.forEach(itemType => {
       switch (itemType) {
         case 'today':
           if (timeMode === '9-5') {
-            messages.push(`${officeHoursCompleted}/8 office hours done today`);
+            if (perspective === 'half-full') {
+              if (officeHoursCompleted > 0) {
+                messages.push(`${officeHoursCompleted} office hours done`);
+              } else {
+                messages.push('Office day starting');
+              }
+            } else {
+              if (officeHoursLeft > 0) {
+                messages.push(`${officeHoursLeft} office hours left`);
+              } else {
+                messages.push('Office day done');
+              }
+            }
           } else {
-            messages.push(`${hoursCompleted}/24 hours done today`);
+            if (perspective === 'half-full') {
+              if (hoursCompleted > 0) {
+                messages.push(`${hoursCompleted} hours done today`);
+              } else {
+                messages.push('Day starting');
+              }
+            } else {
+              if (hoursLeftToday > 0) {
+                messages.push(`${hoursLeftToday} hours left today`);
+              } else {
+                messages.push('Day done');
+              }
+            }
           }
           break;
         case 'week':
-          messages.push(`${daysCrossedInWeek}/7 days done this week`);
+          if (perspective === 'half-full') {
+            if (daysCrossedInWeek > 0) {
+              messages.push(`${daysCrossedInWeek} days done this week`);
+            } else {
+              messages.push('Week starting');
+            }
+          } else {
+            if (daysLeftInWeek > 0) {
+              messages.push(`${daysLeftInWeek} days left this week`);
+            } else {
+              messages.push('Week done');
+            }
+          }
           break;
         case 'month':
-          messages.push(`${daysCrossed} days done this month`);
+          if (perspective === 'half-full') {
+            if (daysCrossed > 0) {
+              messages.push(`${daysCrossed} days done this month`);
+            } else {
+              messages.push('Month starting');
+            }
+          } else {
+            if (daysLeftInMonth > 0) {
+              messages.push(`${daysLeftInMonth} days left this month`);
+            } else {
+              messages.push('Month done');
+            }
+          }
           break;
         case 'quarter':
-          messages.push(`${quarterWeeksCompleted} weeks done in Q${quarterNumber}`);
+          if (perspective === 'half-full') {
+            if (quarterWeeksCompleted > 0) {
+              messages.push(`${quarterWeeksCompleted} weeks done Q${quarterNumber}`);
+            } else {
+              messages.push(`Q${quarterNumber} starting`);
+            }
+          } else {
+            if (quarterWeeksLeft > 0) {
+              messages.push(`${quarterWeeksLeft} weeks left Q${quarterNumber}`);
+            } else {
+              messages.push(`Q${quarterNumber} done`);
+            }
+          }
           break;
         case 'year':
-          messages.push(`${yearCompleted}% of the year completed`);
+          if (perspective === 'half-full') {
+            if (yearCompleted > 0) {
+              messages.push(`${yearCompleted}% done this year`);
+            } else {
+              messages.push('Year starting');
+            }
+          } else {
+            const yearLeft = 100 - yearCompleted;
+            if (yearLeft > 0) {
+              messages.push(`${yearLeft}% left this year`);
+            } else {
+              messages.push('Year done');
+            }
+          }
+          break;
+        case 'custom':
+          // For custom events, show actual event details
+          if (customEvents.length > 0) {
+            customEvents.forEach(event => {
+              const eventDate = new Date(event.date);
+              const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
+              
+              if (daysDiff > 0) {
+                messages.push(`${daysDiff} days for ${event.name}`);
+              } else if (daysDiff === 0) {
+                messages.push(`Today: ${event.name}`);
+              } else {
+                messages.push(`${-daysDiff} days since ${event.name}`);
+              }
+            });
+          } else {
+            messages.push('No custom events');
+          }
           break;
       }
     });
 
     return messages.join(' • ');
-  }, [selectedDisplayItems, timeMode]);
+  }, [selectedDisplayItems, timeMode, perspective, customEvents]);
 
   // Schedule notifications only once on app start
   useEffect(() => {
@@ -706,15 +862,23 @@ export default function TimeProgressScreen() {
     label = event.name;
     
     if (progress.isPast) {
-      total = Math.abs(progress.daysLeft) + 30;
+      // For past events, show days since as completed tally marks
+      total = Math.abs(progress.daysLeft);
       completed = Math.abs(progress.daysLeft);
-      value = progress.daysLeft;
+      value = Math.abs(progress.daysLeft);
       unit = "days ago";
+    } else if (progress.isToday) {
+      // For today's events, show as a single tally mark
+      total = 1;
+      completed = 1;
+      value = "Today!";
+      unit = "";
     } else {
+      // For future events, show days left with no completed marks
       total = progress.daysLeft;
       completed = 0;
       value = progress.daysLeft;
-      unit = progress.isToday ? "Today!" : "days left";
+      unit = "days left";
     }
 
     return (
@@ -889,33 +1053,86 @@ export default function TimeProgressScreen() {
           </View>
         ) : (
           /* Progress Section with Tally Marks */
-          <View style={styles.progressSection}>
-            {selectedDisplayItems.map((itemType) => {
-              if (itemType === 'custom') {
-                // For custom, show ALL custom events as separate items
-                return customEvents.map((event, index) => 
-                  renderCustomEventCounter(event, perspective, index)
-                );
-              } else {
-                return renderTallyCounter(itemType, perspective);
-              }
-            }).flat()}
+          <View style={styles.progressWrapper}>
+            {/* Top Decorative Visuals */}
+            <View style={styles.topVisuals}>
+              <Svg width={screenWidth} height={60} viewBox={`0 0 ${screenWidth} 60`} style={styles.decorativeSvg}>
+                <Path
+                  d={`M0,0 Q${screenWidth * 0.3},20 ${screenWidth * 0.5},10 T${screenWidth},0`}
+                  fill="none"
+                  stroke="#e0e0e0"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  opacity={0.4}
+                />
+                <Path
+                  d={`M0,10 Q${screenWidth * 0.4},30 ${screenWidth * 0.6},20 T${screenWidth},10`}
+                  fill="none"
+                  stroke="#d0d0d0"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  opacity={0.3}
+                />
+              </Svg>
+            </View>
+
+            {/* Scaled Progress Items */}
+            <View style={styles.progressSectionContainer}>
+              <View style={[styles.progressSection, isSmallScreen && styles.progressSectionScaled]}>
+                {selectedDisplayItems.map((itemType) => {
+                  if (itemType === 'custom') {
+                    // For custom, show ALL custom events as separate items
+                    return customEvents.map((event, index) => 
+                      renderCustomEventCounter(event, perspective, index)
+                    );
+                  } else {
+                    return renderTallyCounter(itemType, perspective);
+                  }
+                }).flat()}
+              </View>
+            </View>
+
+            {/* Bottom Decorative Visuals */}
+            <View style={styles.bottomVisuals}>
+              <Svg width={screenWidth} height={60} viewBox={`0 0 ${screenWidth} 60`} style={styles.decorativeSvg}>
+                <Path
+                  d={`M0,60 Q${screenWidth * 0.3},40 ${screenWidth * 0.5},50 T${screenWidth},60`}
+                  fill="none"
+                  stroke="#e0e0e0"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  opacity={0.4}
+                />
+                <Path
+                  d={`M0,50 Q${screenWidth * 0.4},30 ${screenWidth * 0.6},40 T${screenWidth},50`}
+                  fill="none"
+                  stroke="#d0d0d0"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  opacity={0.3}
+                />
+              </Svg>
+            </View>
           </View>
         )}
       </ScrollView>
 
-      {/* Settings Screen */}
-      {showSettingsScreen && (
-        <View style={styles.settingsScreen}>
-          <View style={[styles.settingsHeader, { paddingTop: insets.top + 10 }]}>
-            <TouchableOpacity
-              onPress={() => setShowSettingsScreen(false)}
-              style={styles.backButton}
-            >
-              <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
+      {/* Settings Full Screen Modal */}
+      <Modal
+        visible={showSettingsScreen}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setShowSettingsScreen(false)}
+      >
+        <View style={styles.settingsModalContainer}>
+          <View style={styles.settingsModalHeader}>
             <Text style={styles.settingsScreenTitle}>Settings</Text>
-            <View style={styles.headerSpacer} />
+            <TouchableOpacity 
+              onPress={() => setShowSettingsScreen(false)}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
           </View>
 
           <ScrollView 
@@ -926,9 +1143,9 @@ export default function TimeProgressScreen() {
             {/* AdMob Banner in Settings (Android only) */}
             {Platform.OS === 'android' && (
               <View style={styles.settingsAdContainer}>
-                {BannerAd ? (
-                  <BannerAd
-                    unitId={TestIds.BANNER}
+            {BannerAd ? (
+              <BannerAd
+                    unitId={"ca-app-pub-9087069694782013/2019418042"}
                     size={BannerAdSize.BANNER}
                     onAdLoaded={() => {
                       console.log('Settings banner ad loaded');
@@ -1031,14 +1248,18 @@ export default function TimeProgressScreen() {
                       onPress={() => handleDisplayItemToggle(itemType)}
                       style={[
                         styles.displayItemButton,
-                        isSelected && styles.displayItemButtonActive,
                         isDisabled && styles.displayItemButtonDisabled,
                       ]}
                       disabled={isDisabled}
                     >
+                      <View style={[
+                        styles.checkbox,
+                        isSelected && styles.checkboxActive
+                      ]}>
+                        {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                      </View>
                       <Text style={[
                         styles.displayItemButtonText,
-                        isSelected && styles.displayItemButtonTextActive,
                         isDisabled && styles.displayItemButtonTextDisabled,
                       ]}>
                         {itemType === 'today' ? 'Today' :
@@ -1057,36 +1278,43 @@ export default function TimeProgressScreen() {
               {selectedDisplayItems.includes('custom') && (
                 <View style={styles.customEventFields}>
                   <Text style={styles.customEventFieldsTitle}>Add Custom Events</Text>
-                  
                   <TouchableOpacity
                     onPress={() => setShowAddEvent(true)}
                     style={styles.addEventButton}
                   >
                     <Text style={styles.addEventButtonText}>+ Add Event</Text>
                   </TouchableOpacity>
-                  
                   {customEvents.map((event) => {
                     const progress = calculateCustomEventProgress(event);
                     return (
                       <View key={event.id} style={styles.eventItem}>
-                        <Text style={styles.eventName}>{event.name}</Text>
-                        <Text style={styles.eventDate}>
-                          {progress.isToday ? 'Today!' :
-                           progress.isPast ? `${Math.abs(progress.daysLeft)} days ago` :
-                           `${progress.daysLeft} days left`}
-                        </Text>
-                        <TouchableOpacity
-                          onPress={() => deleteCustomEvent(event.id)}
-                          style={styles.deleteEventButton}
-                        >
-                          <Text style={styles.deleteEventButtonText}>×</Text>
-                        </TouchableOpacity>
+                        <View style={styles.eventDetails}>
+                          <Text style={styles.eventName}>{event.name}</Text>
+                          <Text style={styles.eventDateText}>{progress.formattedDate}</Text>
+                        </View>
+                        <View style={styles.eventStatus}>
+                          <Text style={[
+                            styles.eventStatusText,
+                            progress.isToday && styles.eventStatusToday,
+                            progress.isPast && styles.eventStatusPast
+                          ]}>
+                            {progress.isToday ? 'Today!' :
+                             progress.isPast ? `${Math.abs(progress.daysLeft)} days ago` :
+                             `${progress.daysLeft} days left`}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() => deleteCustomEvent(event.id)}
+                            style={styles.deleteEventButton}
+                          >
+                            <Text style={styles.deleteEventButtonText}>×</Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
                     );
                   })}
-          </View>
-        )}
-      </View>
+                </View>
+              )}
+            </View>
 
             {/* Notification Settings */}
             <View style={styles.settingSection}>
@@ -1109,264 +1337,68 @@ export default function TimeProgressScreen() {
             </View>
           </ScrollView>
         </View>
-      )}
-
-      {/* Add Event Modal */}
-      <Modal
-        visible={showAddEvent}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowAddEvent(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Settings</Text>
-            
-            {/* AdMob Banner in Settings (Android only) */}
-            {Platform.OS === 'android' && (
-              <View style={styles.settingsAdContainer}>
-                {BannerAd ? (
-                  <BannerAd
-                    unitId={TestIds.BANNER}
-                    size={BannerAdSize.BANNER}
-                    onAdLoaded={() => {
-                      console.log('Settings banner ad loaded');
-                    }}
-                    onAdFailedToLoad={(error) => {
-                      console.error('Settings banner ad failed to load:', error);
-                    }}
-                  />
-                ) : (
-                  <View style={styles.settingsAdPlaceholder}>
-                    <Text style={styles.adPlaceholderText}>Ad (settings)</Text>
-                  </View>
-                )}
-              </View>
-            )}
-            
-            {/* Perspective Setting */}
-            <View style={styles.settingSection}>
-              <Text style={styles.settingLabel}>Your Mindset</Text>
-              <View style={styles.settingButtons}>
-                <TouchableOpacity
-                  onPress={() => handlePerspectiveChange("half-full")}
-                  style={[
-                    styles.settingButton,
-                    perspective === "half-full" && styles.settingButtonActive,
-                  ]}
-                >
-                  <Text style={[
-                    styles.settingButtonText,
-                    perspective === "half-full" && styles.settingButtonTextActive,
-                  ]}>
-                    Half Full
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handlePerspectiveChange("half-empty")}
-                  style={[
-                    styles.settingButton,
-                    perspective === "half-empty" && styles.settingButtonActive,
-                  ]}
-                >
-                  <Text style={[
-                    styles.settingButtonText,
-                    perspective === "half-empty" && styles.settingButtonTextActive,
-                  ]}>
-                    Half Empty
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Time Mode Setting */}
-            <View style={styles.settingSection}>
-              <Text style={styles.settingLabel}>Daily Tracking</Text>
-              <View style={styles.settingButtons}>
-                <TouchableOpacity
-                  onPress={() => handleTimeModeChange("24h")}
-                  style={[
-                    styles.settingButton,
-                    timeMode === "24h" && styles.settingButtonActive,
-                  ]}
-                >
-                  <Text style={[
-                    styles.settingButtonText,
-                    timeMode === "24h" && styles.settingButtonTextActive,
-                  ]}>
-                    24 Hours
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleTimeModeChange("9-5")}
-                  style={[
-                    styles.settingButton,
-                    timeMode === "9-5" && styles.settingButtonActive,
-                  ]}
-                >
-                  <Text style={[
-                    styles.settingButtonText,
-                    timeMode === "9-5" && styles.settingButtonTextActive,
-                  ]}>
-                    9-5 Office Hours
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Customize Display Section */}
-            <View style={styles.settingSection}>
-              <Text style={styles.settingLabel}>Customize Display</Text>
-              <Text style={styles.settingDescription}>Choose 3 items to display</Text>
-              
-              <View style={styles.displayItemsContainer}>
-                {['today', 'week', 'month', 'quarter', 'year', 'custom'].map((itemType) => {
-                  const isSelected = selectedDisplayItems.includes(itemType);
-                  const isDisabled = !isSelected && selectedDisplayItems.length >= 3;
-                  
-                  return (
-                    <TouchableOpacity
-                      key={itemType}
-                      onPress={() => handleDisplayItemToggle(itemType)}
-                      style={[
-                        styles.displayItemButton,
-                        isSelected && styles.displayItemButtonActive,
-                        isDisabled && styles.displayItemButtonDisabled,
-                      ]}
-                      disabled={isDisabled}
-                    >
-                      <Text style={[
-                        styles.displayItemButtonText,
-                        isSelected && styles.displayItemButtonTextActive,
-                        isDisabled && styles.displayItemButtonTextDisabled,
-                      ]}>
-                        {itemType === 'today' ? 'Today' :
-                         itemType === 'week' ? 'This Week' :
-                         itemType === 'month' ? 'This Month' :
-                         itemType === 'quarter' ? `Q${timeData.quarterNumber}` :
-                         itemType === 'year' ? 'This Year' :
-                         'Custom Events'}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              
-              {/* Show custom event fields when custom is selected */}
-              {selectedDisplayItems.includes('custom') && (
-                <View style={styles.customEventFields}>
-                  <Text style={styles.customEventFieldsTitle}>Add Custom Events</Text>
-                  
-                  <TouchableOpacity
-                    onPress={() => setShowAddEvent(true)}
-                    style={styles.addEventButton}
-                  >
-                    <Text style={styles.addEventButtonText}>+ Add Event</Text>
-                  </TouchableOpacity>
-                  
-                  {customEvents.map((event) => {
-                    const progress = calculateCustomEventProgress(event);
-                    return (
-                      <View key={event.id} style={styles.eventItem}>
-                        <Text style={styles.eventName}>{event.name}</Text>
-                        <Text style={styles.eventDate}>
-                          {progress.isToday ? 'Today!' :
-                           progress.isPast ? `${Math.abs(progress.daysLeft)} days ago` :
-                           `${progress.daysLeft} days left`}
-                        </Text>
-                        <TouchableOpacity
-                          onPress={() => deleteCustomEvent(event.id)}
-                          style={styles.deleteEventButton}
-                        >
-                          <Text style={styles.deleteEventButtonText}>×</Text>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-            </View>
-
-
-            {/* Notification Settings */}
-            <View style={styles.settingSection}>
-              <Text style={styles.settingLabel}>Notifications</Text>
-              <Text style={styles.settingDescription}>Weekly progress updates every Monday at 9 AM based on your selected display items</Text>
-            </View>
-
-            {/* Widget Sync Button */}
-            <View style={styles.settingSection}>
-              <TouchableOpacity 
-                style={styles.syncButton}
-                onPress={() => {
-                  updateWidgets();
-                  Haptics.selectionAsync();
-                }}
-              >
-                <Text style={styles.syncButtonText}>🔄 Sync to Widgets</Text>
-              </TouchableOpacity>
-              <Text style={styles.settingDescription}>Manually update your home screen widgets with current settings</Text>
-            </View>
-
-            <TouchableOpacity
-              onPress={() => setShowSettings(false)}
-              style={styles.closeButton}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
       </Modal>
 
       {/* Add Event Modal */}
       <Modal
         visible={showAddEvent}
-        transparent={true}
         animationType="slide"
+        transparent={true}
         onRequestClose={() => setShowAddEvent(false)}
       >
-        <View style={styles.modalOverlay}>
-          <Animated.View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Custom Event</Text>
-            
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Event Name</Text>
+        <View style={styles.addEventModalOverlay}>
+          <View style={styles.addEventModalContainer}>
+            <View style={styles.addEventModalHeader}>
+              <Text style={styles.addEventModalTitle}>Add Custom Event</Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  setShowAddEvent(false);
+                  setNewEventName('');
+                  setNewEventDate('');
+                }}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.addEventModalContent}>
+              <Text style={styles.addEventLabel}>Event Name</Text>
               <TextInput
-                style={styles.textInput}
+                style={styles.addEventInput}
+                placeholder="e.g., Birthday, Wedding, Deadline"
+                placeholderTextColor="#999"
                 value={newEventName}
                 onChangeText={setNewEventName}
-                placeholder="e.g., My Birthday"
-                placeholderTextColor="#999"
+                autoFocus={true}
               />
-            </View>
-            
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Date</Text>
+
+              <Text style={[styles.addEventLabel, { marginTop: 20 }]}>Date (DD/MM/YYYY)</Text>
               <TextInput
-                style={styles.textInput}
-                value={newEventDate}
-                onChangeText={setNewEventDate}
-                placeholder="YYYY-MM-DD"
+                style={styles.addEventInput}
+                placeholder="DD/MM/YYYY"
                 placeholderTextColor="#999"
+                value={newEventDate}
+                onChangeText={(text) => {
+                  const formatted = formatDateInput(text);
+                  setNewEventDate(formatted);
+                }}
+                keyboardType="numeric"
+                maxLength={10}
               />
-            </View>
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                onPress={() => setShowAddEvent(false)}
-                style={[styles.modalButton, styles.cancelButton]}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
+
               <TouchableOpacity
                 onPress={handleAddEvent}
-                style={[styles.modalButton, styles.saveButton]}
+                style={[
+                  styles.addEventSubmitButton,
+                  (!newEventName.trim() || !newEventDate.trim()) && styles.addEventSubmitButtonDisabled
+                ]}
+                disabled={!newEventName.trim() || !newEventDate.trim()}
               >
-                <Text style={styles.saveButtonText}>Add Event</Text>
+                <Text style={styles.addEventSubmitButtonText}>Add Event</Text>
               </TouchableOpacity>
             </View>
-          </Animated.View>
+          </View>
         </View>
       </Modal>
 
@@ -1375,7 +1407,7 @@ export default function TimeProgressScreen() {
         <View style={[styles.bannerContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           {BannerAd && !adTimeout ? (
             <BannerAd
-              unitId={TestIds.BANNER}
+              unitId={"ca-app-pub-9087069694782013/2019418042"}
               size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
               onAdLoaded={() => {
                 console.log('Banner ad loaded');
@@ -1416,41 +1448,37 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
-  settingsScreen: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  settingsModalContainer: {
+    flex: 1,
     backgroundColor: '#ffffff',
-    zIndex: 1000,
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
-  settingsHeader: {
+  settingsModalHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 10,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  backButtonText: {
-    fontFamily: 'Kalam-Regular',
-    fontSize: 16,
-    color: '#000000',
+    borderBottomColor: '#e0e0e0',
   },
   settingsScreenTitle: {
     fontFamily: 'Kalam-Bold',
-    fontSize: 20,
+    fontSize: 24,
     color: '#000000',
-    flex: 1,
-    textAlign: 'center',
   },
-  headerSpacer: {
-    width: 60,
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: '#333333',
+    fontWeight: '600',
   },
   settingsScreenContent: {
     flex: 1,
@@ -1504,8 +1532,32 @@ const styles = StyleSheet.create({
   halfEmptyButtonText: {
     color: "#ffffff", // White text on black background
   },
+  progressWrapper: {
+    width: '100%',
+  },
+  topVisuals: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  bottomVisuals: {
+    width: '100%',
+    marginTop: 20,
+  },
+  decorativeSvg: {
+    width: '100%',
+  },
+  progressSectionContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   progressSection: {
     gap: 60,
+    width: '100%',
+  },
+  progressSectionScaled: {
+    transform: [{ scale: 0.8 }],
+    width: '125%', // Compensate for 0.8 scale to maintain width
+    marginVertical: -10,
   },
   tallyContainer: {
     gap: 16,
@@ -1684,17 +1736,16 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   syncButton: {
-    marginTop: 8,
+    marginTop: 16,
+    marginBottom: 8,
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 6,
-    backgroundColor: '#007AFF',
     alignItems: 'center',
   },
   syncButtonText: {
     fontFamily: 'Kalam-Regular',
-    fontSize: 14,
-    color: '#ffffff',
+    fontSize: 16,
+    color: '#000000',
+    textDecorationLine: 'underline',
   },
   bannerContainer: {
     position: 'absolute',
@@ -1755,32 +1806,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   displayItemButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#000000',
     backgroundColor: '#ffffff',
     marginBottom: 8,
   },
-  displayItemButtonActive: {
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#000000',
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxActive: {
     backgroundColor: '#000000',
+  },
+  checkmark: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   displayItemButtonDisabled: {
     opacity: 0.3,
-    borderColor: '#cccccc',
   },
   displayItemButtonText: {
     fontFamily: 'Kalam-Regular',
-    fontSize: 12,
+    fontSize: 14,
     color: '#000000',
-    textAlign: 'center',
-  },
-  displayItemButtonTextActive: {
-    color: '#ffffff',
   },
   displayItemButtonTextDisabled: {
-    color: '#cccccc',
+    color: '#666666',
   },
   addEventButton: {
     backgroundColor: '#000000',
@@ -1809,13 +1870,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   eventItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: '#f8f8f8',
     borderRadius: 8,
     marginBottom: 8,
+  },
+  eventDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   eventName: {
     fontFamily: 'Kalam-Bold',
@@ -1823,24 +1887,40 @@ const styles = StyleSheet.create({
     color: '#222',
     flex: 1,
   },
-  eventDate: {
+  eventDateText: {
     fontFamily: 'Kalam-Regular',
     fontSize: 14,
     color: '#666',
-    marginRight: 12,
+  },
+  eventStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  eventStatusText: {
+    fontFamily: 'Kalam-Regular',
+    fontSize: 14,
+    color: '#666',
+  },
+  eventStatusToday: {
+    color: '#000000',
+    fontWeight: 'bold',
+  },
+  eventStatusPast: {
+    color: '#999',
   },
   deleteEventButton: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#ff4444',
+    backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
   },
   deleteEventButtonText: {
     fontFamily: 'Kalam-Bold',
     fontSize: 16,
-    color: '#fff',
+    color: '#ffffff',
   },
   inputContainer: {
     marginBottom: 20,
@@ -1877,7 +1957,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   saveButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#000000',
   },
   cancelButtonText: {
     fontFamily: 'Kalam-Bold',
@@ -1890,7 +1970,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   notificationButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#000000',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
@@ -1900,6 +1980,78 @@ const styles = StyleSheet.create({
   notificationButtonText: {
     fontFamily: 'Kalam-Bold',
     fontSize: 16,
-    color: '#fff',
+    color: '#ffffff',
+  },
+  addEventModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  addEventModalContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  addEventModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  addEventModalTitle: {
+    fontFamily: 'Kalam-Bold',
+    fontSize: 20,
+    color: '#000000',
+  },
+  addEventModalContent: {
+    padding: 20,
+  },
+  addEventLabel: {
+    fontFamily: 'Kalam-Bold',
+    fontSize: 16,
+    color: '#222222',
+    marginBottom: 8,
+  },
+  addEventInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontFamily: 'Kalam-Regular',
+    fontSize: 16,
+    color: '#222',
+    backgroundColor: '#ffffff',
+  },
+  addEventSubmitButton: {
+    backgroundColor: '#000000',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  addEventSubmitButtonDisabled: {
+    backgroundColor: '#ccc',
+    opacity: 0.6,
+  },
+  addEventSubmitButtonText: {
+    fontFamily: 'Kalam-Bold',
+    fontSize: 16,
+    color: '#ffffff',
   },
 });
