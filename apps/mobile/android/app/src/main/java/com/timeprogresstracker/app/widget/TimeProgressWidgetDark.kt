@@ -192,8 +192,22 @@ class TimeProgressWidgetDark : AppWidgetProvider() {
                     if (customEvents.isNotEmpty()) {
                         val event = customEvents.first() // Show first event
                         val eventDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(event.second)
-                        val today = java.util.Calendar.getInstance()
-                        val daysDiff = ((eventDate.time - today.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+                        
+                        // Normalize both dates to start of day to match app calculation
+                        val eventCal = java.util.Calendar.getInstance()
+                        eventCal.time = eventDate
+                        eventCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        eventCal.set(java.util.Calendar.MINUTE, 0)
+                        eventCal.set(java.util.Calendar.SECOND, 0)
+                        eventCal.set(java.util.Calendar.MILLISECOND, 0)
+                        
+                        val todayCal = java.util.Calendar.getInstance()
+                        todayCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                        todayCal.set(java.util.Calendar.MINUTE, 0)
+                        todayCal.set(java.util.Calendar.SECOND, 0)
+                        todayCal.set(java.util.Calendar.MILLISECOND, 0)
+                        
+                        val daysDiff = kotlin.math.round((eventCal.timeInMillis - todayCal.timeInMillis).toDouble() / (1000 * 60 * 60 * 24)).toInt()
                         
                         if (daysDiff > 0) {
                             "${daysDiff} days for ${event.first}"
@@ -216,8 +230,22 @@ class TimeProgressWidgetDark : AppWidgetProvider() {
         if (customEvents.size > 1) {
             customEvents.drop(1).forEach { event ->
                 val eventDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(event.second)
-                val today = java.util.Calendar.getInstance()
-                val daysDiff = ((eventDate.time - today.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+                
+                // Normalize both dates to start of day to match app calculation
+                val eventCal = java.util.Calendar.getInstance()
+                eventCal.time = eventDate
+                eventCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                eventCal.set(java.util.Calendar.MINUTE, 0)
+                eventCal.set(java.util.Calendar.SECOND, 0)
+                eventCal.set(java.util.Calendar.MILLISECOND, 0)
+                
+                val todayCal = java.util.Calendar.getInstance()
+                todayCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+                todayCal.set(java.util.Calendar.MINUTE, 0)
+                todayCal.set(java.util.Calendar.SECOND, 0)
+                todayCal.set(java.util.Calendar.MILLISECOND, 0)
+                
+                val daysDiff = kotlin.math.round((eventCal.timeInMillis - todayCal.timeInMillis).toDouble() / (1000 * 60 * 60 * 24)).toInt()
                 
                 val eventText = if (daysDiff > 0) {
                     "${daysDiff} days for ${event.first}"
