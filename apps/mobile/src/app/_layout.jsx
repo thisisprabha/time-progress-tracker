@@ -10,19 +10,29 @@ export default function RootLayout() {
   const { initiate, isReady } = useAuth();
 
   useEffect(() => {
-    initiate();
+    try {
+      initiate();
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      // Continue anyway - don't block app launch
+    }
   }, [initiate]);
 
   useEffect(() => {
+    // Hide splash screen after a short delay even if auth isn't ready
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync().catch(console.error);
+    }, 1000);
+    
     if (isReady) {
-      SplashScreen.hideAsync();
+      clearTimeout(timer);
+      SplashScreen.hideAsync().catch(console.error);
     }
+    
+    return () => clearTimeout(timer);
   }, [isReady]);
 
-  if (!isReady) {
-    return null;
-  }
-
+  // Don't block rendering - always show the app
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }} initialRouteName="index">

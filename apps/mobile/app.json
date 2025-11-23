@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Time Progress Tracker",
-    "version": "1.0.32",
+    "version": "1.0.70",
     "sdkVersion": "54.0.0",
     "description": "Track your daily, monthly, and yearly progress with a unique perspective-based approach. Choose your glass perspective and see time differently.",
     "slug": "time-progress-tracker",
@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.timeprogresstracker.app",
+      "bundleIdentifier": "com.prabhakaran.timeprogresstracker",
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -24,10 +24,11 @@
       },
       "permissions": [],
       "package": "com.timeprogresstracker.app",
-      "versionCode": 32
+      "versionCode": 70
     },
     "react-native-google-mobile-ads": {
-      "android_app_id": "ca-app-pub-9087069694782013~1860663616"
+      "android_app_id": "ca-app-pub-9087069694782013~1860663616",
+      "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
     },
     "plugins": [
       [
@@ -53,9 +54,9 @@
       "favicon": "./assets/images/favicon.png"
     },
     "fonts": [
-      "./android/app/src/main/assets/fonts/Kalam-Regular.ttf",
-      "./android/app/src/main/assets/fonts/Kalam-Bold.ttf",
-      "./android/app/src/main/assets/fonts/Kalam-Light.ttf"
+      "./android/app/src/main/assets/fonts/Sabdevi-Regular.ttf",
+      "./android/app/src/main/assets/fonts/Sabdevi-Bold.ttf",
+      "./android/app/src/main/assets/fonts/Sabdevi-Light.ttf"
     ],
     "experiments": {
       "typedRoutes": true

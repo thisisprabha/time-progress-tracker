@@ -25,5 +25,13 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
+	<key>RCTNewArchEnabled</key>
+	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Sabdevi-Regular.ttf</string>
+		<string>Sabdevi-Bold.ttf</string>
+		<string>Sabdevi-Light.ttf</string>
+	</array>
 </dict>
 </plist>

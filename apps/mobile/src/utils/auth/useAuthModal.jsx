@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Modal, View } from 'react-native';
 import { create } from 'zustand';
 import { useCallback, useMemo } from 'react';
-import { AuthWebView } from './AuthWebView';
+// import { AuthWebView } from './AuthWebView'; // TODO: Fix AuthWebView component
 import { useAuthStore, useAuthModal } from './store';
 
 
@@ -58,11 +58,14 @@ export const AuthModal = () => {
           padding: 0,
         }}
       >
-        <AuthWebView
+        {/* <AuthWebView
           mode={mode}
           proxyURL={proxyURL}
           baseURL={baseURL}
-        />
+        /> */}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          {/* TODO: Implement AuthWebView or use expo-web-browser */}
+        </View>
       </View>
     </Modal>
   );

@@ -113,87 +113,31 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
         val daysSinceMonday = if (dayOfWeek == Calendar.SUNDAY) 6 else dayOfWeek - Calendar.MONDAY
         val quarterNumber = (calendar.get(Calendar.MONTH) / 3) + 1
 
-        // Generate content lines - clean style like main screen
-        val lines = mutableListOf<Pair<String, Boolean>>()
+        // Helper function to add double spaces between words
+        fun addDoubleSpaces(text: String): String {
+            return text.replace(" ", "  ")
+        }
+        
+        // Generate label-value pairs - simple format: label (left, regular) + value (right, bold)
+        val expandedItems = mutableListOf<String>()
         selectedItems.forEach { item ->
-            val text = when (item) {
-                "today" -> {
-                    if (timeMode == "9-5") {
-                        val officeHoursCompleted = when {
-                            currentHour < 9 -> 0
-                            currentHour >= 17 -> 8
-                            else -> currentHour - 9
-                        }
-                        val officeHoursLeft = 8 - officeHoursCompleted
+            if (item == "custom") {
+                customEvents.forEach { expandedItems.add("custom_event:${it.first}:${it.second}") }
+            } else {
+                expandedItems.add(item)
+            }
+        }
+        
+        val labelValuePairs = mutableListOf<Pair<String, String>>()
+        expandedItems.forEach { item ->
+            val (label, value) = when {
+                item.startsWith("custom_event:") -> {
+                    val parts = item.removePrefix("custom_event:").split(":", limit = 2)
+                    if (parts.size == 2) {
+                        val eventName = parts[0]
+                        val eventDateStr = parts[1]
+                        val eventDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(eventDateStr)
                         
-                        if (perspective == "half-full") {
-                            if (officeHoursCompleted > 0) "${officeHoursCompleted}h done today" else "Day starting"
-                        } else {
-                            if (officeHoursLeft > 0) "${officeHoursLeft}h left today" else "Day done"
-                        }
-                    } else {
-                        val hoursCompleted = currentHour
-                        val hoursLeft = 24 - currentHour
-                        
-                        if (perspective == "half-full") {
-                            if (hoursCompleted > 0) "${hoursCompleted}h done today" else "Day starting"
-                        } else {
-                            if (hoursLeft > 0) "${hoursLeft}h left today" else "Day done"
-                        }
-                    }
-                }
-                "week" -> {
-                    val daysLeft = 7 - daysSinceMonday
-                    if (perspective == "half-full") {
-                        if (daysSinceMonday > 0) "$daysSinceMonday days done this week" else "Week starting"
-                    } else {
-                        if (daysLeft > 0) "$daysLeft days left this week" else "Week done"
-                    }
-                }
-                "month" -> {
-                    val daysCrossed = currentDay - 1
-                    val daysLeft = daysInMonth - currentDay + 1
-                    if (perspective == "half-full") {
-                        if (daysCrossed > 0) "$daysCrossed days done this month" else "Month starting"
-                    } else {
-                        if (daysLeft > 1) "$daysLeft days left this month" else "Month done"
-                    }
-                }
-                "quarter" -> {
-                    // Calculate actual quarter progress
-                    val quarterStartMonth = (quarterNumber - 1) * 3
-                    val quarterStartDay = 1
-                    val quarterStartCalendar = Calendar.getInstance().apply {
-                        set(Calendar.MONTH, quarterStartMonth)
-                        set(Calendar.DAY_OF_MONTH, quarterStartDay)
-                    }
-                    
-                    val daysSinceQuarterStart = ((calendar.timeInMillis - quarterStartCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
-                    val quarterWeeksCompleted = daysSinceQuarterStart / 7
-                    val quarterWeeksLeft = 13 - quarterWeeksCompleted
-                    
-                    if (perspective == "half-full") {
-                        if (quarterWeeksCompleted > 0) "$quarterWeeksCompleted weeks done Q$quarterNumber" else "Q$quarterNumber starting"
-                    } else {
-                        if (quarterWeeksLeft > 0) "$quarterWeeksLeft weeks left Q$quarterNumber" else "Q$quarterNumber done"
-                    }
-                }
-                "year" -> {
-                    val yearProgress = ((dayOfYear.toFloat() / daysInYear.toFloat()) * 100).toInt()
-                    if (perspective == "half-full") {
-                        if (yearProgress > 0) "$yearProgress% done this year" else "Year starting"
-                    } else {
-                        val yearLeft = 100 - yearProgress
-                        if (yearLeft > 0) "$yearLeft% left this year" else "Year done"
-                    }
-                }
-                "custom" -> {
-                    // For custom events, show actual event details
-                    if (customEvents.isNotEmpty()) {
-                        val event = customEvents.first() // Show first event
-                        val eventDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(event.second)
-                        
-                        // Normalize both dates to start of day to match app calculation
                         val eventCal = java.util.Calendar.getInstance()
                         eventCal.time = eventDate
                         eventCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
@@ -209,64 +153,165 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
                         
                         val daysDiff = kotlin.math.round((eventCal.timeInMillis - todayCal.timeInMillis).toDouble() / (1000 * 60 * 60 * 24)).toInt()
                         
-                        if (daysDiff > 0) {
-                            "${daysDiff} days for ${event.first}"
-                        } else if (daysDiff == 0) {
-                            "Today: ${event.first}"
+                        val useWeeks = daysDiff > 30
+                        if (useWeeks) {
+                            val weeksLeft = kotlin.math.round(daysDiff / 7.0).toInt()
+                            if (daysDiff > 0) {
+                                Pair(addDoubleSpaces(eventName), "${weeksLeft}wk")
+                            } else if (daysDiff == 0) {
+                                Pair(addDoubleSpaces(eventName), "Today")
+                            } else {
+                                Pair(addDoubleSpaces(eventName), "${kotlin.math.round(-daysDiff / 7.0).toInt()}wk  ago")
+                            }
                         } else {
-                            "${-daysDiff} days since ${event.first}"
+                            if (daysDiff > 0) {
+                                Pair(addDoubleSpaces(eventName), "${daysDiff}d")
+                            } else if (daysDiff == 0) {
+                                Pair(addDoubleSpaces(eventName), "Today")
+                            } else {
+                                Pair(addDoubleSpaces(eventName), "${-daysDiff}d  ago")
+                            }
                         }
                     } else {
-                        "No custom events"
+                        Pair("Custom  event", "")
                     }
                 }
-                else -> "Unknown"
+                item == "today" -> {
+                    if (timeMode == "9-5") {
+                        val officeHoursCompleted = when {
+                            currentHour < 9 -> 0
+                            currentHour >= 17 -> 8
+                            else -> currentHour - 9
+                        }
+                        val officeHoursLeft = 8 - officeHoursCompleted
+                        
+                        if (perspective == "half-full") {
+                            if (officeHoursCompleted > 0) Pair("Today", "${officeHoursCompleted}hrs  gone") else Pair("Today", "Starting")
+                        } else {
+                            if (officeHoursLeft > 0) Pair("Today", "${officeHoursLeft}hrs  only  left") else Pair("Today", "Done")
+                        }
+                    } else {
+                        val hoursCompleted = currentHour
+                        val hoursLeft = 24 - currentHour
+                        
+                        if (perspective == "half-full") {
+                            if (hoursCompleted > 0) Pair("Today", "${hoursCompleted}hrs  gone") else Pair("Today", "Starting")
+                        } else {
+                            if (hoursLeft > 0) Pair("Today", "${hoursLeft}hrs  only  left") else Pair("Today", "Done")
+                        }
+                    }
+                }
+                item == "week" -> {
+                    val daysLeft = 7 - daysSinceMonday
+                    if (perspective == "half-full") {
+                        if (daysSinceMonday > 0) Pair("This  Week", "${daysSinceMonday}d  gone") else Pair("This  Week", "Starting")
+                    } else {
+                        if (daysLeft > 0) Pair("This  Week", "${daysLeft}d  only  left") else Pair("This  Week", "Done")
+                    }
+                }
+                item == "month" -> {
+                    val daysCrossed = currentDay - 1
+                    val daysLeft = daysInMonth - currentDay + 1
+                    if (perspective == "half-full") {
+                        if (daysCrossed > 0) Pair("This  Month", "${daysCrossed}d  gone") else Pair("This  Month", "Starting")
+                    } else {
+                        if (daysLeft > 1) Pair("This  Month", "${daysLeft}d  only  left") else Pair("This  Month", "Done")
+                    }
+                }
+                item == "quarter" -> {
+                    val quarterStartMonth = (quarterNumber - 1) * 3
+                    val quarterStartDay = 1
+                    val quarterStartCalendar = Calendar.getInstance().apply {
+                        set(Calendar.MONTH, quarterStartMonth)
+                        set(Calendar.DAY_OF_MONTH, quarterStartDay)
+                    }
+                    
+                    val daysSinceQuarterStart = ((calendar.timeInMillis - quarterStartCalendar.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+                    val quarterWeeksCompleted = daysSinceQuarterStart / 7
+                    val quarterWeeksLeft = 13 - quarterWeeksCompleted
+                    
+                    if (perspective == "half-full") {
+                        if (quarterWeeksCompleted > 0) Pair("Q$quarterNumber", "${quarterWeeksCompleted}wk  gone") else Pair("Q$quarterNumber", "Starting")
+                    } else {
+                        if (quarterWeeksLeft > 0) Pair("Q$quarterNumber", "${quarterWeeksLeft}wk  only  left") else Pair("Q$quarterNumber", "Done")
+                    }
+                }
+                item == "year" -> {
+                    val yearProgress = ((dayOfYear.toFloat() / daysInYear.toFloat()) * 100).toInt()
+                    if (perspective == "half-full") {
+                        if (yearProgress > 0) Pair("This  Year", "$yearProgress%  gone") else Pair("This  Year", "Starting")
+                    } else {
+                        val yearLeft = 100 - yearProgress
+                        if (yearLeft > 0) Pair("This  Year", "$yearLeft%  only  left") else Pair("This  Year", "Done")
+                    }
+                }
+                else -> Pair("Unknown", "")
             }
             
-            lines.add(text to false) // Each line is not bold
+            labelValuePairs.add(Pair(label, value))
         }
 
-        // Add additional custom events if there are more than one
-        if (customEvents.size > 1) {
-            customEvents.drop(1).forEach { event ->
-                val eventDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(event.second)
-                
-                // Normalize both dates to start of day to match app calculation
-                val eventCal = java.util.Calendar.getInstance()
-                eventCal.time = eventDate
-                eventCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
-                eventCal.set(java.util.Calendar.MINUTE, 0)
-                eventCal.set(java.util.Calendar.SECOND, 0)
-                eventCal.set(java.util.Calendar.MILLISECOND, 0)
-                
-                val todayCal = java.util.Calendar.getInstance()
-                todayCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
-                todayCal.set(java.util.Calendar.MINUTE, 0)
-                todayCal.set(java.util.Calendar.SECOND, 0)
-                todayCal.set(java.util.Calendar.MILLISECOND, 0)
-                
-                val daysDiff = kotlin.math.round((eventCal.timeInMillis - todayCal.timeInMillis).toDouble() / (1000 * 60 * 60 * 24)).toInt()
-                
-                val eventText = if (daysDiff > 0) {
-                    "${daysDiff} days for ${event.first}"
-                } else if (daysDiff == 0) {
-                    "Today: ${event.first}"
-                } else {
-                    "${-daysDiff} days since ${event.first}"
-                }
-                
-                lines.add(eventText to false)
+        // Get widget size to adjust text size dynamically
+        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+        val minWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+        // Convert dp to pixels (density-independent pixels)
+        val density = context.resources.displayMetrics.density
+        var widgetWidthPx = (minWidthDp * density).toInt()
+        
+        // Safety check: ensure width is valid
+        if (widgetWidthPx <= 0) {
+            Log.w(TAG, "Invalid widget width: $widgetWidthPx, using default 300px")
+            widgetWidthPx = 300 // Default width in pixels
+        }
+        
+        Log.d(TAG, "Widget width: ${minWidthDp}dp = ${widgetWidthPx}px")
+        
+        // Safety check: ensure we have pairs
+        if (labelValuePairs.isEmpty()) {
+            Log.w(TAG, "No pairs generated, adding default")
+            labelValuePairs.add(Pair("Time  Progress", "Loading..."))
+        }
+        
+        Log.d(TAG, "Generated ${labelValuePairs.size} label-value pairs")
+        labelValuePairs.forEachIndexed { index, pair ->
+            Log.d(TAG, "Pair $index: '${pair.first}' -> '${pair.second}'")
+        }
+        
+        // Adjust text size - make smaller for light widget (match dark widget style)
+        val baseTextSize = 28f // Reduced significantly for light widget
+        val adjustedTextSize = when {
+            minWidthDp > 600 -> 22f // Smaller for very large widgets
+            minWidthDp > 400 -> 25f // Medium for large widgets
+            else -> baseTextSize
+        }
+        
+        Log.d(TAG, "Widget size: ${minWidthDp}dp = ${widgetWidthPx}px, textSize: $adjustedTextSize")
+        
+        // Create bitmap with simple label-value format
+        val bitmap = try {
+            TextBitmapUtils.createMultiLabelValueBitmap(
+                context = context,
+                items = labelValuePairs,
+                textSize = adjustedTextSize,
+                textColor = android.graphics.Color.BLACK,
+                backgroundColor = android.graphics.Color.TRANSPARENT,
+                maxWidth = widgetWidthPx,
+                lineHeightMultiplier = 1.2f
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creating bitmap: ${e.message}", e)
+            // Create a simple fallback bitmap
+            val fallbackBitmap = android.graphics.Bitmap.createBitmap(300, 100, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(fallbackBitmap)
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                color = android.graphics.Color.BLACK
+                textSize = 30f
             }
+            canvas.drawText("Time  Progress", 10f, 50f, paint)
+            fallbackBitmap
         }
-
-        // Create bitmap with multi-line support
-        val bitmap = TextBitmapUtils.createMultiLineTextBitmap(
-            context = context,
-            lines = lines,
-            textSize = 20f, // Smaller text size for widget
-            textColor = android.graphics.Color.BLACK,
-            maxWidth = 350
-        )
+        
+        Log.d(TAG, "Bitmap created: ${bitmap.width}x${bitmap.height}")
 
         // Update widget
         views.setImageViewBitmap(R.id.widget_content_image, bitmap)
