@@ -11,28 +11,24 @@ struct LoadingView: View {
     @State private var messageIndex = 0
     @State private var opacity: Double = 0
     
-    let messages = [
+    let primaryMessage = "Time is inevitable."
+    let randomMessages = [
         "Your time is valuable.",
         "Do something great today.",
-        "Time is inevitable."
+        "Every moment counts.",
+        "Make it count.",
+        "Time waits for no one."
     ]
     
     var body: some View {
         ZStack {
             Color.white.ignoresSafeArea()
             
-            VStack(spacing: 30) {
+            VStack {
                 Spacer()
                 
-                // App icon
-                Image("SplashScreenLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .opacity(opacity)
-                
-                // Loading message
-                Text(messages[messageIndex])
+                // Loading message - show primary message first, then random ones
+                Text(messageIndex == 0 ? primaryMessage : randomMessages.randomElement() ?? primaryMessage)
                     .font(.sabdeviBold(size: 24))
                     .foregroundColor(.black)
                     .opacity(opacity)
@@ -49,13 +45,19 @@ struct LoadingView: View {
             opacity = 1
         }
         
-        // Schedule message rotation
+        // Schedule message rotation - show primary first, then random messages
         Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
             withAnimation(.easeOut(duration: 0.5)) {
                 opacity = 0
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                messageIndex = (messageIndex + 1) % messages.count
+                // After first message, show random ones
+                if messageIndex == 0 {
+                    messageIndex = 1
+                } else {
+                    // Keep showing random messages
+                    messageIndex = Int.random(in: 1..<randomMessages.count + 1)
+                }
                 withAnimation(.easeIn(duration: 0.5)) {
                     opacity = 1
                 }

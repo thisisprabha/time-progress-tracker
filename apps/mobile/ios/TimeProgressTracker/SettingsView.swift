@@ -105,23 +105,40 @@ struct SettingsView: View {
                             let isSelected = appState.selectedDisplayItems.contains(customItem)
                             let index = isSelected ? appState.selectedDisplayItems.firstIndex(of: customItem) : nil
                             
-                            SettingsRow(
-                                title: event.name,
-                                isSelected: isSelected,
-                                isDisabled: !isSelected && appState.selectedDisplayItems.count >= 3,
-                                showNumber: isSelected,
-                                number: index != nil ? index! + 1 : nil
-                            ) {
-                                if isSelected {
-                                    if appState.selectedDisplayItems.count > 1 {
-                                        appState.selectedDisplayItems.removeAll { $0 == customItem }
+                            HStack {
+                                SettingsRow(
+                                    title: event.name,
+                                    isSelected: isSelected,
+                                    isDisabled: !isSelected && appState.selectedDisplayItems.count >= 3,
+                                    showNumber: isSelected,
+                                    number: index != nil ? index! + 1 : nil
+                                ) {
+                                    if isSelected {
+                                        if appState.selectedDisplayItems.count > 1 {
+                                            appState.selectedDisplayItems.removeAll { $0 == customItem }
+                                        }
+                                    } else {
+                                        if appState.selectedDisplayItems.count < 3 {
+                                            appState.selectedDisplayItems.append(customItem)
+                                        }
                                     }
-                                } else {
-                                    if appState.selectedDisplayItems.count < 3 {
-                                        appState.selectedDisplayItems.append(customItem)
-                                    }
+                                    appState.saveSettings()
                                 }
-                                appState.saveSettings()
+                                
+                                // Delete button for custom events
+                                Button(action: {
+                                    // Remove from selected items if selected
+                                    appState.selectedDisplayItems.removeAll { $0 == customItem }
+                                    // Remove from custom events
+                                    appState.customEvents.removeAll { $0.id == event.id }
+                                    appState.saveSettings()
+                                }) {
+                                    Image(systemName: "trash")
+                                        .font(.sabdeviRegular(size: 14))
+                                        .foregroundColor(.red)
+                                        .padding(.leading, 8)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
                         
