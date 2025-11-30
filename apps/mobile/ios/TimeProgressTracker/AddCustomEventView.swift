@@ -83,8 +83,8 @@ struct AddCustomEventView: View {
         appState.customEvents.append(newEvent)
         
         // Auto-select this event if less than 3 items selected
-        if appState.selectedDisplayItems.count < 3 {
-            appState.selectedDisplayItems.insert(.custom)
+        if appState.selectedDisplayItems.count < 3 && !appState.selectedDisplayItems.contains(.custom) {
+            appState.selectedDisplayItems.append(.custom)
         }
         
         appState.saveSettings()

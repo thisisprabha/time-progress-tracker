@@ -16,21 +16,26 @@
 		2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA3F4C41C103D266854A232 /* AppDelegate.swift */; };
+		601E89E13DD47C6E15F5EA92 /* cloud-2.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6246322E732A66493BA99AE8 /* cloud-2.svg */; };
+		61509038B3B40E05F9519E7E /* cloud-1.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2D137B90207C6DE7BC0F099B /* cloud-1.svg */; };
 		69F444863957225E8EF47CE3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */; };
 		9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7505302E61828393C7520B34 /* CustomEventTallyView.swift */; };
 		AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09556F403503875A3D4A47D /* CustomEvent.swift */; };
 		B34BD3B98B4E7AF4398FA7FD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12DC321E4BBF9709C97068B6 /* SettingsView.swift */; };
 		B4A978687A910B084BE58934 /* TimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */; };
+		B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */ = {isa = PBXBuildFile; fileRef = 399832AEC6BA23C7D21F5A74 /* sun.svg */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77712E2F85D69CE0A85CDD08 /* FontHelper.swift */; };
 		BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */; };
 		C687A93299959AD487552FB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20537397C54D6146315D061C /* ContentView.swift */; };
 		CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C3B32138009F241E20E2C1 /* LoadingView.swift */; };
+		E00ADA06E2700DCECBFF448F /* cloud-3.svg in Resources */ = {isa = PBXBuildFile; fileRef = 0D6478ECF00CE9570D133955 /* cloud-3.svg */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		06D7D43D10461F3E873BED98 /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
+		0D6478ECF00CE9570D133955 /* cloud-3.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-3.svg"; path = "TimeProgressTracker/Assets/cloud-3.svg"; sourceTree = "<group>"; };
 		1147DD06E709B71D5D9C92C9 /* MainHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainHomeView.swift; path = TimeProgressTracker/MainHomeView.swift; sourceTree = "<group>"; };
 		12DC321E4BBF9709C97068B6 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = TimeProgressTracker/SettingsView.swift; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeProgressTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -40,10 +45,13 @@
 		20537397C54D6146315D061C /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = TimeProgressTracker/ContentView.swift; sourceTree = "<group>"; };
 		22C3B32138009F241E20E2C1 /* LoadingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoadingView.swift; path = TimeProgressTracker/LoadingView.swift; sourceTree = "<group>"; };
 		28E3D207F526638775CE74C1 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
+		2D137B90207C6DE7BC0F099B /* cloud-1.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-1.svg"; path = "TimeProgressTracker/Assets/cloud-1.svg"; sourceTree = "<group>"; };
 		333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		399832AEC6BA23C7D21F5A74 /* sun.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = sun.svg; path = TimeProgressTracker/Assets/sun.svg; sourceTree = "<group>"; };
 		3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
 		577D4748063ABA7293641A1B /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
 		60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
+		6246322E732A66493BA99AE8 /* cloud-2.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-2.svg"; path = "TimeProgressTracker/Assets/cloud-2.svg"; sourceTree = "<group>"; };
 		6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.release.xcconfig"; sourceTree = "<group>"; };
 		7505302E61828393C7520B34 /* CustomEventTallyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
 		77712E2F85D69CE0A85CDD08 /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
@@ -111,6 +119,7 @@
 				C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */,
 				22C3B32138009F241E20E2C1 /* LoadingView.swift */,
 				9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */,
+				F169ECCAEDAFEE8198E722BC /* Assets */,
 			);
 			name = TimeProgressTracker;
 			sourceTree = "<group>";
@@ -189,6 +198,17 @@
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
+		F169ECCAEDAFEE8198E722BC /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				2D137B90207C6DE7BC0F099B /* cloud-1.svg */,
+				6246322E732A66493BA99AE8 /* cloud-2.svg */,
+				0D6478ECF00CE9570D133955 /* cloud-3.svg */,
+				399832AEC6BA23C7D21F5A74 /* sun.svg */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -254,6 +274,10 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				11B53125F3461B752866989E /* PrivacyInfo.xcprivacy in Resources */,
+				61509038B3B40E05F9519E7E /* cloud-1.svg in Resources */,
+				601E89E13DD47C6E15F5EA92 /* cloud-2.svg in Resources */,
+				E00ADA06E2700DCECBFF448F /* cloud-3.svg in Resources */,
+				B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

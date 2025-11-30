@@ -155,16 +155,16 @@ struct CloudView: View {
             ? screenWidth + cloud.width + 50
             : -cloud.width - 50
         
-        withAnimation(.linear(duration: cloud.duration).repeatForever(autoreverses: false)) {
-            offsetX = endX - cloud.startX
+        // Start animation
+        offsetX = cloud.startX
+        withAnimation(.linear(duration: cloud.duration)) {
+            offsetX = endX
         }
         
-        // Reset and loop
-        Timer.scheduledTimer(withTimeInterval: cloud.duration, repeats: true) { _ in
-            offsetX = 0
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                animateCloud()
-            }
+        // Reset and loop after animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + cloud.duration) {
+            offsetX = cloud.startX
+            animateCloud()
         }
     }
 }
