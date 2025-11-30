@@ -33,7 +33,7 @@ class FontHelper {
             }
             
             if let url = fontURL,
-               let fontData = NSData(contentsOf: fontURL),
+               let fontData = NSData(contentsOf: url),
                let dataProvider = CGDataProvider(data: fontData),
                let font = CGFont(dataProvider) {
                 
