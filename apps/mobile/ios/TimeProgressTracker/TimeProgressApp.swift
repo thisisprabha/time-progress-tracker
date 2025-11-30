@@ -27,6 +27,12 @@ class AppState: ObservableObject {
     }
     
     func loadSettings() {
+        // Load custom events first (needed for validating selectedDisplayItems)
+        if let eventsData = UserDefaults.standard.data(forKey: "customEvents"),
+           let events = try? JSONDecoder().decode([CustomEvent].self, from: eventsData) {
+            self.customEvents = events
+        }
+        
         if let savedPerspective = UserDefaults.standard.string(forKey: "userPerspective"),
            let perspective = Perspective(rawValue: savedPerspective) {
             self.perspective = perspective
@@ -40,18 +46,19 @@ class AppState: ObservableObject {
         
         if let savedItems = UserDefaults.standard.array(forKey: "selectedDisplayItems") as? [String] {
             let items = savedItems.compactMap { DisplayItem(rawValue: $0) }
+            // Filter out custom events that no longer exist
+            let validItems = items.filter { item in
+                if case .customEvent(let id) = item {
+                    return customEvents.contains { $0.id == id }
+                }
+                return true
+            }
             // Ensure at least 3 items, default to today, month, year
-            if items.count >= 3 {
-                self.selectedDisplayItems = items
+            if validItems.count >= 3 {
+                self.selectedDisplayItems = validItems
             } else {
                 self.selectedDisplayItems = [.today, .month, .year]
             }
-        }
-        
-        // Load custom events
-        if let eventsData = UserDefaults.standard.data(forKey: "customEvents"),
-           let events = try? JSONDecoder().decode([CustomEvent].self, from: eventsData) {
-            self.customEvents = events
         }
         
         // Load watch complication item
@@ -101,12 +108,58 @@ enum TimeMode: String, CaseIterable {
     case nineToFive = "9-5"
 }
 
-enum DisplayItem: String, CaseIterable {
-    case today = "today"
-    case month = "month"
-    case year = "year"
-    case week = "week"
-    case quarter = "quarter"
-    case custom = "custom"
+enum DisplayItem: Hashable {
+    case today
+    case month
+    case year
+    case week
+    case quarter
+    case customEvent(id: String)
+    
+    var rawValue: String {
+        switch self {
+        case .today: return "today"
+        case .month: return "month"
+        case .year: return "year"
+        case .week: return "week"
+        case .quarter: return "quarter"
+        case .customEvent(let id): return "custom_\(id)"
+        }
+    }
+    
+    init?(rawValue: String) {
+        if rawValue.hasPrefix("custom_") {
+            let id = String(rawValue.dropFirst(7))
+            self = .customEvent(id: id)
+        } else {
+            switch rawValue {
+            case "today": self = .today
+            case "month": self = .month
+            case "year": self = .year
+            case "week": self = .week
+            case "quarter": self = .quarter
+            default: return nil
+            }
+        }
+    }
+    
+    func displayName(in appState: AppState) -> String {
+        switch self {
+        case .today: return "Today"
+        case .month: return "This Month"
+        case .year: return "This Year"
+        case .week: return "This Week"
+        case .quarter: return "Q4"
+        case .customEvent(let id):
+            if let event = appState.customEvents.first(where: { $0.id == id }) {
+                return event.name
+            }
+            return "Custom Event"
+        }
+    }
+    
+    static var allPredefinedCases: [DisplayItem] {
+        [.today, .week, .month, .quarter, .year]
+    }
 }
 

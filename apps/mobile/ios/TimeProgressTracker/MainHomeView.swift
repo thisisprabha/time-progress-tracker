@@ -92,34 +92,23 @@ struct MainHomeView: View {
                                     total: 12,
                                     completed: Int(timeData.yearProgress * 12)
                                 )
-                                
-                                // Add "Add your event" button after "This Year"
-                                Button(action: {
-                                    appState.showAddEvent = true
-                                }) {
-                                    Text("Add your event")
-                                        .font(.sabdeviRegular(size: 12))
-                                        .foregroundColor(.gray)
-                                        .underline()
-                                }
-                                .padding(.top, 10)
-                            } else if item == .custom {
-                                // Show custom events
-                                ForEach(appState.customEvents, id: \.id) { event in
+                            } else if case .customEvent(let eventId) = item {
+                                // Show specific custom event
+                                if let event = appState.customEvents.first(where: { $0.id == eventId }) {
                                     CustomEventTallyView(event: event)
                                         .environmentObject(appState)
                                 }
-                                
-                                // Add "Add your event" button after custom events
-                                Button(action: {
-                                    appState.showAddEvent = true
-                                }) {
-                                    Text("Add your event")
-                                        .font(.sabdeviRegular(size: 12))
-                                        .foregroundColor(.gray)
-                                        .underline()
-                                }
-                                .padding(.top, 10)
+                            }
+                        }
+                        
+                        // Show empty slots with lock icon if less than 3 items
+                        let displayedCount = appState.selectedDisplayItems.count
+                        let emptySlotsNeeded = 3 - displayedCount
+                        
+                        if emptySlotsNeeded > 0 {
+                            ForEach(0..<emptySlotsNeeded, id: \.self) { _ in
+                                EmptyEventSlotView()
+                                    .environmentObject(appState)
                             }
                         }
                         
@@ -161,6 +150,42 @@ struct MainHomeView: View {
     
     private func updateTimeData() {
         timeData = TimeCalculator.calculateTimeData(timeMode: appState.timeMode)
+    }
+}
+
+struct EmptyEventSlotView: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        Button(action: {
+            appState.showAddEvent = true
+        }) {
+            VStack(spacing: 12) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.gray.opacity(0.5))
+                
+                VStack(spacing: 4) {
+                    Text("Add your custom event")
+                        .font(.sabdeviRegular(size: 13))
+                        .foregroundColor(.gray.opacity(0.6))
+                    Text("date here")
+                        .font(.sabdeviRegular(size: 13))
+                        .foregroundColor(.gray.opacity(0.6))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.gray.opacity(0.03))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.1), style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

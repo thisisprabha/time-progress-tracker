@@ -66,7 +66,7 @@ struct SettingsView: View {
                             let index = isSelected ? appState.selectedDisplayItems.firstIndex(of: item) : nil
                             
                             SettingsRow(
-                                title: item.displayName,
+                                title: item.displayName(in: appState),
                                 isSelected: isSelected,
                                 isDisabled: !isSelected && appState.selectedDisplayItems.count >= 3,
                                 showNumber: isSelected,
@@ -85,22 +85,25 @@ struct SettingsView: View {
                             }
                         }
                         
-                        // Add your events button (after predefined items)
-                        Button(action: {
-                            appState.showAddEvent = true
-                        }) {
-                            Text("Add your events")
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.gray)
-                                .underline()
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                        // Add your events button (after predefined items, only if there are no custom events yet)
+                        if appState.customEvents.isEmpty {
+                            Button(action: {
+                                appState.showAddEvent = true
+                            }) {
+                                Text("Add your events")
+                                    .font(.sabdeviRegular(size: 12))
+                                    .foregroundColor(.gray)
+                                    .underline()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .listRowBackground(Color.clear)
                         }
-                        .listRowBackground(Color.clear)
                         
-                        // Custom events list
+                        // Custom events list - each as individual selectable item
                         ForEach(appState.customEvents, id: \.id) { event in
-                            let isSelected = appState.selectedDisplayItems.contains(.custom)
-                            let index = isSelected ? appState.selectedDisplayItems.firstIndex(of: .custom) : nil
+                            let customItem = DisplayItem.customEvent(id: event.id)
+                            let isSelected = appState.selectedDisplayItems.contains(customItem)
+                            let index = isSelected ? appState.selectedDisplayItems.firstIndex(of: customItem) : nil
                             
                             SettingsRow(
                                 title: event.name,
@@ -111,11 +114,11 @@ struct SettingsView: View {
                             ) {
                                 if isSelected {
                                     if appState.selectedDisplayItems.count > 1 {
-                                        appState.selectedDisplayItems.removeAll { $0 == .custom }
+                                        appState.selectedDisplayItems.removeAll { $0 == customItem }
                                     }
                                 } else {
                                     if appState.selectedDisplayItems.count < 3 {
-                                        appState.selectedDisplayItems.append(.custom)
+                                        appState.selectedDisplayItems.append(customItem)
                                     }
                                 }
                                 appState.saveSettings()
@@ -139,7 +142,7 @@ struct SettingsView: View {
                             .foregroundColor(.primary)
                     }
                     
-                    // Apple Watch Complication Section
+                    // Apple Watch Section
                     Section {
                         Text("Choose what to display on Apple Watch")
                             .font(.sabdeviRegular(size: 12))
@@ -151,7 +154,7 @@ struct SettingsView: View {
                             let isSelected = appState.watchComplicationItem == item
                             
                             SettingsRow(
-                                title: item.displayName,
+                                title: item.displayName(in: appState),
                                 isSelected: isSelected
                             ) {
                                 appState.watchComplicationItem = item
@@ -255,19 +258,6 @@ extension TimeMode {
         switch self {
         case .twentyFourHour: return "24 Hours"
         case .nineToFive: return "9 to 5"
-        }
-    }
-}
-
-extension DisplayItem {
-    var displayName: String {
-        switch self {
-        case .today: return "Today"
-        case .month: return "This Month"
-        case .year: return "This Year"
-        case .week: return "This Week"
-        case .quarter: return "Q4" // Will be dynamic based on quarter number
-        case .custom: return "Custom Events"
         }
     }
 }
