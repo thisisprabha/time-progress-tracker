@@ -24,16 +24,8 @@ import * as Haptics from "expo-haptics";
 import { updateWidgets } from '../utils/widgetUpdate';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-
-// Conditionally import AdMob for Android only
-let MobileAds, BannerAd, BannerAdSize, TestIds;
-if (Platform.OS === 'android') {
-  const GoogleMobileAds = require('react-native-google-mobile-ads');
-  MobileAds = GoogleMobileAds.MobileAds;
-  BannerAd = GoogleMobileAds.BannerAd;
-  BannerAdSize = GoogleMobileAds.BannerAdSize;
-  TestIds = GoogleMobileAds.TestIds;
-}
+import AnimatedHeader from '../components/AnimatedHeader';
+import { Lock } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isSmallScreen = screenHeight < 700 || screenWidth < 400;
@@ -122,8 +114,8 @@ const SettingsIcon = ({ onPress }) => {
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <TouchableOpacity 
-        onPress={onPress} 
+      <TouchableOpacity
+        onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={styles.settingsButton}
@@ -176,6 +168,21 @@ const TallyCounter = ({ total, completed, label, value, unit, themeColors }) => 
   );
 };
 
+const EmptyCustomEventsView = ({ onPress, themeColors }) => (
+  <TouchableOpacity onPress={onPress} style={styles.emptyEventContainer}>
+    <View style={styles.emptyEventContent}>
+      <Lock size={24} color={themeColors.textSecondary} style={{ opacity: 0.5, marginBottom: 8 }} />
+      <View style={{ alignItems: 'center' }}>
+        <Text style={[styles.emptyEventText, { color: themeColors.textSecondary }]}>Create custom events</Text>
+        <Text style={[styles.emptyEventText, { color: themeColors.textSecondary }]}>to track</Text>
+      </View>
+      <View style={styles.addYoursButton}>
+        <Text style={styles.addYoursText}>Add yours</Text>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
+
 export default function TimeProgressScreen() {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
@@ -185,7 +192,7 @@ export default function TimeProgressScreen() {
   const [bottomSvgUri, setBottomSvgUri] = useState(null);
 
   const [perspective, setPerspective] = useState(null); // 'half-full' or 'half-empty'
-  
+
   // Debug wrapper for setPerspective
   const debugSetPerspective = useCallback((newPerspective) => {
     console.log("setPerspective called with:", newPerspective, "from:", new Error().stack?.split('\n')[2]);
@@ -194,10 +201,8 @@ export default function TimeProgressScreen() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [showSettingsScreen, setShowSettingsScreen] = useState(false);
   const [timeMode, setTimeMode] = useState('24h'); // '24h' or '9-5'
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [adTimeout, setAdTimeout] = useState(false);
   const [customEvents, setCustomEvents] = useState([]);
-  const [selectedDisplayItems, setSelectedDisplayItems] = useState(['today', 'month', 'year']);
+  const [selectedDisplayItems, setSelectedDisplayItems] = useState(['today']);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventName, setNewEventName] = useState('');
   const [newEventDate, setNewEventDate] = useState('');
@@ -235,35 +240,35 @@ export default function TimeProgressScreen() {
       try {
         // Add a small delay to ensure AsyncStorage is ready
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         const savedPerspective = await AsyncStorage.getItem("userPerspective");
         const savedTimeMode = await AsyncStorage.getItem("timeMode");
         const savedDisplayItems = await AsyncStorage.getItem("selectedDisplayItems");
         const widgetPromptShown = await AsyncStorage.getItem("widgetPromptShown");
-        
+
         console.log("Loading settings - savedPerspective:", savedPerspective, "savedTimeMode:", savedTimeMode, "savedDisplayItems:", savedDisplayItems);
-        
+
         if (savedPerspective && savedPerspective !== 'null') {
           console.log("Setting perspective to:", savedPerspective);
           debugSetPerspective(savedPerspective);
           setHasCompletedOnboarding(true);
         }
-        
+
         if (savedTimeMode && savedTimeMode !== 'null') {
           console.log("Setting timeMode to:", savedTimeMode);
           setTimeMode(savedTimeMode);
         }
-        
+
         if (savedDisplayItems) {
           console.log("Setting display items to:", JSON.parse(savedDisplayItems));
           setSelectedDisplayItems(JSON.parse(savedDisplayItems));
         }
-        
+
         // Check if widget prompt should be shown (first time after onboarding)
         if (!widgetPromptShown && savedPerspective && savedPerspective !== 'null') {
           setShowWidgetPrompt(true);
         }
-        
+
         // Update widgets on app start to ensure they have latest data
         if (savedPerspective && savedPerspective !== 'null') {
           updateWidgets();
@@ -274,36 +279,6 @@ export default function TimeProgressScreen() {
     };
     loadSettings();
   }, [debugSetPerspective]);
-
-  // Initialize AdMob (Android only)
-  useEffect(() => {
-    if (Platform.OS === 'android' && MobileAds) {
-      MobileAds()
-        .setRequestConfiguration({
-          // Set your test device IDs here
-          testDeviceIdentifiers: ['EMULATOR'],
-        })
-        .then(() => {
-          // Initialize the Google Mobile Ads SDK
-          return MobileAds().initialize();
-        })
-        .then(() => {
-          console.log('AdMob initialized successfully');
-        })
-        .catch((error) => {
-          console.error('AdMob initialization failed:', error);
-        });
-
-      // Set ad timeout fallback
-      const timer = setTimeout(() => {
-        if (!adLoaded) {
-          setAdTimeout(true);
-        }
-      }, 12000); // 12 seconds timeout
-
-      return () => clearTimeout(timer);
-    }
-  }, [adLoaded]);
 
   const calculateTimeProgress = useCallback(() => {
     const now = new Date();
@@ -427,12 +402,15 @@ export default function TimeProgressScreen() {
     try {
       const savedEvents = await AsyncStorage.getItem('customEvents');
       if (savedEvents) {
-        setCustomEvents(JSON.parse(savedEvents));
+        const events = JSON.parse(savedEvents);
+        setCustomEvents(events);
+        // Schedule notifications for loaded events
+        await scheduleEventNotifications(events);
       }
     } catch (error) {
       console.error('Error loading custom events:', error);
     }
-  }, []);
+  }, [scheduleEventNotifications]);
 
   const saveCustomEvents = useCallback(async (events) => {
     try {
@@ -440,6 +418,48 @@ export default function TimeProgressScreen() {
       setCustomEvents(events);
     } catch (error) {
       console.error('Error saving custom events:', error);
+    }
+  }, []);
+
+  // Schedule day-before notifications for custom events
+  const scheduleEventNotifications = useCallback(async (events) => {
+    try {
+      // Cancel all existing event notifications (keep only weekly notifications)
+      const allNotifications = await Notifications.getAllScheduledNotificationsAsync();
+      for (const notification of allNotifications) {
+        if (notification.content.data?.type === 'event_reminder') {
+          await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+        }
+      }
+
+      // Schedule new notifications for each event
+      for (const event of events) {
+        const dateParts = event.date.split('-');
+        const eventDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+
+        // Calculate day before event at 9 AM
+        const dayBefore = new Date(eventDate);
+        dayBefore.setDate(eventDate.getDate() - 1);
+        dayBefore.setHours(9, 0, 0, 0);
+
+        // Only schedule if day before is in the future
+        const now = new Date();
+        if (dayBefore > now) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "📅 Upcoming Event",
+              body: `${event.name} is tomorrow`,
+              data: { type: 'event_reminder', eventId: event.id },
+            },
+            trigger: {
+              date: dayBefore,
+            },
+          });
+          console.log(`Scheduled notification for ${event.name} on ${dayBefore}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error scheduling event notifications:', error);
     }
   }, []);
 
@@ -453,15 +473,18 @@ export default function TimeProgressScreen() {
       };
       const updatedEvents = [...customEvents, newEvent];
       await saveCustomEvents(updatedEvents);
-      
+
+      // Schedule notifications for all events
+      await scheduleEventNotifications(updatedEvents);
+
       // If custom events count + custom display item = 3, remove other display items
-      const currentItems = selectedDisplayItems.includes('custom') 
-        ? selectedDisplayItems 
+      const currentItems = selectedDisplayItems.includes('custom')
+        ? selectedDisplayItems
         : [...selectedDisplayItems, 'custom'];
-      
+
       // Count total display items (custom events count as separate items)
       const totalDisplayCount = updatedEvents.length + (currentItems.filter(item => item !== 'custom').length);
-      
+
       if (totalDisplayCount > 3) {
         // Keep only 'custom' and remove others to maintain max 3
         const newDisplayItems = ['custom'];
@@ -473,47 +496,50 @@ export default function TimeProgressScreen() {
         await AsyncStorage.setItem('selectedDisplayItems', JSON.stringify(newDisplayItems));
         setSelectedDisplayItems(newDisplayItems);
       }
-      
+
       // Update widget after custom events are saved
       updateWidgets();
     } catch (error) {
       console.error('Error adding custom event:', error);
     }
-  }, [customEvents, saveCustomEvents, selectedDisplayItems]);
+  }, [customEvents, saveCustomEvents, selectedDisplayItems, scheduleEventNotifications]);
 
   const deleteCustomEvent = useCallback(async (eventId) => {
     try {
       const updatedEvents = customEvents.filter(event => event.id !== eventId);
       await saveCustomEvents(updatedEvents);
-      
+
+      // Reschedule notifications for remaining events
+      await scheduleEventNotifications(updatedEvents);
+
       // Update widget after custom events are saved
       updateWidgets();
     } catch (error) {
       console.error('Error deleting custom event:', error);
     }
-  }, [customEvents, saveCustomEvents]);
+  }, [customEvents, saveCustomEvents, scheduleEventNotifications]);
 
   const calculateCustomEventProgress = useCallback((event) => {
     const now = new Date();
-    
+
     // Parse the date string (YYYY-MM-DD format)
     const dateParts = event.date.split('-');
     const eventDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-    
+
     // Set both dates to start of day to avoid timezone issues
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
-    
+
     const diffTime = eventDay.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    
+
     // Calculate weeks for events > 30 days
     const weeksLeft = Math.ceil(Math.abs(diffDays) / 7);
     const useWeeks = Math.abs(diffDays) > 30;
-    
+
     // Format date as DD/MM/YYYY
     const formattedDate = `${String(eventDate.getDate()).padStart(2, '0')}/${String(eventDate.getMonth() + 1).padStart(2, '0')}/${eventDate.getFullYear()}`;
-    
+
     return {
       daysLeft: diffDays,
       weeksLeft: weeksLeft,
@@ -535,9 +561,9 @@ export default function TimeProgressScreen() {
       try {
         const headerAsset = Asset.fromModule(require('../../assets/svg/header-sunskybird.svg'));
         const bottomAsset = Asset.fromModule(require('../../assets/svg/bottom-mountain.svg'));
-        
+
         await Promise.all([headerAsset.downloadAsync(), bottomAsset.downloadAsync()]);
-        
+
         setHeaderSvgUri(headerAsset.localUri || headerAsset.uri);
         setBottomSvgUri(bottomAsset.localUri || bottomAsset.uri);
       } catch (error) {
@@ -550,7 +576,7 @@ export default function TimeProgressScreen() {
   // Display Items Management
   const handleDisplayItemToggle = useCallback(async (itemType) => {
     await Haptics.selectionAsync();
-    
+
     if (selectedDisplayItems.includes(itemType)) {
       // Remove item
       const updatedItems = selectedDisplayItems.filter(item => item !== itemType);
@@ -573,9 +599,9 @@ export default function TimeProgressScreen() {
   const formatDateInput = useCallback((input) => {
     // Remove all non-digits
     const digitsOnly = input.replace(/\D/g, '');
-    
+
     if (digitsOnly.length === 0) return '';
-    
+
     // Handle different input lengths
     if (digitsOnly.length <= 2) {
       return digitsOnly;
@@ -592,24 +618,24 @@ export default function TimeProgressScreen() {
   const convertToISODate = useCallback((dateString) => {
     // Handle empty input
     if (!dateString) return '';
-    
+
     // Extract digits
     const digits = dateString.replace(/\D/g, '');
     if (digits.length !== 8) return '';
-    
+
     const day = parseInt(digits.slice(0, 2));
     const month = parseInt(digits.slice(2, 4)) - 1; // JS months are 0-based
     const year = parseInt(digits.slice(4, 8));
-    
+
     // Validate date components
     if (month < 0 || month > 11) return '';
     if (day < 1 || day > 31) return '';
     if (year < 2000 || year > 2100) return '';
-    
+
     // Create and validate date object
     const date = new Date(year, month, day);
     if (isNaN(date.getTime())) return '';
-    
+
     // Return ISO format YYYY-MM-DD
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }, []);
@@ -685,7 +711,7 @@ export default function TimeProgressScreen() {
 
   const generateWeeklyProgressMessage = useCallback(() => {
     const messages = [];
-    
+
     // Calculate current time data for notifications
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -727,7 +753,7 @@ export default function TimeProgressScreen() {
 
     const hoursCompleted = currentHour + (currentMinute > 30 ? 1 : 0);
     const hoursLeftToday = 24 - hoursCompleted;
-    
+
     // Office hours calculation
     const startOfOfficeDay = new Date(currentYear, currentMonth, currentDate, 9, 0);
     const endOfOfficeDay = new Date(currentYear, currentMonth, currentDate, 17, 0);
@@ -741,7 +767,7 @@ export default function TimeProgressScreen() {
       officeHoursCompleted = 8;
       officeHoursLeft = 0;
     }
-    
+
     selectedDisplayItems.forEach(itemType => {
       switch (itemType) {
         case 'today':
@@ -842,7 +868,7 @@ export default function TimeProgressScreen() {
             customEvents.forEach(event => {
               const eventDate = new Date(event.date);
               const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
-              
+
               if (daysDiff > 0) {
                 messages.push(`${daysDiff} days for ${event.name}`);
               } else if (daysDiff === 0) {
@@ -878,7 +904,7 @@ export default function TimeProgressScreen() {
     try {
       await AsyncStorage.setItem("userPerspective", selectedPerspective);
       console.log("Successfully saved perspective:", selectedPerspective);
-      
+
       // Verify the save worked
       const verifySave = await AsyncStorage.getItem("userPerspective");
       console.log("Verification - saved value:", verifySave);
@@ -896,11 +922,11 @@ export default function TimeProgressScreen() {
     try {
       await AsyncStorage.setItem("timeMode", mode);
       console.log("Successfully saved timeMode:", mode);
-      
+
       // Verify the save worked
       const verifySave = await AsyncStorage.getItem("timeMode");
       console.log("Verification - saved timeMode:", verifySave);
-      
+
       // Update widget when settings change
       updateWidgets();
     } catch (error) {
@@ -917,11 +943,11 @@ export default function TimeProgressScreen() {
     try {
       await AsyncStorage.setItem("userPerspective", newPerspective);
       console.log("Successfully saved perspective in settings:", newPerspective);
-      
+
       // Verify the save worked
       const verifySave = await AsyncStorage.getItem("userPerspective");
       console.log("Verification - saved value:", verifySave);
-      
+
       // Update widget when settings change
       updateWidgets();
       setShowSettings(false);
@@ -933,19 +959,19 @@ export default function TimeProgressScreen() {
   const renderTallyCounter = useCallback(
     (itemType, perspective) => {
       let label, value, unit, total, completed;
-        const now = new Date();
+      const now = new Date();
 
       switch (itemType) {
         case 'today':
           label = "Today";
-        if (timeMode === '9-5') {
+          if (timeMode === '9-5') {
             total = 8;
-          completed = timeData.officeHoursCompleted;
+            completed = timeData.officeHoursCompleted;
             value = perspective === "half-full" ? timeData.officeHoursCompleted : timeData.officeHoursLeft;
             unit = perspective === "half-full" ? "office  hrs  gone" : "office  hrs  only  left";
-        } else {
+          } else {
             total = 24;
-          completed = timeData.hoursCompleted;
+            completed = timeData.hoursCompleted;
             value = perspective === "half-full" ? timeData.hoursCompleted : timeData.hoursLeftToday;
             unit = perspective === "half-full" ? "hrs  gone" : "hrs  only  left";
           }
@@ -1005,7 +1031,7 @@ export default function TimeProgressScreen() {
             const event = customEvents[0];
             const progress = calculateCustomEventProgress(event);
             label = event.name;
-            
+
             if (progress.isPast) {
               if (progress.useWeeks) {
                 total = progress.weeksLeft;
@@ -1066,9 +1092,9 @@ export default function TimeProgressScreen() {
   const renderCustomEventCounterWithTheme = useCallback((event, perspective, index) => {
     const progress = calculateCustomEventProgress(event);
     let label, total, completed, value, unit;
-    
+
     label = event.name;
-    
+
     if (progress.isPast) {
       // For past events, use weeks if > 30 days, otherwise days
       if (progress.useWeeks) {
@@ -1119,19 +1145,19 @@ export default function TimeProgressScreen() {
   const renderTallyCounterWithTheme = useCallback(
     (itemType, perspective) => {
       let label, value, unit, total, completed;
-        const now = new Date();
+      const now = new Date();
 
       switch (itemType) {
         case 'today':
           label = "Today";
-        if (timeMode === '9-5') {
+          if (timeMode === '9-5') {
             total = 8;
-          completed = timeData.officeHoursCompleted;
+            completed = timeData.officeHoursCompleted;
             value = perspective === "half-full" ? timeData.officeHoursCompleted : timeData.officeHoursLeft;
             unit = perspective === "half-full" ? "office  hrs  gone" : "office  hrs  only  left";
-        } else {
+          } else {
             total = 24;
-          completed = timeData.hoursCompleted;
+            completed = timeData.hoursCompleted;
             value = perspective === "half-full" ? timeData.hoursCompleted : timeData.hoursLeftToday;
             unit = perspective === "half-full" ? "hrs  gone" : "hrs  only  left";
           }
@@ -1191,7 +1217,7 @@ export default function TimeProgressScreen() {
             const event = customEvents[0];
             const progress = calculateCustomEventProgress(event);
             label = event.name;
-            
+
             if (progress.isPast) {
               if (progress.useWeeks) {
                 total = progress.weeksLeft;
@@ -1242,20 +1268,10 @@ export default function TimeProgressScreen() {
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <StatusBar style={isDark ? "light" : "dark"} />
 
-      {/* 1. Header SVG - Full width, below status bar */}
-      {hasCompletedOnboarding && headerSvgUri && (
+      {/* 1. Animated Header - Full width, below status bar */}
+      {hasCompletedOnboarding && (
         <View style={[styles.headerSvgContainer, { top: insets.top + 10 }]}>
-          <Image
-            source={{ uri: headerSvgUri }}
-            style={[
-              styles.headerSvgFull, 
-              { 
-                opacity: 0.5,
-                tintColor: isDark ? '#ffffff' : undefined // Invert black to white in dark mode
-              }
-            ]}
-            contentFit="cover"
-          />
+          <AnimatedHeader />
           {/* Settings Icon overlay */}
           <View style={[styles.headerIconOverlay, { top: 10 }]}>
             <SettingsIcon onPress={() => setShowSettingsScreen(true)} />
@@ -1306,16 +1322,34 @@ export default function TimeProgressScreen() {
           /* 2. Middle Sections - Progress Items */
           <View style={styles.progressSectionContainer}>
             <View style={[styles.progressSection, isSmallScreen && styles.progressSectionScaled]}>
-              {selectedDisplayItems.map((itemType) => {
-                if (itemType === 'custom') {
-                  // For custom, show ALL custom events as separate items
-                  return customEvents.map((event, index) => 
-                    renderCustomEventCounterWithTheme(event, perspective, index)
+              {(() => {
+                // Calculate rendered items
+                const renderedItems = [];
+
+                selectedDisplayItems.forEach(itemType => {
+                  if (itemType === 'custom') {
+                    customEvents.forEach((event, index) => {
+                      renderedItems.push(renderCustomEventCounterWithTheme(event, perspective, index));
+                    });
+                  } else {
+                    renderedItems.push(renderTallyCounterWithTheme(itemType, perspective));
+                  }
+                });
+
+                // Always show 3 cards total - fill remaining with unlock cards
+                const slotsNeeded = 3 - renderedItems.length;
+                for (let i = 0; i < slotsNeeded; i++) {
+                  renderedItems.push(
+                    <EmptyCustomEventsView
+                      key={`empty-${i}`}
+                      onPress={() => setShowAddEvent(true)}
+                      themeColors={themeColors}
+                    />
                   );
-                } else {
-                  return renderTallyCounterWithTheme(itemType, perspective);
                 }
-              }).flat()}
+
+                return renderedItems;
+              })()}
             </View>
           </View>
         )}
@@ -1323,9 +1357,7 @@ export default function TimeProgressScreen() {
 
       {/* 3. Bottom Mountain SVG - Hidden for now */}
       {/* {hasCompletedOnboarding && bottomSvgUri && (
-        <View style={[styles.bottomMountainContainer, { 
-          bottom: Platform.OS === 'android' && BannerAd && !adTimeout ? 70 : 0
-        }]}>
+        <View style={[styles.bottomMountainContainer]}>
           <Image
             source={{ uri: bottomSvgUri }}
             style={[
@@ -1396,7 +1428,7 @@ export default function TimeProgressScreen() {
         <View style={[styles.settingsModalContainer, { backgroundColor: themeColors.background }]}>
           <View style={[styles.settingsModalHeader, { borderBottomColor: themeColors.border }]}>
             <SmartText style={[styles.settingsScreenTitle, { color: themeColors.text }]}>Settings</SmartText>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowSettingsScreen(false)}
               style={styles.closeButton}
             >
@@ -1404,29 +1436,12 @@ export default function TimeProgressScreen() {
             </TouchableOpacity>
           </View>
 
-          <ScrollView 
+          <ScrollView
             style={styles.settingsScreenContent}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.settingsScreenScrollContent}
           >
-            {/* AdMob Banner in Settings (Android only) */}
-            {Platform.OS === 'android' && (
-              <View style={styles.settingsAdContainer}>
-            {BannerAd ? (
-              <BannerAd
-                    unitId={"ca-app-pub-9087069694782013/2019418042"}
-                    size={BannerAdSize.BANNER}
-                    onAdLoaded={() => {
-                      console.log('Settings banner ad loaded');
-                    }}
-                    onAdFailedToLoad={(error) => {
-                      console.error('Settings banner ad failed to load:', error);
-                    }}
-                  />
-                ) : null}
-              </View>
-            )}
-            
+
             {/* Perspective Setting */}
             <View style={styles.settingSection}>
               <SmartText style={[styles.settingSectionHeading, { color: themeColors.text }]}>Your  Mindset</SmartText>
@@ -1435,7 +1450,7 @@ export default function TimeProgressScreen() {
                   onPress={() => handlePerspectiveChange("half-full")}
                   style={[
                     styles.settingButton,
-                    { 
+                    {
                       backgroundColor: perspective === "half-full" ? 'transparent' : themeColors.border,
                       borderColor: perspective === "half-full" ? themeColors.text : themeColors.border,
                       borderWidth: perspective === "half-full" ? 2 : 1,
@@ -1453,7 +1468,7 @@ export default function TimeProgressScreen() {
                   onPress={() => handlePerspectiveChange("half-empty")}
                   style={[
                     styles.settingButton,
-                    { 
+                    {
                       backgroundColor: perspective === "half-empty" ? 'transparent' : themeColors.border,
                       borderColor: perspective === "half-empty" ? themeColors.text : themeColors.border,
                       borderWidth: perspective === "half-empty" ? 2 : 1,
@@ -1478,7 +1493,7 @@ export default function TimeProgressScreen() {
                   onPress={() => handleTimeModeChange("24h")}
                   style={[
                     styles.settingButton,
-                    { 
+                    {
                       backgroundColor: timeMode === "24h" ? 'transparent' : themeColors.border,
                       borderColor: timeMode === "24h" ? themeColors.text : themeColors.border,
                       borderWidth: timeMode === "24h" ? 2 : 1,
@@ -1496,7 +1511,7 @@ export default function TimeProgressScreen() {
                   onPress={() => handleTimeModeChange("9-5")}
                   style={[
                     styles.settingButton,
-                    { 
+                    {
                       backgroundColor: timeMode === "9-5" ? 'transparent' : themeColors.border,
                       borderColor: timeMode === "9-5" ? themeColors.text : themeColors.border,
                       borderWidth: timeMode === "9-5" ? 2 : 1,
@@ -1516,13 +1531,14 @@ export default function TimeProgressScreen() {
             {/* Customize Display Section */}
             <View style={styles.settingSection}>
               <SmartText style={[styles.settingSectionHeading, { color: themeColors.text }]}>Customize  Display</SmartText>
-              <SmartText style={[styles.settingDescriptionSmall, { color: themeColors.textSecondary }]}>Choose  3  items  to  display</SmartText>
-              
+              <SmartText style={[styles.settingDescriptionSmall, { color: themeColors.textSecondary }]}>Today  is  always  shown.  Choose  2  more  items.</SmartText>
+
               <View style={styles.displayItemsContainer}>
                 {['today', 'week', 'month', 'quarter', 'year', 'custom'].map((itemType) => {
                   const isSelected = selectedDisplayItems.includes(itemType);
-                  const isDisabled = !isSelected && selectedDisplayItems.length >= 3;
-                  
+                  const isToday = itemType === 'today';
+                  const isDisabled = isToday || (!isSelected && selectedDisplayItems.length >= 3);
+
                   return (
                     <TouchableOpacity
                       key={itemType}
@@ -1545,17 +1561,17 @@ export default function TimeProgressScreen() {
                         isDisabled && styles.displayItemButtonTextDisabled,
                       ]}>
                         {itemType === 'today' ? 'Today' :
-                         itemType === 'week' ? 'This Week' :
-                         itemType === 'month' ? 'This Month' :
-                         itemType === 'quarter' ? `Q${timeData.quarterNumber}` :
-                         itemType === 'year' ? 'This Year' :
-                         'Custom Events'}
+                          itemType === 'week' ? 'This Week' :
+                            itemType === 'month' ? 'This Month' :
+                              itemType === 'quarter' ? `Q${timeData.quarterNumber}` :
+                                itemType === 'year' ? 'This Year' :
+                                  'Custom Events'}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
-              
+
               {/* Show custom event fields when custom is selected */}
               {selectedDisplayItems.includes('custom') && (
                 <View style={styles.customEventFields}>
@@ -1581,8 +1597,8 @@ export default function TimeProgressScreen() {
                             progress.isPast && styles.eventStatusPast
                           ]}>
                             {progress.isToday ? 'Today!' :
-                             progress.isPast ? (progress.useWeeks ? `${progress.weeksLeft} weeks ago` : `${Math.abs(progress.daysLeft)} days ago`) :
-                             (progress.useWeeks ? `${progress.weeksLeft} weeks left` : `${progress.daysLeft} days left`)}
+                              progress.isPast ? (progress.useWeeks ? `${progress.weeksLeft} weeks ago` : `${Math.abs(progress.daysLeft)} days ago`) :
+                                (progress.useWeeks ? `${progress.weeksLeft} weeks left` : `${progress.daysLeft} days left`)}
                           </Text>
                           <TouchableOpacity
                             onPress={() => deleteCustomEvent(event.id)}
@@ -1606,7 +1622,7 @@ export default function TimeProgressScreen() {
 
             {/* Widget Sync Button */}
             <View style={styles.settingSection}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.syncButton}
                 onPress={() => {
                   updateWidgets();
@@ -1632,7 +1648,7 @@ export default function TimeProgressScreen() {
           <View style={styles.addEventModalContainer}>
             <View style={styles.addEventModalHeader}>
               <Text style={styles.addEventModalTitle}>Add Custom Event</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => {
                   setShowAddEvent(false);
                   setNewEventName('');
@@ -1683,26 +1699,6 @@ export default function TimeProgressScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* AdMob Banner (Android only) */}
-      {Platform.OS === 'android' && (
-        <View style={[styles.bannerContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          {BannerAd && !adTimeout ? (
-            <BannerAd
-              unitId={"ca-app-pub-9087069694782013/2019418042"}
-              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-              onAdLoaded={() => {
-                console.log('Banner ad loaded');
-                setAdLoaded(true);
-              }}
-              onAdFailedToLoad={(error) => {
-                console.error('Banner ad failed to load:', error);
-                setAdTimeout(true);
-              }}
-            />
-          ) : null}
-        </View>
-      )}
     </View>
   );
 }
@@ -1761,7 +1757,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   settingsScreenTitle: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 23.4, // 39 * 0.6 = 23.4
     color: '#000000',
   },
@@ -1791,7 +1787,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   questionText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 18, // 30 * 0.6 = 18
     marginBottom: 50,
     textAlign: "center",
@@ -1819,7 +1815,7 @@ const styles = StyleSheet.create({
     borderColor: "#222222",
   },
   perspectiveButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 15, // 25 * 0.6 = 15
   },
   halfFullButtonText: {
@@ -1897,14 +1893,14 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   widgetPromptTitle: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 22.4, // 32 * 0.7 = 22.4
     color: '#000000',
     marginBottom: 12,
     textAlign: 'center',
   },
   widgetPromptText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.3, // 19 * 0.7 = 13.3
     color: '#666666',
     marginBottom: 24,
@@ -1921,7 +1917,7 @@ const styles = StyleSheet.create({
     borderColor: '#000000',
   },
   widgetPromptButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 15.4, // 22 * 0.7 = 15.4
     color: '#ffffff',
   },
@@ -1930,7 +1926,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   widgetPromptDismissText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.3, // 19 * 0.7 = 13.3
     color: '#666666',
     textDecorationLine: 'underline',
@@ -1953,17 +1949,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   progressLabel: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 17.5, // 25 * 0.7 = 17.5
     color: "#666666",
   },
   progressValueBold: {
-    fontWeight: 'bold', // Using system font bold
+    fontFamily: 'Sabdevi-Bold',
     fontSize: 17.5, // 25 * 0.7 = 17.5
     color: "#222222",
   },
   progressValueRegular: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 17.5, // 25 * 0.7 = 17.5
     color: "#222222",
   },
@@ -2052,7 +2048,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   modalTitle: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 28,
     color: "#000000",
     textAlign: "center",
@@ -2063,20 +2059,20 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   settingSectionHeading: {
-    fontWeight: 'bold', // Using system font bold
+    fontFamily: 'Sabdevi-Bold',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: '#000000',
     marginBottom: 12,
   },
   settingLabel: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: "#000000",
     marginBottom: 8,
     fontWeight: "600",
   },
   settingDescription: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 9.6, // 16 * 0.6 = 9.6
     color: "#666666",
     marginBottom: 12,
@@ -2099,7 +2095,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000000",
   },
   settingButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 9.6, // 16 * 0.6 = 9.6
     color: "#000000",
   },
@@ -2115,7 +2111,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: '#ffffff',
   },
@@ -2126,7 +2122,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   syncButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#000000',
     textDecorationLine: 'underline',
@@ -2156,7 +2152,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   adPlaceholderText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: '#999999',
   },
@@ -2178,14 +2174,14 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   settingDescription: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 19,
     color: '#666',
     marginBottom: 16,
     textAlign: 'center',
   },
   settingDescriptionSmall: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.3, // 19 * 0.7 = 13.3
     color: '#666',
     marginBottom: 16,
@@ -2229,12 +2225,12 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   displayItemButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: '#000000',
   },
   displayItemButtonTextBold: {
-    fontWeight: 'bold', // Using system font bold
+    fontFamily: 'Sabdevi-Bold',
   },
   displayItemButtonTextDisabled: {
     color: '#666666',
@@ -2248,7 +2244,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   addEventButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 9.6, // 16 * 0.6 = 9.6
     color: '#ffffff',
   },
@@ -2257,7 +2253,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   customEventFieldsTitle: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 9.6, // 16 * 0.6 = 9.6
     color: '#000000',
     marginBottom: 8,
@@ -2276,13 +2272,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   eventName: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#222',
     flex: 1,
   },
   eventDateText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: '#666',
   },
@@ -2292,7 +2288,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   eventStatusText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 11.4, // 19 * 0.6 = 11.4
     color: '#666',
   },
@@ -2312,7 +2308,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteEventButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#ffffff',
   },
@@ -2320,7 +2316,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#222',
     marginBottom: 8,
@@ -2331,7 +2327,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#222',
   },
@@ -2354,12 +2350,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   cancelButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#666',
   },
   saveButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#fff',
   },
@@ -2372,7 +2368,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   notificationButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#ffffff',
   },
@@ -2408,7 +2404,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   addEventModalTitle: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 16.8, // 28 * 0.6 = 16.8
     color: '#000000',
   },
@@ -2416,7 +2412,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   addEventLabel: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#222222',
     marginBottom: 8,
@@ -2427,7 +2423,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular',
     fontSize: 13.2, // 22 * 0.6 = 13.2
     color: '#222',
     backgroundColor: '#ffffff',
@@ -2444,8 +2440,40 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   addEventSubmitButtonText: {
-    // fontFamily: 'Sabdevi-Regular', // Using system font
+    fontFamily: 'Sabdevi-Regular', // Using system font
     fontSize: 13.2, // 22 * 0.6 = 13.2
+    color: '#ffffff',
+  },
+  emptyEventContainer: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+    borderStyle: 'dashed',
+  },
+  emptyEventContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  emptyEventText: {
+    fontFamily: 'Sabdevi-Regular',
+    fontSize: 13,
+    textAlign: 'center',
+    opacity: 0.6,
+  },
+  addYoursButton: {
+    marginTop: 12,
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  addYoursText: {
+    fontFamily: 'Sabdevi-Bold',
+    fontSize: 12,
     color: '#ffffff',
   },
 });

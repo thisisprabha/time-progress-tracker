@@ -18,126 +18,134 @@ struct MainHomeView: View {
             Color.white.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header with sun/cloud SVG placeholder
-                HeaderView()
-                    .padding(.top, 50)
+                // Animated Header - moved to very top
+                AnimatedHeaderView()
+                    .frame(height: 200)
+                    .padding(.top, 0)
                 
                 Spacer()
+                    .frame(height: 5)
                 
-                // Main content - show exactly 3 selected items
+                // Main content - show items in order from selectedDisplayItems
                 ScrollView {
-                    VStack(spacing: 24) {
-                        // Today
-                        if appState.selectedDisplayItems.contains(.today) {
-                            TallyCounterView(
-                                label: "Today",
-                                value: appState.perspective == .halfFull
-                                    ? "\(timeData.hoursCompleted)"
-                                    : "\(timeData.hoursLeft)",
-                                unit: appState.perspective == .halfFull
-                                    ? "hrs done"
-                                    : "hrs left",
-                                total: 24,
-                                completed: timeData.hoursCompleted
-                            )
-                        }
-                        
-                        // Week
-                        if appState.selectedDisplayItems.contains(.week) {
-                            TallyCounterView(
-                                label: "This Week",
-                                value: appState.perspective == .halfFull
-                                    ? "\(timeData.daysCompleted)"
-                                    : "\(timeData.daysLeft)",
-                                unit: appState.perspective == .halfFull
-                                    ? "d done"
-                                    : "d left",
-                                total: 7,
-                                completed: timeData.daysCompleted
-                            )
-                        }
-                        
-                        // Month
-                        if appState.selectedDisplayItems.contains(.month) {
-                            let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())?.count ?? 30
-                            TallyCounterView(
-                                label: "This Month",
-                                value: appState.perspective == .halfFull
-                                    ? "\(timeData.daysCompleted)"
-                                    : "\(timeData.daysLeft)",
-                                unit: appState.perspective == .halfFull
-                                    ? "d done"
-                                    : "d left",
-                                total: daysInMonth,
-                                completed: timeData.daysCompleted
-                            )
-                        }
-                        
-                        // Quarter
-                        if appState.selectedDisplayItems.contains(.quarter) {
-                            TallyCounterView(
-                                label: "Q\(timeData.quarterNumber)",
-                                value: appState.perspective == .halfFull
-                                    ? "\(timeData.weeksCompleted)"
-                                    : "\(timeData.weeksLeft)",
-                                unit: appState.perspective == .halfFull
-                                    ? "wk done"
-                                    : "wk left",
-                                total: 13,
-                                completed: timeData.weeksCompleted
-                            )
-                        }
-                        
-                        // Year
-                        if appState.selectedDisplayItems.contains(.year) {
-                            TallyCounterView(
-                                label: "This Year",
-                                value: appState.perspective == .halfFull
-                                    ? "\(Int(timeData.yearProgress * 100))"
-                                    : "\(Int(timeData.yearPercentLeft))",
-                                unit: appState.perspective == .halfFull
-                                    ? "% done"
-                                    : "% left",
-                                total: 12,
-                                completed: Int(timeData.yearProgress * 12)
-                            )
-                        }
-                        
-                        // Custom Events
-                        if appState.selectedDisplayItems.contains(.custom) {
-                            ForEach(appState.customEvents.prefix(3), id: \.id) { event in
-                                CustomEventTallyView(event: event)
-                                    .environmentObject(appState)
+                    VStack(spacing: 20) {
+                        // Show items in order from selectedDisplayItems (preserves order from settings)
+                        ForEach(Array(appState.selectedDisplayItems.enumerated()), id: \.element) { index, item in
+                            if item == .today {
+                                TallyCounterView(
+                                    label: "Today",
+                                    value: appState.perspective == .halfFull
+                                        ? "\(timeData.hoursCompleted)"
+                                        : "\(timeData.hoursLeft)",
+                                    unit: appState.perspective == .halfFull
+                                        ? "hrs done"
+                                        : "hrs left",
+                                    total: 24,
+                                    completed: timeData.hoursCompleted
+                                )
+                            } else if item == .week {
+                                TallyCounterView(
+                                    label: "This Week",
+                                    value: appState.perspective == .halfFull
+                                        ? "\(timeData.daysCompleted)"
+                                        : "\(timeData.daysLeft)",
+                                    unit: appState.perspective == .halfFull
+                                        ? "d done"
+                                        : "d left",
+                                    total: 7,
+                                    completed: timeData.daysCompleted
+                                )
+                            } else if item == .month {
+                                let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())?.count ?? 30
+                                TallyCounterView(
+                                    label: "This Month",
+                                    value: appState.perspective == .halfFull
+                                        ? "\(timeData.daysCompleted)"
+                                        : "\(timeData.daysLeft)",
+                                    unit: appState.perspective == .halfFull
+                                        ? "d done"
+                                        : "d left",
+                                    total: daysInMonth,
+                                    completed: timeData.daysCompleted
+                                )
+                            } else if item == .quarter {
+                                TallyCounterView(
+                                    label: "Q\(timeData.quarterNumber)",
+                                    value: appState.perspective == .halfFull
+                                        ? "\(timeData.weeksCompleted)"
+                                        : "\(timeData.weeksLeft)",
+                                    unit: appState.perspective == .halfFull
+                                        ? "wk done"
+                                        : "wk left",
+                                    total: 13,
+                                    completed: timeData.weeksCompleted
+                                )
+                            } else if item == .year {
+                                TallyCounterView(
+                                    label: "This Year",
+                                    value: appState.perspective == .halfFull
+                                        ? "\(Int(timeData.yearProgress * 100))"
+                                        : "\(Int(timeData.yearPercentLeft))",
+                                    unit: appState.perspective == .halfFull
+                                        ? "% done"
+                                        : "% left",
+                                    total: 12,
+                                    completed: Int(timeData.yearProgress * 12)
+                                )
+                                
+                                // Add "Add your event" button after "This Year"
+                                Button(action: {
+                                    appState.showAddEvent = true
+                                }) {
+                                    Text("Add your event")
+                                        .font(.sabdeviRegular(size: 12))
+                                        .foregroundColor(.gray)
+                                        .underline()
+                                }
+                                .padding(.top, 10)
+                            } else if item == .custom {
+                                // Show custom events
+                                ForEach(appState.customEvents, id: \.id) { event in
+                                    CustomEventTallyView(event: event)
+                                        .environmentObject(appState)
+                                }
+                                
+                                // Add "Add your event" button after custom events
+                                Button(action: {
+                                    appState.showAddEvent = true
+                                }) {
+                                    Text("Add your event")
+                                        .font(.sabdeviRegular(size: 12))
+                                        .foregroundColor(.gray)
+                                        .underline()
+                                }
+                                .padding(.top, 10)
                             }
                         }
+                        
+                        // Customize button at bottom
+                        Button(action: {
+                            appState.showSettings = true
+                        }) {
+                            Text("Customize")
+                                .font(.sabdeviRegular(size: 12))
+                                .foregroundColor(.gray)
+                                .underline()
+                        }
+                        .padding(.top, 20)
                     }
                     .padding(.horizontal, 20)
-                    .padding(.vertical, 40)
                 }
                 
-                Spacer()
-            }
-            
-            // Settings button
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        appState.showSettings = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.sabdeviRegular(size: 24 * 0.7))
-                            .foregroundColor(.black)
-                            .padding(8)
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.top, 50)
-                }
                 Spacer()
             }
         }
         .sheet(isPresented: $appState.showSettings) {
             SettingsView()
+                .environmentObject(appState)
+        }
+        .sheet(isPresented: $appState.showAddEvent) {
+            AddCustomEventView()
                 .environmentObject(appState)
         }
         .onAppear {
@@ -156,60 +164,6 @@ struct MainHomeView: View {
     }
 }
 
-struct HeaderView: View {
-    var body: some View {
-        VStack {
-            // Load SVG from bundle
-            if let svgURL = Bundle.main.url(forResource: "header-sunskybird", withExtension: "svg"),
-               let svgData = try? Data(contentsOf: svgURL),
-               let svgString = String(data: svgData, encoding: .utf8) {
-                SVGView(svgString: svgString)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(650/250, contentMode: .fit)
-                    .frame(height: 200)
-            } else {
-                // Fallback if SVG not found
-                Image(systemName: "sun.max.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.gray.opacity(0.3))
-            }
-        }
-    }
-}
-
-// Simple SVG renderer using WebKit
-struct SVGView: UIViewRepresentable {
-    let svgString: String
-    
-    func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
-        webView.backgroundColor = .clear
-        webView.isOpaque = false
-        webView.scrollView.isScrollEnabled = false
-        return webView
-    }
-    
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        let html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                html, body { width: 100%; height: 100%; margin: 0; padding: 0; background: transparent; overflow: visible; }
-                svg { width: 100%; height: auto; max-height: 100%; display: block; }
-            </style>
-        </head>
-        <body>
-            \(svgString)
-        </body>
-        </html>
-        """
-        webView.loadHTMLString(html, baseURL: nil)
-    }
-}
-
 struct TallyCounterView: View {
     let label: String
     let value: String
@@ -222,17 +176,17 @@ struct TallyCounterView: View {
             // Label on left (regular), Value on right (bold)
             HStack {
                 Text(TimeCalculator.addDoubleSpaces(label))
-                    .font(.sabdeviRegular(size: 17.5 * 1.1))
+                    .font(.sabdeviRegular(size: 15))
                     .foregroundColor(.black)
                 
                 Spacer()
                 
                 HStack(spacing: 0) {
                     Text(value)
-                        .font(.sabdeviBold(size: 17.5 * 1.1))
+                        .font(.sabdeviBold(size: 15))
                         .foregroundColor(.black)
-                    Text("  \(TimeCalculator.addDoubleSpaces(unit))")
-                        .font(.sabdeviBold(size: 17.5 * 1.1))
+                    Text(TimeCalculator.addDoubleSpaces(unit))
+                        .font(.sabdeviBold(size: 15))
                         .foregroundColor(.black)
                 }
             }
@@ -290,4 +244,3 @@ struct TallyMarkView: View {
         .frame(width: 16, height: 20)
     }
 }
-

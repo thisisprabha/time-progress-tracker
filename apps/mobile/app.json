@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Time Progress Tracker",
-    "version": "1.0.70",
+    "version": "1.0.75",
     "sdkVersion": "54.0.0",
     "description": "Track your daily, monthly, and yearly progress with a unique perspective-based approach. Choose your glass perspective and see time differently.",
     "slug": "time-progress-tracker",
@@ -24,11 +24,7 @@
       },
       "permissions": [],
       "package": "com.timeprogresstracker.app",
-      "versionCode": 70
-    },
-    "react-native-google-mobile-ads": {
-      "android_app_id": "ca-app-pub-9087069694782013~1860663616",
-      "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
+      "versionCode": 75
     },
     "plugins": [
       [

@@ -30,7 +30,7 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("Your Mindset")
-                            .font(.sabdeviBold(size: 13 * 1.2))
+                            .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                     
@@ -47,24 +47,23 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("Daily Tracking")
-                            .font(.sabdeviBold(size: 13 * 1.2))
+                            .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                     
                     // Customize Display Section
                     Section {
                         Text("Choose 3 items to display")
-                            .font(.sabdeviRegular(size: 15 * 1.2))
+                            .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
                         
-                        let displayItems: [DisplayItem] = [.today, .week, .month, .quarter, .year, .custom]
-                        // Create ordered array of selected items
-                        let orderedSelectedItems = displayItems.filter { appState.selectedDisplayItems.contains($0) }
+                        // Predefined items
+                        let predefinedItems: [DisplayItem] = [.today, .week, .month, .quarter, .year]
                         
-                        ForEach(displayItems, id: \.self) { item in
+                        ForEach(predefinedItems, id: \.self) { item in
                             let isSelected = appState.selectedDisplayItems.contains(item)
-                            let index = isSelected ? orderedSelectedItems.firstIndex(of: item) : nil
+                            let index = isSelected ? appState.selectedDisplayItems.firstIndex(of: item) : nil
                             
                             SettingsRow(
                                 title: item.displayName,
@@ -75,37 +74,79 @@ struct SettingsView: View {
                             ) {
                                 if isSelected {
                                     if appState.selectedDisplayItems.count > 1 {
-                                        appState.selectedDisplayItems.remove(item)
+                                        appState.selectedDisplayItems.removeAll { $0 == item }
                                     }
                                 } else {
                                     if appState.selectedDisplayItems.count < 3 {
-                                        appState.selectedDisplayItems.insert(item)
+                                        appState.selectedDisplayItems.append(item)
                                     }
                                 }
                                 appState.saveSettings()
                             }
                         }
                         
-                        // Custom Events section
-                        if appState.selectedDisplayItems.contains(.custom) {
-                            CustomEventsSection()
-                                .environmentObject(appState)
-                                .listRowBackground(Color.clear)
+                        // Add your events button (after predefined items)
+                        Button(action: {
+                            appState.showAddEvent = true
+                        }) {
+                            Text("Add your events")
+                                .font(.sabdeviRegular(size: 12))
+                                .foregroundColor(.gray)
+                                .underline()
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .listRowBackground(Color.clear)
+                        
+                        // Custom events list
+                        ForEach(appState.customEvents, id: \.id) { event in
+                            let isSelected = appState.selectedDisplayItems.contains(.custom)
+                            let index = isSelected ? appState.selectedDisplayItems.firstIndex(of: .custom) : nil
+                            
+                            SettingsRow(
+                                title: event.name,
+                                isSelected: isSelected,
+                                isDisabled: !isSelected && appState.selectedDisplayItems.count >= 3,
+                                showNumber: isSelected,
+                                number: index != nil ? index! + 1 : nil
+                            ) {
+                                if isSelected {
+                                    if appState.selectedDisplayItems.count > 1 {
+                                        appState.selectedDisplayItems.removeAll { $0 == .custom }
+                                    }
+                                } else {
+                                    if appState.selectedDisplayItems.count < 3 {
+                                        appState.selectedDisplayItems.append(.custom)
+                                    }
+                                }
+                                appState.saveSettings()
+                            }
+                        }
+                        
+                        // Add your events button (at the bottom, always visible)
+                        Button(action: {
+                            appState.showAddEvent = true
+                        }) {
+                            Text("Add your events")
+                                .font(.sabdeviRegular(size: 12))
+                                .foregroundColor(.gray)
+                                .underline()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .listRowBackground(Color.clear)
                     } header: {
                         Text("Customize Display")
-                            .font(.sabdeviBold(size: 13 * 1.2))
+                            .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                     
                     // Apple Watch Complication Section
                     Section {
                         Text("Choose what to display on Apple Watch")
-                            .font(.sabdeviRegular(size: 15 * 1.2))
+                            .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
                         
-                        let watchItems: [DisplayItem] = [.today, .week, .month, .quarter, .year, .custom]
+                        let watchItems: [DisplayItem] = [.today, .week, .month, .quarter, .year]
                         ForEach(watchItems, id: \.self) { item in
                             let isSelected = appState.watchComplicationItem == item
                             
@@ -119,25 +160,25 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("Apple Watch")
-                            .font(.sabdeviBold(size: 13 * 1.2))
+                            .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                     
                     // Notification Section
                     Section {
                         Text("Weekly progress updates every Monday")
-                            .font(.sabdeviRegular(size: 15 * 1.2))
+                            .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
                     } header: {
                         Text("Notification")
-                            .font(.sabdeviBold(size: 13 * 1.2))
+                            .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                 }
                 .listStyle(.insetGrouped)
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Customize")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -145,10 +186,14 @@ struct SettingsView: View {
                         dismiss()
                     }) {
                         Image(systemName: "xmark")
-                            .font(.sabdeviRegular(size: 17 * 1.2))
+                            .font(.sabdeviRegular(size: 17))
                             .foregroundColor(.primary)
                     }
                 }
+            }
+            .sheet(isPresented: $appState.showAddEvent) {
+                AddCustomEventView()
+                    .environmentObject(appState)
             }
         }
     }
@@ -171,21 +216,21 @@ struct SettingsRow: View {
                             .fill(Color.black)
                             .frame(width: 24, height: 24)
                         Text("\(num)")
-                            .font(.sabdeviBold(size: 14 * 0.9))
+                            .font(.sabdeviBold(size: 14))
                             .foregroundColor(.white)
                     }
                     .padding(.trailing, 8)
                 }
                 
                 Text(title)
-                    .font(isSelected ? .sabdeviBold(size: 17 * 0.9) : .sabdeviRegular(size: 17 * 0.9))
+                    .font(isSelected ? .sabdeviBold(size: 14) : .sabdeviRegular(size: 14))
                     .foregroundColor(isDisabled ? .secondary : .primary)
                 
                 Spacer()
                 
                 if isSelected {
                     Image(systemName: "checkmark")
-                        .font(.sabdeviBold(size: 17 * 0.9))
+                        .font(.sabdeviBold(size: 14))
                         .foregroundColor(.primary)
                 }
             }

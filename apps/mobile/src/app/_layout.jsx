@@ -11,7 +11,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     try {
-      initiate();
+    initiate();
     } catch (error) {
       console.error('Auth initialization error:', error);
       // Continue anyway - don't block app launch

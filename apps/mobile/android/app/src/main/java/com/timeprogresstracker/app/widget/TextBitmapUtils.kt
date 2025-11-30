@@ -66,7 +66,7 @@ object TextBitmapUtils {
                 this.typeface = Typeface.createFromAsset(context.assets, fontName)
             } catch (e: Exception) {
                 // Fallback to system fonts
-                this.typeface = if (isBold) Typeface.DEFAULT_BOLD else Typeface.SERIF
+                    this.typeface = if (isBold) Typeface.DEFAULT_BOLD else Typeface.SERIF
             }
         }
         
@@ -282,7 +282,7 @@ object TextBitmapUtils {
                 paint.typeface = Typeface.createFromAsset(context.assets, fontName)
             } catch (e: Exception) {
                 // Fallback to system fonts
-                paint.typeface = if (isBold) Typeface.DEFAULT_BOLD else Typeface.SERIF
+                    paint.typeface = if (isBold) Typeface.DEFAULT_BOLD else Typeface.SERIF
             }
             
             val bounds = Rect()
@@ -346,15 +346,15 @@ object TextBitmapUtils {
             // Use Sabdevi font for all text
             try {
                 val fontName = if (isBold) "fonts/Sabdevi-Bold.ttf" else "fonts/Sabdevi-Regular.ttf"
-                paint.typeface = Typeface.createFromAsset(context.assets, fontName)
-            } catch (e: Exception) {
+                        paint.typeface = Typeface.createFromAsset(context.assets, fontName)
+                } catch (e: Exception) {
                 // Fallback to system fonts
-                paint.typeface = if (isBold) Typeface.DEFAULT_BOLD else Typeface.SERIF
-            }
-            
-            val bounds = Rect()
+                    paint.typeface = if (isBold) Typeface.DEFAULT_BOLD else Typeface.SERIF
+                }
+                
+                val bounds = Rect()
             paint.getTextBounds(text, 0, text.length, bounds)
-            
+                
             // Check if this is a continuation of the previous line (regular text after bold)
             // If previous line was bold and this is regular, draw on same line
             val isContinuation = index > 0 && lines[index - 1].second && !isBold && text.startsWith(" ")
@@ -366,19 +366,19 @@ object TextBitmapUtils {
                 currentX = padding.toFloat()
             } else if (index == 0) {
                 // First line
-                currentY += bounds.height()
+                    currentY += bounds.height()
                 lineStartY = currentY
-            }
-            
+                }
+                
             // Draw text at current position
             canvas.drawText(text, currentX, currentY, paint)
             
             // Move X forward for next part on same line
-            currentX += bounds.width().toFloat()
+                currentX += bounds.width().toFloat()
             
             // If this is bold and next might be continuation, don't add line spacing yet
             if (!isBold || index == lines.size - 1 || !lines[index + 1].second) {
-                currentY += 8 // Line spacing
+            currentY += 8 // Line spacing
                 currentX = padding.toFloat() // Reset X for next line
             }
         }

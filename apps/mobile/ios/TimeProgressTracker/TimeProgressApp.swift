@@ -15,9 +15,10 @@ import WidgetKit
 class AppState: ObservableObject {
     @Published var perspective: Perspective = .halfFull
     @Published var timeMode: TimeMode = .twentyFourHour
-    @Published var selectedDisplayItems: Set<DisplayItem> = [.today, .month, .year]
+    @Published var selectedDisplayItems: [DisplayItem] = [.today, .month, .year]
     @Published var hasCompletedOnboarding: Bool = false
     @Published var showSettings: Bool = false
+    @Published var showAddEvent: Bool = false
     @Published var customEvents: [CustomEvent] = []
     @Published var watchComplicationItem: DisplayItem = .today
     
@@ -38,7 +39,7 @@ class AppState: ObservableObject {
         }
         
         if let savedItems = UserDefaults.standard.array(forKey: "selectedDisplayItems") as? [String] {
-            let items = Set(savedItems.compactMap { DisplayItem(rawValue: $0) })
+            let items = savedItems.compactMap { DisplayItem(rawValue: $0) }
             // Ensure at least 3 items, default to today, month, year
             if items.count >= 3 {
                 self.selectedDisplayItems = items
@@ -64,7 +65,7 @@ class AppState: ObservableObject {
         // Save to standard UserDefaults
         UserDefaults.standard.set(perspective.rawValue, forKey: "userPerspective")
         UserDefaults.standard.set(timeMode.rawValue, forKey: "timeMode")
-        UserDefaults.standard.set(Array(selectedDisplayItems.map { $0.rawValue }), forKey: "selectedDisplayItems")
+        UserDefaults.standard.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
         
         // Save custom events
         if let eventsData = try? JSONEncoder().encode(customEvents) {
@@ -78,7 +79,7 @@ class AppState: ObservableObject {
         if let sharedDefaults = UserDefaults(suiteName: "group.com.prabhakaran.timeprogresstracker") {
             sharedDefaults.set(perspective.rawValue, forKey: "userPerspective")
             sharedDefaults.set(timeMode.rawValue, forKey: "timeMode")
-            sharedDefaults.set(Array(selectedDisplayItems.map { $0.rawValue }), forKey: "selectedDisplayItems")
+            sharedDefaults.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
             sharedDefaults.set(watchComplicationItem.rawValue, forKey: "watchComplicationItem")
             if let eventsData = try? JSONEncoder().encode(customEvents) {
                 sharedDefaults.set(eventsData, forKey: "customEvents")

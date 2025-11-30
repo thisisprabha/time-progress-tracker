@@ -3,140 +3,76 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		061865636659162944661691486626664 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6161656650154636554616579616391784 /* ContentView.swift */; };
-		0A54FEEB7DA2AE3EF42DCE91 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D3FD7535A46F4163F0C2901E /* PrivacyInfo.xcprivacy */; };
-		116696997261464863162639636466664 /* CustomEventTallyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65964365296766342049916656347 /* CustomEventTallyView.swift */; };
+		0ECF2CA06D92D887E7ECDDB8 /* MainHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1147DD06E709B71D5D9C92C9 /* MainHomeView.swift */; };
+		11B53125F3461B752866989E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		3660606446766614646266803170466 /* CustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65463561996564566634162061044164651 /* CustomEvent.swift */; };
+		148D6DE1ED51918B5327ECEA /* TimeProgressApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */; };
+		1F5465377762A3FC9CE51953 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577D4748063ABA7293641A1B /* OnboardingView.swift */; };
+		2D7050A93CABCD6108D8642D /* libPods-TimeProgressTracker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */; };
+		2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		3F5A8C2DEADBF948ED212CDA /* Pods_TimeProgressTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90CEAB022E7F5B1A1DF45953 /* Pods_TimeProgressTracker.framework */; };
-		402656161063669638493656166246663634 /* TimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546415618656366074646364843943664 /* TimeCalculator.swift */; };
-		415956264656456544966686664632636165 /* TimeProgressApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30624640276061624649589726386363 /* TimeProgressApp.swift */; };
-		61616265386010654496466616261464668 /* header-sunskybird.svg in Resources */ = {isa = PBXBuildFile; fileRef = 574316565807874465649965762129 /* header-sunskybird.svg */; };
-		61763646663949611743556166661666478 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637452662656641624249626563065626161 /* FontHelper.swift */; };
-		6286165652464611884121888516384 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 634626601667916165464729112796164 /* OnboardingView.swift */; };
-		65645928874149415962465667989 /* MainHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7106566170655636443163966466610061 /* MainHomeView.swift */; };
-		66746464261637616124663986624626522 /* CustomEventsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05646364764620744639761736176317 /* CustomEventsSection.swift */; };
-		712367666106665463629626187640643 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504346562265164146266261626626465655 /* SettingsView.swift */; };
-		7A51A32A2EC5174300E3DB8A /* Kalam-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3232EC5174300E3DB8A /* Kalam-Light.ttf */; };
-		7A51A32B2EC5174300E3DB8A /* Kalam-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3222EC5174300E3DB8A /* Kalam-Bold.ttf */; };
-		7A51A32C2EC5174300E3DB8A /* Kalam-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3242EC5174300E3DB8A /* Kalam-Regular.ttf */; };
-		7A51A32D2EC5174300E3DB8A /* Sabdevi-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3252EC5174300E3DB8A /* Sabdevi-Bold.ttf */; };
-		7A51A32E2EC5174300E3DB8A /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3272EC5174300E3DB8A /* Sabdevi-Regular.ttf */; };
-		7A51A32F2EC5174300E3DB8A /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3262EC5174300E3DB8A /* Sabdevi-Light.ttf */; };
-		7A51A3302EC5174300E3DB8A /* Kalam-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3232EC5174300E3DB8A /* Kalam-Light.ttf */; };
-		7A51A3312EC5174300E3DB8A /* Kalam-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3222EC5174300E3DB8A /* Kalam-Bold.ttf */; };
-		7A51A3322EC5174300E3DB8A /* Kalam-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3242EC5174300E3DB8A /* Kalam-Regular.ttf */; };
-		7A51A3332EC5174300E3DB8A /* Sabdevi-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3252EC5174300E3DB8A /* Sabdevi-Bold.ttf */; };
-		7A51A3342EC5174300E3DB8A /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3272EC5174300E3DB8A /* Sabdevi-Regular.ttf */; };
-		7A51A3352EC5174300E3DB8A /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A51A3262EC5174300E3DB8A /* Sabdevi-Light.ttf */; };
-		7A880C512E9BB5CA008F69FD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A880C502E9BB5CA008F69FD /* WidgetKit.framework */; };
-		7A880C532E9BB5CA008F69FD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A880C522E9BB5CA008F69FD /* SwiftUI.framework */; };
-		7A880C642E9BB5CC008F69FD /* TimeProgressWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A880C4F2E9BB5CA008F69FD /* TimeProgressWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		7EFACADF7BD708A05EB5C578 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549EDB35072AAD3E153EEF8A /* ExpoModulesProvider.swift */; };
+		479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA3F4C41C103D266854A232 /* AppDelegate.swift */; };
+		69F444863957225E8EF47CE3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */; };
+		9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7505302E61828393C7520B34 /* CustomEventTallyView.swift */; };
+		AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09556F403503875A3D4A47D /* CustomEvent.swift */; };
+		B34BD3B98B4E7AF4398FA7FD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12DC321E4BBF9709C97068B6 /* SettingsView.swift */; };
+		B4A978687A910B084BE58934 /* TimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77712E2F85D69CE0A85CDD08 /* FontHelper.swift */; };
+		BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */; };
+		C687A93299959AD487552FB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20537397C54D6146315D061C /* ContentView.swift */; };
+		CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C3B32138009F241E20E2C1 /* LoadingView.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-
-		37362146563647644662636226563565466 /* WidgetFontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16365842052636563489659061336453 /* WidgetFontHelper.swift */; };
-	/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		7A880C622E9BB5CC008F69FD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 7A880C4E2E9BB5CA008F69FD;
-			remoteInfo = TimeProgressWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		7A880C692E9BB5CC008F69FD /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				7A880C642E9BB5CC008F69FD /* TimeProgressWidgetExtension.appex in Embed Foundation Extensions */,
-				37362146563647644662636226563565466 /* WidgetFontHelper.swift in Sources */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
+/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		05646364764620744639761736176317 /* CustomEventsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomEventsSection.swift; path = TimeProgressTracker/CustomEventsSection.swift; sourceTree = "<group>"; };
+		06D7D43D10461F3E873BED98 /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
+		1147DD06E709B71D5D9C92C9 /* MainHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainHomeView.swift; path = TimeProgressTracker/MainHomeView.swift; sourceTree = "<group>"; };
+		12DC321E4BBF9709C97068B6 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = TimeProgressTracker/SettingsView.swift; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeProgressTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = TimeProgressTracker/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = TimeProgressTracker/Info.plist; sourceTree = "<group>"; };
-		30624640276061624649589726386363 /* TimeProgressApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
-		342A8506F9450ECC768FE3E0 /* Pods-TimeProgressTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.debug.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.debug.xcconfig"; sourceTree = "<group>"; };
-		504346562265164146266261626626465655 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = TimeProgressTracker/SettingsView.swift; sourceTree = "<group>"; };
-		546415618656366074646364843943664 /* TimeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
-		549EDB35072AAD3E153EEF8A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-TimeProgressTracker/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		574316565807874465649965762129 /* header-sunskybird.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "header-sunskybird.svg"; path = "TimeProgressTracker/header-sunskybird.svg"; sourceTree = "<group>"; };
-		6161656650154636554616579616391784 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = TimeProgressTracker/ContentView.swift; sourceTree = "<group>"; };
-		634626601667916165464729112796164 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
-		637452662656641624249626563065626161 /* FontHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
-		65463561996564566634162061044164651 /* CustomEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
-		65964365296766342049916656347 /* CustomEventTallyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
-		7106566170655636443163966466610061 /* MainHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MainHomeView.swift; path = TimeProgressTracker/MainHomeView.swift; sourceTree = "<group>"; };
-		7A51A3222EC5174300E3DB8A /* Kalam-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Kalam-Bold.ttf"; sourceTree = "<group>"; };
-		7A51A3232EC5174300E3DB8A /* Kalam-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Kalam-Light.ttf"; sourceTree = "<group>"; };
-		7A51A3242EC5174300E3DB8A /* Kalam-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Kalam-Regular.ttf"; sourceTree = "<group>"; };
-		7A51A3252EC5174300E3DB8A /* Sabdevi-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sabdevi-Bold.ttf"; sourceTree = "<group>"; };
-		7A51A3262EC5174300E3DB8A /* Sabdevi-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sabdevi-Light.ttf"; sourceTree = "<group>"; };
-		7A51A3272EC5174300E3DB8A /* Sabdevi-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sabdevi-Regular.ttf"; sourceTree = "<group>"; };
-		7A880C4F2E9BB5CA008F69FD /* TimeProgressWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimeProgressWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A880C502E9BB5CA008F69FD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		7A880C522E9BB5CA008F69FD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		7A880C6A2E9BB61D008F69FD /* TimeProgressWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeProgressWidgetExtension.entitlements; sourceTree = "<group>"; };
-		90CEAB022E7F5B1A1DF45953 /* Pods_TimeProgressTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TimeProgressTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EF04F8C6EC47C5D46823598 /* CustomEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
+		20537397C54D6146315D061C /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = TimeProgressTracker/ContentView.swift; sourceTree = "<group>"; };
+		22C3B32138009F241E20E2C1 /* LoadingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoadingView.swift; path = TimeProgressTracker/LoadingView.swift; sourceTree = "<group>"; };
+		28E3D207F526638775CE74C1 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
+		333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
+		577D4748063ABA7293641A1B /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
+		60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
+		6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.release.xcconfig"; sourceTree = "<group>"; };
+		7505302E61828393C7520B34 /* CustomEventTallyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
+		77712E2F85D69CE0A85CDD08 /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
+		78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-TimeProgressTracker/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.debug.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.debug.xcconfig"; sourceTree = "<group>"; };
+		9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddCustomEventView.swift; path = TimeProgressTracker/AddCustomEventView.swift; sourceTree = "<group>"; };
+		9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
+		A09556F403503875A3D4A47D /* CustomEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = TimeProgressTracker/SplashScreen.storyboard; sourceTree = "<group>"; };
+		AC653398BF19E80AC69123C4 /* MainHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainHomeView.swift; path = TimeProgressTracker/MainHomeView.swift; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D3FD7535A46F4163F0C2901E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnimatedHeaderView.swift; path = TimeProgressTracker/AnimatedHeaderView.swift; sourceTree = "<group>"; };
+		C3CD501F15C2A2F4BA116DBC /* CustomEventTallyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
+		E2426D47112ED64156CFD3F1 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = TimeProgressTracker/SettingsView.swift; sourceTree = "<group>"; };
+		EAD600FA0E1BF0A42B70782F /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = TimeProgressTracker/ContentView.swift; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EFA6454A94885560E9BAB720 /* Pods-TimeProgressTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.release.xcconfig"; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = TimeProgressTracker/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* TimeProgressTracker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TimeProgressTracker-Bridging-Header.h"; path = "TimeProgressTracker/TimeProgressTracker-Bridging-Header.h"; sourceTree = "<group>"; };
-
-		16365842052636563489659061336453 /* WidgetFontHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetFontHelper.swift"; path = "TimeProgressWidget/WidgetFontHelper.swift"; sourceTree = "<group>"; };
-	/* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7A880C652E9BB5CC008F69FD /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7A880C4E2E9BB5CA008F69FD /* TimeProgressWidgetExtension */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		7A880C542E9BB5CA008F69FD /* TimeProgressWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7A880C652E9BB5CC008F69FD /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TimeProgressWidget; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
+		FAA3F4C41C103D266854A232 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = TimeProgressTracker/AppDelegate.swift; sourceTree = "<group>"; };
+		FC0E35D81B73003266E89B7B /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
+		FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TimeProgressTracker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3F5A8C2DEADBF948ED212CDA /* Pods_TimeProgressTracker.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7A880C4C2E9BB5CA008F69FD /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7A880C532E9BB5CA008F69FD /* SwiftUI.framework in Frameworks */,
-				7A880C512E9BB5CA008F69FD /* WidgetKit.framework in Frameworks */,
+				2D7050A93CABCD6108D8642D /* libPods-TimeProgressTracker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,26 +82,35 @@
 		13B07FAE1A68108700A75B9A /* TimeProgressTracker */ = {
 			isa = PBXGroup;
 			children = (
-				7A51A3292EC5174300E3DB8A /* Assets */,
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				F11748442D0722820044C1D9 /* TimeProgressTracker-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				D3FD7535A46F4163F0C2901E /* PrivacyInfo.xcprivacy */,
-				30624640276061624649589726386363 /* TimeProgressApp.swift */,
-				6161656650154636554616579616391784 /* ContentView.swift */,
-				7106566170655636443163966466610061 /* MainHomeView.swift */,
-				504346562265164146266261626626465655 /* SettingsView.swift */,
-				634626601667916165464729112796164 /* OnboardingView.swift */,
-				546415618656366074646364843943664 /* TimeCalculator.swift */,
-				65463561996564566634162061044164651 /* CustomEvent.swift */,
-				05646364764620744639761736176317 /* CustomEventsSection.swift */,
-				65964365296766342049916656347 /* CustomEventTallyView.swift */,
-				574316565807874465649965762129 /* header-sunskybird.svg */,
-				637452662656641624249626563065626161 /* FontHelper.swift */,
-				16365842052636563489659061336453 /* WidgetFontHelper.swift */,
+				333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */,
+				3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */,
+				20537397C54D6146315D061C /* ContentView.swift */,
+				1147DD06E709B71D5D9C92C9 /* MainHomeView.swift */,
+				12DC321E4BBF9709C97068B6 /* SettingsView.swift */,
+				577D4748063ABA7293641A1B /* OnboardingView.swift */,
+				9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */,
+				A09556F403503875A3D4A47D /* CustomEvent.swift */,
+				7505302E61828393C7520B34 /* CustomEventTallyView.swift */,
+				77712E2F85D69CE0A85CDD08 /* FontHelper.swift */,
+				FAA3F4C41C103D266854A232 /* AppDelegate.swift */,
+				EAD600FA0E1BF0A42B70782F /* ContentView.swift */,
+				1EF04F8C6EC47C5D46823598 /* CustomEvent.swift */,
+				C3CD501F15C2A2F4BA116DBC /* CustomEventTallyView.swift */,
+				FC0E35D81B73003266E89B7B /* FontHelper.swift */,
+				AC653398BF19E80AC69123C4 /* MainHomeView.swift */,
+				06D7D43D10461F3E873BED98 /* OnboardingView.swift */,
+				E2426D47112ED64156CFD3F1 /* SettingsView.swift */,
+				28E3D207F526638775CE74C1 /* TimeCalculator.swift */,
+				60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */,
+				C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */,
+				22C3B32138009F241E20E2C1 /* LoadingView.swift */,
+				9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */,
 			);
 			name = TimeProgressTracker;
 			sourceTree = "<group>";
@@ -174,32 +119,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				90CEAB022E7F5B1A1DF45953 /* Pods_TimeProgressTracker.framework */,
-				7A880C502E9BB5CA008F69FD /* WidgetKit.framework */,
-				7A880C522E9BB5CA008F69FD /* SwiftUI.framework */,
+				FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		7A51A3282EC5174300E3DB8A /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				7A51A3222EC5174300E3DB8A /* Kalam-Bold.ttf */,
-				7A51A3232EC5174300E3DB8A /* Kalam-Light.ttf */,
-				7A51A3242EC5174300E3DB8A /* Kalam-Regular.ttf */,
-				7A51A3252EC5174300E3DB8A /* Sabdevi-Bold.ttf */,
-				7A51A3262EC5174300E3DB8A /* Sabdevi-Light.ttf */,
-				7A51A3272EC5174300E3DB8A /* Sabdevi-Regular.ttf */,
-			);
-			path = Fonts;
-			sourceTree = "<group>";
-		};
-		7A51A3292EC5174300E3DB8A /* Assets */ = {
-			isa = PBXGroup;
-			children = (
-				7A51A3282EC5174300E3DB8A /* Fonts */,
-			);
-			path = Assets;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -212,14 +134,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				7A880C6A2E9BB61D008F69FD /* TimeProgressWidgetExtension.entitlements */,
 				13B07FAE1A68108700A75B9A /* TimeProgressTracker */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				7A880C542E9BB5CA008F69FD /* TimeProgressWidget */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				E5A856A80822F0183C4296FC /* Pods */,
-				BABBCDB37694692C79C61734 /* ExpoModulesProviders */,
+				B96416ABC3EF00C6D8CBFC15 /* Pods */,
+				DD2E04FEE14ADB1FBB4F1E6D /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -230,17 +150,26 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */,
-				7A880C4F2E9BB5CA008F69FD /* TimeProgressWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		BABBCDB37694692C79C61734 /* ExpoModulesProviders */ = {
+		B2D0AD89ADAB8A50B0754F4D /* TimeProgressTracker */ = {
 			isa = PBXGroup;
 			children = (
-				E67D8C7ACC8E939CCA331970 /* TimeProgressTracker */,
+				78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = TimeProgressTracker;
+			sourceTree = "<group>";
+		};
+		B96416ABC3EF00C6D8CBFC15 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */,
+				6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -252,21 +181,12 @@
 			path = TimeProgressTracker/Supporting;
 			sourceTree = "<group>";
 		};
-		E5A856A80822F0183C4296FC /* Pods */ = {
+		DD2E04FEE14ADB1FBB4F1E6D /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				342A8506F9450ECC768FE3E0 /* Pods-TimeProgressTracker.debug.xcconfig */,
-				EFA6454A94885560E9BAB720 /* Pods-TimeProgressTracker.release.xcconfig */,
+				B2D0AD89ADAB8A50B0754F4D /* TimeProgressTracker */,
 			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		E67D8C7ACC8E939CCA331970 /* TimeProgressTracker */ = {
-			isa = PBXGroup;
-			children = (
-				549EDB35072AAD3E153EEF8A /* ExpoModulesProvider.swift */,
-			);
-			name = TimeProgressTracker;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -277,45 +197,22 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "TimeProgressTracker" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				BD9B7DD90376900C22FD683A /* [Expo] Configure project */,
+				222ACC61A76C8690EFF843AB /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				499811163B551F161AAB1C53 /* [CP] Embed Pods Frameworks */,
-				7A880C692E9BB5CC008F69FD /* Embed Foundation Extensions */,
-				BE48FE61461F4304185392C3 /* [CP-User] [RNGoogleMobileAds] Configuration */,
+				505A43432F56C69692CA3711 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7A880C632E9BB5CC008F69FD /* PBXTargetDependency */,
 			);
 			name = TimeProgressTracker;
 			productName = TimeProgressTracker;
 			productReference = 13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */;
 			productType = "com.apple.product-type.application";
-		};
-		7A880C4E2E9BB5CA008F69FD /* TimeProgressWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 7A880C662E9BB5CC008F69FD /* Build configuration list for PBXNativeTarget "TimeProgressWidgetExtension" */;
-			buildPhases = (
-				7A880C4B2E9BB5CA008F69FD /* Sources */,
-				7A880C4C2E9BB5CA008F69FD /* Frameworks */,
-				7A880C4D2E9BB5CA008F69FD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				7A880C542E9BB5CA008F69FD /* TimeProgressWidget */,
-			);
-			name = TimeProgressWidgetExtension;
-			productName = TimeProgressWidgetExtension;
-			productReference = 7A880C4F2E9BB5CA008F69FD /* TimeProgressWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -323,14 +220,10 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
-					};
-					7A880C4E2E9BB5CA008F69FD = {
-						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
@@ -348,7 +241,6 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* TimeProgressTracker */,
-				7A880C4E2E9BB5CA008F69FD /* TimeProgressWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -360,28 +252,8 @@
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				7A51A32A2EC5174300E3DB8A /* Kalam-Light.ttf in Resources */,
-				7A51A32B2EC5174300E3DB8A /* Kalam-Bold.ttf in Resources */,
-				7A51A32C2EC5174300E3DB8A /* Kalam-Regular.ttf in Resources */,
-				7A51A32D2EC5174300E3DB8A /* Sabdevi-Bold.ttf in Resources */,
-				7A51A32E2EC5174300E3DB8A /* Sabdevi-Regular.ttf in Resources */,
-				7A51A32F2EC5174300E3DB8A /* Sabdevi-Light.ttf in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				0A54FEEB7DA2AE3EF42DCE91 /* PrivacyInfo.xcprivacy in Resources */,
-				61616265386010654496466616261464668 /* header-sunskybird.svg in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7A880C4D2E9BB5CA008F69FD /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7A51A3302EC5174300E3DB8A /* Kalam-Light.ttf in Resources */,
-				7A51A3312EC5174300E3DB8A /* Kalam-Bold.ttf in Resources */,
-				7A51A3322EC5174300E3DB8A /* Kalam-Regular.ttf in Resources */,
-				7A51A3332EC5174300E3DB8A /* Sabdevi-Bold.ttf in Resources */,
-				7A51A3342EC5174300E3DB8A /* Sabdevi-Regular.ttf in Resources */,
-				7A51A3352EC5174300E3DB8A /* Sabdevi-Light.ttf in Resources */,
+				11B53125F3461B752866989E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,7 +299,31 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		499811163B551F161AAB1C53 /* [CP] Embed Pods Frameworks */ = {
+		222ACC61A76C8690EFF843AB /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/TimeProgressTracker/TimeProgressTracker.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-TimeProgressTracker/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-TimeProgressTracker/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-TimeProgressTracker/expo-configure-project.sh\"\n";
+		};
+		505A43432F56C69692CA3711 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -464,8 +360,6 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoDevice/ExpoDevice_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoSystemUI/ExpoSystemUI_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/Google-Mobile-Ads-SDK/GoogleMobileAdsResources.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUserMessagingPlatform/UserMessagingPlatformResources.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage/RNCAsyncStorage_resources.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG/RNSVGFilters.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ReachabilitySwift/ReachabilitySwift.bundle",
@@ -485,8 +379,6 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoDevice_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoFileSystem_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoSystemUI_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleMobileAdsResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/UserMessagingPlatformResources.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNCAsyncStorage_resources.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNSVGFilters.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ReachabilitySwift.bundle",
@@ -501,45 +393,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BD9B7DD90376900C22FD683A /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/TimeProgressTracker/TimeProgressTracker.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-TimeProgressTracker/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-TimeProgressTracker/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-TimeProgressTracker/expo-configure-project.sh\"\n";
-		};
-		BE48FE61461F4304185392C3 /* [CP-User] [RNGoogleMobileAds] Configuration */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
-			);
-			name = "[CP-User] [RNGoogleMobileAds] Configuration";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\n\n##########################################################################\n##########################################################################\n#\n#  NOTE THAT IF YOU CHANGE THIS FILE YOU MUST RUN pod install AFTERWARDS\n#\n#  This file is installed as an Xcode build script in the project file\n#  by cocoapods, and you will not see your changes until you pod install\n#\n##########################################################################\n##########################################################################\n\nset -e\n\n_MAX_LOOKUPS=2;\n_SEARCH_RESULT=''\n_RN_ROOT_EXISTS=''\n_CURRENT_LOOKUPS=1\n_PROJECT_ABBREVIATION=\"RNGoogleMobileAds\"\n_JSON_ROOT=\"'react-native-google-mobile-ads'\"\n_JSON_FILE_NAME='app.json'\n_JSON_OUTPUT_BASE64='e30=' # { }\n_CURRENT_SEARCH_DIR=${PROJECT_DIR}\n_PLIST_BUDDY=/usr/libexec/PlistBuddy\n_TARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n_DSYM_PLIST=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"\n_PACKAGE_JSON_NAME='package.json'\n\n# plist arrays\n_PLIST_ENTRY_KEYS=()\n_PLIST_ENTRY_TYPES=()\n_PLIST_ENTRY_VALUES=()\n\nfunction setPlistValue {\n  echo \"info:      setting plist entry '$1' of type '$2' in file '$4'\"\n  ${_PLIST_BUDDY} -c \"Add :$1 $2 '$3'\" $4 || echo \"info:      '$1' already exists\"\n}\n\nfunction getJsonKeyValue () {\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    ruby -KU -e \"require 'rubygems';require 'json'; output=JSON.parse('$1'); puts output[$_JSON_ROOT]['$2']\"\n  else\n    echo \"\"\n  fi;\n}\n\nfunction jsonBoolToYesNo () {\n  if [[ $1 == \"false\" ]]; then\n    echo \"NO\"\n  elif [[ $1 == \"true\" ]]; then\n    echo \"YES\"\n  else echo \"NO\"\n  fi\n}\n\necho \"info: -> ${_PROJECT_ABBREVIATION} build script started\"\necho \"info: 1) Locating ${_JSON_FILE_NAME} file:\"\n\nif [[ -z ${_CURRENT_SEARCH_DIR} ]]; then\n  _CURRENT_SEARCH_DIR=$(pwd)\nfi;\n\nwhile true; do\n  _CURRENT_SEARCH_DIR=$(dirname \"$_CURRENT_SEARCH_DIR\")\n  if [[ \"$_CURRENT_SEARCH_DIR\" == \"/\" ]] || [[ ${_CURRENT_LOOKUPS} -gt ${_MAX_LOOKUPS} ]]; then break; fi;\n  echo \"info:      ($_CURRENT_LOOKUPS of $_MAX_LOOKUPS) Searching in '$_CURRENT_SEARCH_DIR' for a ${_JSON_FILE_NAME} file.\"\n  _SEARCH_RESULT=$(find \"$_CURRENT_SEARCH_DIR\" -maxdepth 2 -name ${_JSON_FILE_NAME} -print | /usr/bin/head -n 1)\n  if [[ ${_SEARCH_RESULT} ]]; then\n    echo \"info:      ${_JSON_FILE_NAME} found at $_SEARCH_RESULT\"\n    break;\n  fi;\n  _CURRENT_LOOKUPS=$((_CURRENT_LOOKUPS+1))\ndone\n\nif [[ ${_SEARCH_RESULT} ]]; then\n  _JSON_OUTPUT_RAW=$(cat \"${_SEARCH_RESULT}\")\n  _RN_ROOT_EXISTS=$(ruby -KU -e \"require 'rubygems';require 'json'; output=JSON.parse('$_JSON_OUTPUT_RAW'); puts output[$_JSON_ROOT]\" || echo '')\n\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    if ! python3 --version >/dev/null 2>&1; then echo \"python3 not found, app.json file processing error.\" && exit 1; fi\n    _JSON_OUTPUT_BASE64=$(python3 -c 'import json,sys,base64;print(base64.b64encode(bytes(json.dumps(json.loads(open('\"'${_SEARCH_RESULT}'\"', '\"'rb'\"').read())['${_JSON_ROOT}']), '\"'utf-8'\"')).decode())' || echo \"e30=\")\n  fi\n\n  _PLIST_ENTRY_KEYS+=(\"google_mobile_ads_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n\n  # config.delay_app_measurement_init\n  _DELAY_APP_MEASUREMENT=$(getJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"delay_app_measurement_init\")\n  if [[ $_DELAY_APP_MEASUREMENT == \"true\" ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GADDelayAppMeasurementInit\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"YES\")\n  fi\n\n  # config.ios_app_id\n  _IOS_APP_ID=$(getJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"ios_app_id\")\n  if [[ $_IOS_APP_ID ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GADApplicationIdentifier\")\n    _PLIST_ENTRY_TYPES+=(\"string\")\n    _PLIST_ENTRY_VALUES+=(\"$_IOS_APP_ID\")\n  fi\n\n  # config.sk_ad_network_items\n  _SK_AD_NETWORK_ITEMS=$(getJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"sk_ad_network_items\")\n  if [[ $_SK_AD_NETWORK_ITEMS ]]; then\n    _PLIST_ENTRY_KEYS+=(\"SKAdNetworkItems\")\n    _PLIST_ENTRY_TYPES+=(\"array\")\n    _PLIST_ENTRY_VALUES+=(\"\")\n\n    oldifs=$IFS\n    IFS=\"\n\"\n    array=($(echo \"$_SK_AD_NETWORK_ITEMS\"))\n    IFS=$oldifs\n    for i in \"${!array[@]}\"; do\n      _PLIST_ENTRY_KEYS+=(\"SKAdNetworkItems:$i:SKAdNetworkIdentifier\")\n      _PLIST_ENTRY_TYPES+=(\"string\")\n      _PLIST_ENTRY_VALUES+=(\"${array[i]}\")  \n    done\n  fi\n\n    # config.user_tracking_usage_description\n  _USER_TRACKING_USAGE_DESCRIPTION=$(getJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"user_tracking_usage_description\")\n  if [[ $_USER_TRACKING_USAGE_DESCRIPTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"NSUserTrackingUsageDescription\")\n    _PLIST_ENTRY_TYPES+=(\"string\")\n    _PLIST_ENTRY_VALUES+=(\"$_USER_TRACKING_USAGE_DESCRIPTION\")\n  fi\nelse\n  _PLIST_ENTRY_KEYS+=(\"google_mobile_ads_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n  echo \"warning:   A ${_JSON_FILE_NAME} file was not found, whilst this file is optional it is recommended to include it to auto-configure services.\"\nfi;\n\necho \"info: 2) Injecting Info.plist entries: \"\n\n# Log out the keys we're adding\nfor i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n  echo \"    ->  $i) ${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\"\ndone\n\nif ! [[ -f \"${_TARGET_PLIST}\" ]]; then\n  echo \"error: unable to locate Info.plist to set properties. App will crash without GADApplicationIdentifier set.\"\n  exit 1\nfi\n\nif ! [[ $_IOS_APP_ID ]]; then\n  echo \"warning: ios_app_id key not found in react-native-google-mobile-ads key in app.json. App will crash without it.\"\n  echo \"         You can safely ignore this warning if you are using our Expo config plugin.\"\n  exit 0\nfi\n\nfor plist in \"${_TARGET_PLIST}\" \"${_DSYM_PLIST}\" ; do\n  if [[ -f \"${plist}\" ]]; then\n\n    # paths with spaces break the call to setPlistValue. temporarily modify\n    # the shell internal field separator variable (IFS), which normally\n    # includes spaces, to consist only of line breaks\n    oldifs=$IFS\n    IFS=\"\n\"\n\n    for i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n      setPlistValue \"${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\" \"${plist}\"\n    done\n\n    # restore the original internal field separator value\n    IFS=$oldifs\n  else\n    echo \"warning:   A Info.plist build output file was not found (${plist})\"\n  fi\ndone\n\necho \"info: <- ${_PROJECT_ABBREVIATION} build script finished\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -548,47 +401,34 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				7EFACADF7BD708A05EB5C578 /* ExpoModulesProvider.swift in Sources */,
-				415956264656456544966686664632636165 /* TimeProgressApp.swift in Sources */,
-				061865636659162944661691486626664 /* ContentView.swift in Sources */,
-				65645928874149415962465667989 /* MainHomeView.swift in Sources */,
-				712367666106665463629626187640643 /* SettingsView.swift in Sources */,
-				6286165652464611884121888516384 /* OnboardingView.swift in Sources */,
-				402656161063669638493656166246663634 /* TimeCalculator.swift in Sources */,
-				3660606446766614646266803170466 /* CustomEvent.swift in Sources */,
-				66746464261637616124663986624626522 /* CustomEventsSection.swift in Sources */,
-				116696997261464863162639636466664 /* CustomEventTallyView.swift in Sources */,
-				61763646663949611743556166661666478 /* FontHelper.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		7A880C4B2E9BB5CA008F69FD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				69F444863957225E8EF47CE3 /* ExpoModulesProvider.swift in Sources */,
+				148D6DE1ED51918B5327ECEA /* TimeProgressApp.swift in Sources */,
+				C687A93299959AD487552FB6 /* ContentView.swift in Sources */,
+				0ECF2CA06D92D887E7ECDDB8 /* MainHomeView.swift in Sources */,
+				B34BD3B98B4E7AF4398FA7FD /* SettingsView.swift in Sources */,
+				1F5465377762A3FC9CE51953 /* OnboardingView.swift in Sources */,
+				B4A978687A910B084BE58934 /* TimeCalculator.swift in Sources */,
+				AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */,
+				9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */,
+				BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */,
+				479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */,
+				2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */,
+				CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */,
+				BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		7A880C632E9BB5CC008F69FD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 7A880C4E2E9BB5CA008F69FD /* TimeProgressWidgetExtension */;
-			targetProxy = 7A880C622E9BB5CC008F69FD /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 342A8506F9450ECC768FE3E0 /* Pods-TimeProgressTracker.debug.xcconfig */;
+			baseConfigurationReference = 8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = TimeProgressTracker/TimeProgressTracker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = P284X6775D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -619,13 +459,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EFA6454A94885560E9BAB720 /* Pods-TimeProgressTracker.release.xcconfig */;
+			baseConfigurationReference = 6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = TimeProgressTracker/TimeProgressTracker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = P284X6775D;
 				INFOPLIST_FILE = TimeProgressTracker/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -645,97 +484,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Release;
-		};
-		7A880C672E9BB5CC008F69FD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = TimeProgressWidgetExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = P284X6775D;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TimeProgressWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TimeProgressWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.prabhakaran.timeprogresstracker.TimeProgressWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		7A880C682E9BB5CC008F69FD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = TimeProgressWidgetExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = P284X6775D;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TimeProgressWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TimeProgressWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.prabhakaran.timeprogresstracker.TimeProgressWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -786,19 +534,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"${PODS_ROOT}/ReactCommon",
-					"${PODS_ROOT}/ReactCommon/react/nativemodule/core",
-					"${PODS_ROOT}/React-runtimeexecutor",
-					"${PODS_ROOT}/React-runtimeexecutor/platform/ios",
-					"${PODS_ROOT}/ReactCommon-Samples",
-					"${PODS_ROOT}/ReactCommon-Samples/platform/ios",
-					"${PODS_ROOT}/React-Fabric/react/renderer/components/view/platform/cxx",
-					"${PODS_ROOT}/React-NativeModulesApple",
-					"${PODS_ROOT}/React-graphics",
-					"${PODS_ROOT}/React-graphics/react/renderer/graphics/platform/ios",
-				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
@@ -855,19 +590,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"${PODS_ROOT}/ReactCommon",
-					"${PODS_ROOT}/ReactCommon/react/nativemodule/core",
-					"${PODS_ROOT}/React-runtimeexecutor",
-					"${PODS_ROOT}/React-runtimeexecutor/platform/ios",
-					"${PODS_ROOT}/ReactCommon-Samples",
-					"${PODS_ROOT}/ReactCommon-Samples/platform/ios",
-					"${PODS_ROOT}/React-Fabric/react/renderer/components/view/platform/cxx",
-					"${PODS_ROOT}/React-NativeModulesApple",
-					"${PODS_ROOT}/React-graphics",
-					"${PODS_ROOT}/React-graphics/react/renderer/graphics/platform/ios",
-				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
@@ -891,15 +613,6 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		7A880C662E9BB5CC008F69FD /* Build configuration list for PBXNativeTarget "TimeProgressWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7A880C672E9BB5CC008F69FD /* Debug */,
-				7A880C682E9BB5CC008F69FD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

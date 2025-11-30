@@ -290,10 +290,10 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
         // Create bitmap with simple label-value format
         val bitmap = try {
             TextBitmapUtils.createMultiLabelValueBitmap(
-                context = context,
+            context = context,
                 items = labelValuePairs,
-                textSize = adjustedTextSize,
-                textColor = android.graphics.Color.BLACK,
+            textSize = adjustedTextSize,
+            textColor = android.graphics.Color.BLACK,
                 backgroundColor = android.graphics.Color.TRANSPARENT,
                 maxWidth = widgetWidthPx,
                 lineHeightMultiplier = 1.2f
