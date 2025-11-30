@@ -19,7 +19,9 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        print("✅ [Widget] getTimeline called")
         let entry = loadEntry()
+        print("✅ [Widget] Loaded entry with \(entry.selectedItems.count) selected items")
         
         // Update every 15 minutes
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
@@ -265,20 +267,18 @@ struct TimeLeftTrackerWidget: Widget {
     let kind: String = "TimeLeftTrackerWidget"
 
     var body: some WidgetConfiguration {
-        let config = StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             TimeLeftTrackerWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Time left Tracker")
         .description("Track your time progress")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
-        
-        // Log widget configuration
-        print("✅ [Widget] TimeLeftTrackerWidget configured")
+    }
+    
+    init() {
+        print("✅ [Widget] TimeLeftTrackerWidget initialized")
         print("✅ [Widget] Widget kind: \(kind)")
         print("✅ [Widget] Widget display name: Time left Tracker")
-        print("✅ [Widget] Widget bundle ID: com.prabhakaran.timeprogresstracker.TimeLeftTrackerWidget")
-        
-        return config
     }
 }
 
