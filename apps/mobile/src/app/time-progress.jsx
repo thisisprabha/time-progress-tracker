@@ -24,7 +24,7 @@ import * as Haptics from "expo-haptics";
 import { updateWidgets } from '../utils/widgetUpdate';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-import AnimatedHeader from '../components/AnimatedHeader';
+// import AnimatedHeader from '../components/AnimatedHeader'; // Not used in native SwiftUI app
 import { Lock } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -1269,9 +1269,9 @@ export default function TimeProgressScreen() {
       <StatusBar style={isDark ? "light" : "dark"} />
 
       {/* 1. Animated Header - Full width, below status bar */}
+      {/* Note: AnimatedHeader is now handled by native SwiftUI AnimatedHeaderView */}
       {hasCompletedOnboarding && (
         <View style={[styles.headerSvgContainer, { top: insets.top + 10 }]}>
-          <AnimatedHeader />
           {/* Settings Icon overlay */}
           <View style={[styles.headerIconOverlay, { top: 10 }]}>
             <SettingsIcon onPress={() => setShowSettingsScreen(true)} />

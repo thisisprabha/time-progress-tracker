@@ -38,26 +38,26 @@
 
 /* Begin PBXFileReference section */
 		06D7D43D10461F3E873BED98 /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
-		0D6478ECF00CE9570D133955 /* cloud-3.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-3.svg"; path = "TimeProgressTracker/Assets/cloud-3.svg"; sourceTree = "<group>"; };
+		0D6478ECF00CE9570D133955 /* cloud-3.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "cloud-3.svg"; path = "TimeProgressTracker/Assets/cloud-3.svg"; sourceTree = "<group>"; };
 		1147DD06E709B71D5D9C92C9 /* MainHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainHomeView.swift; path = TimeProgressTracker/MainHomeView.swift; sourceTree = "<group>"; };
 		12DC321E4BBF9709C97068B6 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = TimeProgressTracker/SettingsView.swift; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeProgressTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = TimeProgressTracker/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = TimeProgressTracker/Info.plist; sourceTree = "<group>"; };
 		1EF04F8C6EC47C5D46823598 /* CustomEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
-		1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = "Sabdevi-Light.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Light.ttf"; sourceTree = "<group>"; };
+		1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = "Sabdevi-Light.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Light.ttf"; sourceTree = "<group>"; };
 		20537397C54D6146315D061C /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = TimeProgressTracker/ContentView.swift; sourceTree = "<group>"; };
 		22C3B32138009F241E20E2C1 /* LoadingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoadingView.swift; path = TimeProgressTracker/LoadingView.swift; sourceTree = "<group>"; };
 		28E3D207F526638775CE74C1 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
-		2D137B90207C6DE7BC0F099B /* cloud-1.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-1.svg"; path = "TimeProgressTracker/Assets/cloud-1.svg"; sourceTree = "<group>"; };
-		333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		399832AEC6BA23C7D21F5A74 /* sun.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = sun.svg; path = TimeProgressTracker/Assets/sun.svg; sourceTree = "<group>"; };
+		2D137B90207C6DE7BC0F099B /* cloud-1.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "cloud-1.svg"; path = "TimeProgressTracker/Assets/cloud-1.svg"; sourceTree = "<group>"; };
+		333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		399832AEC6BA23C7D21F5A74 /* sun.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = sun.svg; path = TimeProgressTracker/Assets/sun.svg; sourceTree = "<group>"; };
 		3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
-		45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = "Sabdevi-Regular.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Regular.ttf"; sourceTree = "<group>"; };
-		470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = "Sabdevi-Bold.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Bold.ttf"; sourceTree = "<group>"; };
+		45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = "Sabdevi-Regular.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Regular.ttf"; sourceTree = "<group>"; };
+		470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = "Sabdevi-Bold.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Bold.ttf"; sourceTree = "<group>"; };
 		577D4748063ABA7293641A1B /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
 		60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
-		6246322E732A66493BA99AE8 /* cloud-2.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-2.svg"; path = "TimeProgressTracker/Assets/cloud-2.svg"; sourceTree = "<group>"; };
+		6246322E732A66493BA99AE8 /* cloud-2.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "cloud-2.svg"; path = "TimeProgressTracker/Assets/cloud-2.svg"; sourceTree = "<group>"; };
 		6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.release.xcconfig"; sourceTree = "<group>"; };
 		7505302E61828393C7520B34 /* CustomEventTallyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
 		77712E2F85D69CE0A85CDD08 /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
@@ -183,7 +183,6 @@
 				8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */,
 				6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -473,6 +472,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = TimeProgressTracker/TimeProgressTracker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P284X6775D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -509,6 +509,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = TimeProgressTracker/TimeProgressTracker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P284X6775D;
 				INFOPLIST_FILE = TimeProgressTracker/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
