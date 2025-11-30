@@ -265,12 +265,20 @@ struct TimeLeftTrackerWidget: Widget {
     let kind: String = "TimeLeftTrackerWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        let config = StaticConfiguration(kind: kind, provider: Provider()) { entry in
             TimeLeftTrackerWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Time left Tracker")
         .description("Track your time progress")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        
+        // Log widget configuration
+        print("✅ [Widget] TimeLeftTrackerWidget configured")
+        print("✅ [Widget] Widget kind: \(kind)")
+        print("✅ [Widget] Widget display name: Time left Tracker")
+        print("✅ [Widget] Widget bundle ID: com.prabhakaran.timeprogresstracker.TimeLeftTrackerWidget")
+        
+        return config
     }
 }
 

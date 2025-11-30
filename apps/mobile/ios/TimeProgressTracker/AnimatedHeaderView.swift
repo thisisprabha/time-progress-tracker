@@ -27,6 +27,7 @@ struct AnimatedHeaderView: View {
             // Sun - centered, behind clouds, rotating slowly
             if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
                 SVGImageView(url: sunURL, onLoaded: {
+                    print("✅ [AnimatedHeaderView] Sun SVG loaded")
                     loadedSVGs.insert("sun")
                     checkAllSVGsLoaded()
                 })
@@ -44,6 +45,7 @@ struct AnimatedHeaderView: View {
             // Clouds - in front of sun
             ForEach(clouds) { cloud in
                 CloudView(cloud: cloud, onSVGLoaded: {
+                    print("✅ [AnimatedHeaderView] Cloud SVG loaded: \(cloud.name)")
                     loadedSVGs.insert(cloud.name)
                     checkAllSVGsLoaded()
                 })
@@ -58,15 +60,19 @@ struct AnimatedHeaderView: View {
         }
         .frame(height: headerHeight)
         .onAppear {
+            print("✅ [AnimatedHeaderView] onAppear called")
             initializeClouds()
             startBirdAnimations()
+            print("✅ [AnimatedHeaderView] Initialized \(clouds.count) clouds")
         }
     }
     
     private func checkAllSVGsLoaded() {
         // Need: 1 sun + clouds (usually 6) = 7 SVGs
         let expectedCount = 1 + clouds.count
+        print("🔍 [AnimatedHeaderView] checkAllSVGsLoaded - loadedSVGs: \(loadedSVGs.count), expected: \(expectedCount), clouds: \(clouds.count)")
         if clouds.count > 0 && loadedSVGs.count >= expectedCount {
+            print("✅ [AnimatedHeaderView] All SVGs loaded! Calling callback")
             // Ensure we only call once - use a small delay to ensure all SVGs are rendered
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onSVGsLoaded?()

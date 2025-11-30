@@ -23,7 +23,10 @@ class AppState: ObservableObject {
     @Published var watchComplicationItem: DisplayItem = .today
     
     init() {
+        print("✅ [AppState] AppState initialized")
         loadSettings()
+        print("✅ [AppState] hasCompletedOnboarding: \(hasCompletedOnboarding)")
+        print("✅ [AppState] selectedDisplayItems count: \(selectedDisplayItems.count)")
     }
     
     func loadSettings() {

@@ -17,6 +17,7 @@ struct ContentView: View {
             // Always render MainHomeView (even if hidden) so SVGs can load
             if appState.hasCompletedOnboarding {
                 MainHomeView(onSVGsLoaded: {
+                    print("✅ [ContentView] SVGs loaded callback received")
                     if !svgsLoaded {
                         svgsLoaded = true
                         fadeInMainContent()
@@ -42,13 +43,26 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 1.0), value: showLoadingScreen)
+        .onAppear {
+            print("✅ [ContentView] ContentView appeared, hasCompletedOnboarding: \(appState.hasCompletedOnboarding)")
+            // Fallback timeout: if SVGs don't load within 5 seconds, transition anyway
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                if showLoadingScreen && appState.hasCompletedOnboarding {
+                    print("⚠️ [ContentView] Timeout reached, forcing transition")
+                    svgsLoaded = true
+                    fadeInMainContent()
+                }
+            }
+        }
     }
     
     private func fadeInMainContent() {
+        print("✅ [ContentView] fadeInMainContent called, showLoadingScreen: \(showLoadingScreen)")
         // Fade out loader after SVGs are loaded
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             withAnimation(.easeOut(duration: 0.8)) {
                 showLoadingScreen = false
+                print("✅ [ContentView] showLoadingScreen set to false")
             }
         }
     }
