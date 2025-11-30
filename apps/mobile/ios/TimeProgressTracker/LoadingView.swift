@@ -21,12 +21,22 @@ struct LoadingView: View {
         ZStack {
             Color.white.ignoresSafeArea()
             
-            VStack {
+            VStack(spacing: 30) {
                 Spacer()
+                
+                // App icon
+                Image("SplashScreenLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .opacity(opacity)
+                
+                // Loading message
                 Text(messages[messageIndex])
                     .font(.sabdeviBold(size: 24))
                     .foregroundColor(.black)
                     .opacity(opacity)
+                
                 Spacer()
             }
         }
