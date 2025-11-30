@@ -64,9 +64,10 @@ struct AnimatedHeaderView: View {
     }
     
     private func checkAllSVGsLoaded() {
-        // Need: 1 sun + 6 clouds = 7 SVGs
+        // Need: 1 sun + clouds (usually 6) = 7 SVGs
         let expectedCount = 1 + clouds.count
-        if loadedSVGs.count >= expectedCount {
+        if clouds.count > 0 && loadedSVGs.count >= expectedCount {
+            // Ensure we only call once - use a small delay to ensure all SVGs are rendered
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onSVGsLoaded?()
             }
