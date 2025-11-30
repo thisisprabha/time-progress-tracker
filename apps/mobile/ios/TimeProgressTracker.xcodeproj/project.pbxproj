@@ -47,6 +47,13 @@
 			remoteGlobalIDString = 7AA33B6B2EDC228500BC3033;
 			remoteInfo = TimeLeftTrackerWidgetExtension;
 		};
+		7AA33B9C2EDC352F00BC3033 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
+			remoteInfo = TimeProgressTracker;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -322,6 +329,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				7AA33B9D2EDC352F00BC3033 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */,
@@ -570,6 +578,11 @@
 			isa = PBXTargetDependency;
 			target = 7AA33B6B2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension */;
 			targetProxy = 7AA33B7F2EDC228700BC3033 /* PBXContainerItemProxy */;
+		};
+		7AA33B9D2EDC352F00BC3033 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 13B07F861A680F5B00A75B9A /* TimeProgressTracker */;
+			targetProxy = 7AA33B9C2EDC352F00BC3033 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
