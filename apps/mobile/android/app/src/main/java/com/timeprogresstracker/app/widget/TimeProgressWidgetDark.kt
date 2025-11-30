@@ -124,9 +124,18 @@ class TimeProgressWidgetDark : AppWidgetProvider() {
 
         // Expand custom items to show all custom events (matching home screen behavior)
         val expandedItems = mutableListOf<String>()
+        var customEventIndex = 0
         selectedItems.forEach { item ->
-            if (item == "custom") {
-                // Expand custom to show all custom events (matching home screen behavior)
+            if (item.startsWith("custom_")) {
+                // Extract event ID from "custom_<id>" format (iOS format)
+                // Since Android widget doesn't have event IDs, match by index
+                if (customEventIndex < customEvents.size) {
+                    val event = customEvents[customEventIndex]
+                    expandedItems.add("custom_event:${event.first}:${event.second}")
+                    customEventIndex++
+                }
+            } else if (item == "custom") {
+                // Legacy format: expand custom to show all custom events
                 customEvents.forEach { expandedItems.add("custom_event:${it.first}:${it.second}") }
             } else {
                 expandedItems.add(item)

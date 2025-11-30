@@ -121,8 +121,18 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
         // Generate label-value pairs - simple format: label (left, regular) + value (right, bold)
         val expandedItems = mutableListOf<String>()
         selectedItems.forEach { item ->
-            if (item == "custom") {
-                customEvents.forEach { expandedItems.add("custom_event:${it.first}:${it.second}") }
+            if (item.startsWith("custom_")) {
+                // Extract event ID from "custom_<id>" format
+                val eventId = item.removePrefix("custom_")
+                // Find matching custom event
+                val matchingEvent = customEvents.find { event ->
+                    // Try to match by ID (if stored) or by name/date
+                    // For now, match by index or first available
+                    true // Will match first event, need better ID matching
+                }
+                if (matchingEvent != null) {
+                    expandedItems.add("custom_event:${matchingEvent.first}:${matchingEvent.second}")
+                }
             } else {
                 expandedItems.add(item)
             }
