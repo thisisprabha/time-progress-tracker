@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		0ECF2CA06D92D887E7ECDDB8 /* MainHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1147DD06E709B71D5D9C92C9 /* MainHomeView.swift */; };
+		1145280CA28F47FB67DB6ACC /* Sabdevi-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */; };
 		11B53125F3461B752866989E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		148D6DE1ED51918B5327ECEA /* TimeProgressApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */; };
 		1F5465377762A3FC9CE51953 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577D4748063ABA7293641A1B /* OnboardingView.swift */; };
+		2B50D0AC3E27805DAA8F4202 /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */; };
 		2D7050A93CABCD6108D8642D /* libPods-TimeProgressTracker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */; };
 		2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
@@ -19,6 +21,7 @@
 		601E89E13DD47C6E15F5EA92 /* cloud-2.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6246322E732A66493BA99AE8 /* cloud-2.svg */; };
 		61509038B3B40E05F9519E7E /* cloud-1.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2D137B90207C6DE7BC0F099B /* cloud-1.svg */; };
 		69F444863957225E8EF47CE3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */; };
+		9238BA4AFEAF8595BA53F736 /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */; };
 		9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7505302E61828393C7520B34 /* CustomEventTallyView.swift */; };
 		AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09556F403503875A3D4A47D /* CustomEvent.swift */; };
 		B34BD3B98B4E7AF4398FA7FD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12DC321E4BBF9709C97068B6 /* SettingsView.swift */; };
@@ -42,6 +45,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = TimeProgressTracker/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = TimeProgressTracker/Info.plist; sourceTree = "<group>"; };
 		1EF04F8C6EC47C5D46823598 /* CustomEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
+		1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = "Sabdevi-Light.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Light.ttf"; sourceTree = "<group>"; };
 		20537397C54D6146315D061C /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = TimeProgressTracker/ContentView.swift; sourceTree = "<group>"; };
 		22C3B32138009F241E20E2C1 /* LoadingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoadingView.swift; path = TimeProgressTracker/LoadingView.swift; sourceTree = "<group>"; };
 		28E3D207F526638775CE74C1 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
@@ -49,6 +53,8 @@
 		333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		399832AEC6BA23C7D21F5A74 /* sun.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = sun.svg; path = TimeProgressTracker/Assets/sun.svg; sourceTree = "<group>"; };
 		3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
+		45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = "Sabdevi-Regular.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Regular.ttf"; sourceTree = "<group>"; };
+		470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; name = "Sabdevi-Bold.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Bold.ttf"; sourceTree = "<group>"; };
 		577D4748063ABA7293641A1B /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
 		60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
 		6246322E732A66493BA99AE8 /* cloud-2.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = "cloud-2.svg"; path = "TimeProgressTracker/Assets/cloud-2.svg"; sourceTree = "<group>"; };
@@ -198,6 +204,16 @@
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
+		DD5A8399141E3F12160214F1 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */,
+				470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */,
+				1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */,
+			);
+			name = Fonts;
+			sourceTree = "<group>";
+		};
 		F169ECCAEDAFEE8198E722BC /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -205,6 +221,7 @@
 				6246322E732A66493BA99AE8 /* cloud-2.svg */,
 				0D6478ECF00CE9570D133955 /* cloud-3.svg */,
 				399832AEC6BA23C7D21F5A74 /* sun.svg */,
+				DD5A8399141E3F12160214F1 /* Fonts */,
 			);
 			name = Assets;
 			sourceTree = "<group>";
@@ -278,6 +295,9 @@
 				601E89E13DD47C6E15F5EA92 /* cloud-2.svg in Resources */,
 				E00ADA06E2700DCECBFF448F /* cloud-3.svg in Resources */,
 				B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */,
+				9238BA4AFEAF8595BA53F736 /* Sabdevi-Regular.ttf in Resources */,
+				1145280CA28F47FB67DB6ACC /* Sabdevi-Bold.ttf in Resources */,
+				2B50D0AC3E27805DAA8F4202 /* Sabdevi-Light.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

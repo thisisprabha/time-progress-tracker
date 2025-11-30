@@ -87,5 +87,11 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>UIAppFonts</key>
+    <array>
+      <string>Assets/Fonts/Sabdevi-Regular.ttf</string>
+      <string>Assets/Fonts/Sabdevi-Bold.ttf</string>
+      <string>Assets/Fonts/Sabdevi-Light.ttf</string>
+    </array>
   </dict>
 </plist>

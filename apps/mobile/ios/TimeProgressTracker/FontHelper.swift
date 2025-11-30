@@ -19,7 +19,20 @@ class FontHelper {
         ]
         
         for (fileName, style) in fontFiles {
-            if let fontURL = Bundle.main.url(forResource: fileName, withExtension: "ttf"),
+            // Try multiple paths
+            var fontURL: URL?
+            // Try direct path first
+            fontURL = Bundle.main.url(forResource: fileName, withExtension: "ttf")
+            // Try Assets/Fonts path
+            if fontURL == nil {
+                fontURL = Bundle.main.url(forResource: "Assets/Fonts/\(fileName)", withExtension: "ttf")
+            }
+            // Try just the filename in bundle
+            if fontURL == nil {
+                fontURL = Bundle.main.url(forResource: fileName, withExtension: "ttf", subdirectory: "Assets/Fonts")
+            }
+            
+            if let url = fontURL,
                let fontData = NSData(contentsOf: fontURL),
                let dataProvider = CGDataProvider(data: fontData),
                let font = CGFont(dataProvider) {
