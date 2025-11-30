@@ -12,6 +12,8 @@ struct AnimatedHeaderView: View {
     @State private var clouds: [CloudData] = []
     @State private var sunRotation: Double = 0
     @State private var birdGroups: [BirdGroupData] = []
+    @State private var loadedSVGs: Set<String> = []
+    var onSVGsLoaded: (() -> Void)? = nil
     
     private let headerHeight: CGFloat = 200
     private let screenWidth = UIScreen.main.bounds.width
@@ -24,7 +26,10 @@ struct AnimatedHeaderView: View {
             
             // Sun - centered, behind clouds, rotating slowly
             if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
-                SVGImageView(url: sunURL)
+                SVGImageView(url: sunURL, onLoaded: {
+                    loadedSVGs.insert("sun")
+                    checkAllSVGsLoaded()
+                })
                     .frame(width: 80, height: 80)
                     .rotationEffect(.degrees(sunRotation))
                     .position(x: screenWidth / 2, y: headerHeight / 2)
@@ -38,7 +43,10 @@ struct AnimatedHeaderView: View {
             
             // Clouds - in front of sun
             ForEach(clouds) { cloud in
-                CloudView(cloud: cloud)
+                CloudView(cloud: cloud, onSVGLoaded: {
+                    loadedSVGs.insert(cloud.name)
+                    checkAllSVGsLoaded()
+                })
                     .zIndex(1)
             }
             
@@ -52,6 +60,16 @@ struct AnimatedHeaderView: View {
         .onAppear {
             initializeClouds()
             startBirdAnimations()
+        }
+    }
+    
+    private func checkAllSVGsLoaded() {
+        // Need: 1 sun + 6 clouds = 7 SVGs
+        let expectedCount = 1 + clouds.count
+        if loadedSVGs.count >= expectedCount {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onSVGsLoaded?()
+            }
         }
     }
     
@@ -134,12 +152,13 @@ enum CloudDirection {
 struct CloudView: View {
     let cloud: CloudData
     @State private var offsetX: CGFloat = 0
+    var onSVGLoaded: (() -> Void)? = nil
     
     private let screenWidth = UIScreen.main.bounds.width
     
     var body: some View {
         if let cloudURL = Bundle.main.url(forResource: cloud.name, withExtension: "svg") {
-            SVGImageView(url: cloudURL)
+            SVGImageView(url: cloudURL, onLoaded: onSVGLoaded)
                 .frame(width: cloud.width, height: cloud.height)
                 .opacity(cloud.opacity)
                 .offset(x: offsetX)
@@ -207,6 +226,7 @@ struct BirdGroupView: View {
 
 struct SVGImageView: View {
     let url: URL
+    var onLoaded: (() -> Void)? = nil
     @State private var svgString: String = ""
     
     var body: some View {
@@ -219,6 +239,10 @@ struct SVGImageView: View {
                     if let data = try? Data(contentsOf: url),
                        let string = String(data: data, encoding: .utf8) {
                         svgString = string
+                        // Small delay to ensure SVG is rendered
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            onLoaded?()
+                        }
                     }
                 }
         }

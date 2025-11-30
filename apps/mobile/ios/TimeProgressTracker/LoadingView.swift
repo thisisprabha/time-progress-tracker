@@ -11,13 +11,13 @@ struct LoadingView: View {
     @State private var messageIndex = 0
     @State private var opacity: Double = 0
     
-    let primaryMessage = "Time is inevitable."
+    let primaryMessage = "Time  is  inevitable."
     let randomMessages = [
-        "Your time is valuable.",
-        "Do something great today.",
-        "Every moment counts.",
-        "Make it count.",
-        "Time waits for no one."
+        "Your  time  is  valuable.",
+        "Do  something  great  today.",
+        "Every  moment  counts.",
+        "Make  it  count.",
+        "Time  waits  for  no  one."
     ]
     
     var body: some View {

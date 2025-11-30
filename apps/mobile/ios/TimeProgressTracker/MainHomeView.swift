@@ -12,6 +12,7 @@ struct MainHomeView: View {
     @EnvironmentObject var appState: AppState
     @State private var timeData = TimeCalculator.calculateTimeData(timeMode: .twentyFourHour)
     @State private var timer: Timer?
+    var onSVGsLoaded: (() -> Void)? = nil
     
     var body: some View {
         ZStack {
@@ -19,7 +20,9 @@ struct MainHomeView: View {
             
             VStack(spacing: 0) {
                 // Animated Header - moved to very top
-                AnimatedHeaderView()
+                AnimatedHeaderView(onSVGsLoaded: {
+                    onSVGsLoaded?()
+                })
                     .frame(height: 200)
                     .padding(.top, 0)
                 
