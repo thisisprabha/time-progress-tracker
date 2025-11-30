@@ -120,19 +120,19 @@ class TimeProgressWidgetLarge : AppWidgetProvider() {
         
         // Generate label-value pairs - simple format: label (left, regular) + value (right, bold)
         val expandedItems = mutableListOf<String>()
+        var customEventIndex = 0
         selectedItems.forEach { item ->
             if (item.startsWith("custom_")) {
-                // Extract event ID from "custom_<id>" format
-                val eventId = item.removePrefix("custom_")
-                // Find matching custom event
-                val matchingEvent = customEvents.find { event ->
-                    // Try to match by ID (if stored) or by name/date
-                    // For now, match by index or first available
-                    true // Will match first event, need better ID matching
+                // Extract event ID from "custom_<id>" format (iOS format)
+                // Since Android widget doesn't have event IDs, match by index
+                if (customEventIndex < customEvents.size) {
+                    val event = customEvents[customEventIndex]
+                    expandedItems.add("custom_event:${event.first}:${event.second}")
+                    customEventIndex++
                 }
-                if (matchingEvent != null) {
-                    expandedItems.add("custom_event:${matchingEvent.first}:${matchingEvent.second}")
-                }
+            } else if (item == "custom") {
+                // Legacy format: expand custom to show all custom events
+                customEvents.forEach { expandedItems.add("custom_event:${it.first}:${it.second}") }
             } else {
                 expandedItems.add(item)
             }
