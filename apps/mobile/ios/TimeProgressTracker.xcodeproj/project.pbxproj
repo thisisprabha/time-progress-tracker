@@ -509,6 +509,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = TimeProgressTracker/TimeProgressTracker.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = P284X6775D;
 				INFOPLIST_FILE = TimeProgressTracker/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
