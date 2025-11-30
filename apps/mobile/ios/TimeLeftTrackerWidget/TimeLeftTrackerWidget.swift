@@ -111,7 +111,8 @@ struct MediumWidgetView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(Array(entry.selectedItems.prefix(2).enumerated()), id: \.element) { _, item in
+            // Show all 3 configured items in medium widget
+            ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { _, item in
                 ProgressRow(item: item, entry: entry)
             }
         }

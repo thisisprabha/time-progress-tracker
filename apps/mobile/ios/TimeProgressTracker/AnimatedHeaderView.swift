@@ -13,6 +13,7 @@ struct AnimatedHeaderView: View {
     @State private var sunRotation: Double = 0
     @State private var birdGroups: [BirdGroupData] = []
     @State private var loadedSVGsCount: Int = 0 // Count individual SVG loads, not unique names
+    @State private var svgCache: [String: String] = [:] // Cache SVG strings for faster loading
     var onSVGsLoaded: (() -> Void)? = nil
     
     private let headerHeight: CGFloat = 200
@@ -25,7 +26,21 @@ struct AnimatedHeaderView: View {
                 .ignoresSafeArea(edges: .top)
             
             // Sun - centered, behind clouds, rotating slowly
-            if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
+            if let sunString = svgCache["sun"] {
+                SVGView(svgString: sunString)
+                    .frame(width: 80, height: 80)
+                    .rotationEffect(.degrees(sunRotation))
+                    .position(x: screenWidth / 2, y: headerHeight / 2)
+                    .zIndex(0)
+                    .onAppear {
+                        print("✅ [AnimatedHeaderView] Sun SVG rendered from cache")
+                        loadedSVGsCount += 1
+                        checkAllSVGsLoaded()
+                        withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
+                            sunRotation = 360
+                        }
+                    }
+            } else if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
                 SVGImageView(url: sunURL, onLoaded: {
                     print("✅ [AnimatedHeaderView] Sun SVG loaded")
                     loadedSVGsCount += 1
@@ -44,7 +59,7 @@ struct AnimatedHeaderView: View {
             
             // Clouds - in front of sun
             ForEach(clouds) { cloud in
-                CloudView(cloud: cloud, onSVGLoaded: {
+                CloudView(cloud: cloud, svgCache: svgCache, onSVGLoaded: {
                     print("✅ [AnimatedHeaderView] Cloud SVG loaded: \(cloud.name)")
                     loadedSVGsCount += 1
                     checkAllSVGsLoaded()
@@ -61,10 +76,41 @@ struct AnimatedHeaderView: View {
         .frame(height: headerHeight)
         .onAppear {
             print("✅ [AnimatedHeaderView] onAppear called")
+            // Preload all SVGs immediately
+            preloadSVGs()
             initializeClouds()
             startBirdAnimations()
             print("✅ [AnimatedHeaderView] Initialized \(clouds.count) clouds")
         }
+    }
+    
+    private func preloadSVGs() {
+        // Preload all SVG files synchronously for faster rendering
+        let cloudNames = ["cloud-1", "cloud-2", "cloud-3"]
+        var loaded = 0
+        let total = 1 + cloudNames.count // sun + 3 cloud types
+        
+        // Preload sun
+        if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg"),
+           let sunData = try? Data(contentsOf: sunURL),
+           let sunString = String(data: sunData, encoding: .utf8) {
+            svgCache["sun"] = sunString
+            loaded += 1
+            print("✅ [AnimatedHeaderView] Preloaded sun SVG")
+        }
+        
+        // Preload clouds
+        for cloudName in cloudNames {
+            if let cloudURL = Bundle.main.url(forResource: cloudName, withExtension: "svg"),
+               let cloudData = try? Data(contentsOf: cloudURL),
+               let cloudString = String(data: cloudData, encoding: .utf8) {
+                svgCache[cloudName] = cloudString
+                loaded += 1
+                print("✅ [AnimatedHeaderView] Preloaded \(cloudName) SVG")
+            }
+        }
+        
+        print("✅ [AnimatedHeaderView] Preloaded \(loaded)/\(total) SVGs")
     }
     
     private func checkAllSVGsLoaded() {
@@ -158,13 +204,25 @@ enum CloudDirection {
 
 struct CloudView: View {
     let cloud: CloudData
+    let svgCache: [String: String] // Pass cache from parent
     @State private var offsetX: CGFloat = 0
     var onSVGLoaded: (() -> Void)? = nil
     
     private let screenWidth = UIScreen.main.bounds.width
     
     var body: some View {
-        if let cloudURL = Bundle.main.url(forResource: cloud.name, withExtension: "svg") {
+        if let cloudString = svgCache[cloud.name] {
+            SVGView(svgString: cloudString)
+                .frame(width: cloud.width, height: cloud.height)
+                .opacity(cloud.opacity)
+                .offset(x: offsetX)
+                .position(x: cloud.startX + offsetX, y: cloud.top + cloud.height / 2)
+                .onAppear {
+                    print("✅ [CloudView] Cloud \(cloud.name) rendered from cache")
+                    onSVGLoaded?()
+                    animateCloud()
+                }
+        } else if let cloudURL = Bundle.main.url(forResource: cloud.name, withExtension: "svg") {
             SVGImageView(url: cloudURL, onLoaded: onSVGLoaded)
                 .frame(width: cloud.width, height: cloud.height)
                 .opacity(cloud.opacity)
