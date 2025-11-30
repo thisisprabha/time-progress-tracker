@@ -12,7 +12,7 @@ struct AnimatedHeaderView: View {
     @State private var clouds: [CloudData] = []
     @State private var sunRotation: Double = 0
     @State private var birdGroups: [BirdGroupData] = []
-    @State private var loadedSVGs: Set<String> = []
+    @State private var loadedSVGsCount: Int = 0 // Count individual SVG loads, not unique names
     var onSVGsLoaded: (() -> Void)? = nil
     
     private let headerHeight: CGFloat = 200
@@ -28,7 +28,7 @@ struct AnimatedHeaderView: View {
             if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
                 SVGImageView(url: sunURL, onLoaded: {
                     print("✅ [AnimatedHeaderView] Sun SVG loaded")
-                    loadedSVGs.insert("sun")
+                    loadedSVGsCount += 1
                     checkAllSVGsLoaded()
                 })
                     .frame(width: 80, height: 80)
@@ -46,7 +46,7 @@ struct AnimatedHeaderView: View {
             ForEach(clouds) { cloud in
                 CloudView(cloud: cloud, onSVGLoaded: {
                     print("✅ [AnimatedHeaderView] Cloud SVG loaded: \(cloud.name)")
-                    loadedSVGs.insert(cloud.name)
+                    loadedSVGsCount += 1
                     checkAllSVGsLoaded()
                 })
                     .zIndex(1)
@@ -70,8 +70,8 @@ struct AnimatedHeaderView: View {
     private func checkAllSVGsLoaded() {
         // Need: 1 sun + clouds (usually 6) = 7 SVGs
         let expectedCount = 1 + clouds.count
-        print("🔍 [AnimatedHeaderView] checkAllSVGsLoaded - loadedSVGs: \(loadedSVGs.count), expected: \(expectedCount), clouds: \(clouds.count)")
-        if clouds.count > 0 && loadedSVGs.count >= expectedCount {
+        print("🔍 [AnimatedHeaderView] checkAllSVGsLoaded - loadedSVGsCount: \(loadedSVGsCount), expected: \(expectedCount), clouds: \(clouds.count)")
+        if clouds.count > 0 && loadedSVGsCount >= expectedCount {
             print("✅ [AnimatedHeaderView] All SVGs loaded! Calling callback")
             // Ensure we only call once - use a small delay to ensure all SVGs are rendered
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
