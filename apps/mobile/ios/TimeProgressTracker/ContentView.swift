@@ -45,12 +45,23 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 1.0), value: showLoadingScreen)
         .onAppear {
             print("✅ [ContentView] ContentView appeared, hasCompletedOnboarding: \(appState.hasCompletedOnboarding)")
-            // Fallback timeout: if SVGs don't load within 5 seconds, transition anyway
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-                if showLoadingScreen && appState.hasCompletedOnboarding {
-                    print("⚠️ [ContentView] Timeout reached, forcing transition")
-                    svgsLoaded = true
-                    fadeInMainContent()
+            
+            if !appState.hasCompletedOnboarding {
+                // If onboarding, just fade out loader after a short delay
+                print("ℹ️ [ContentView] Onboarding mode - scheduling loader dismissal")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    withAnimation(.easeOut(duration: 0.8)) {
+                        showLoadingScreen = false
+                    }
+                }
+            } else {
+                // Fallback timeout: if SVGs don't load within 5 seconds, transition anyway
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                    if showLoadingScreen && appState.hasCompletedOnboarding {
+                        print("⚠️ [ContentView] Timeout reached, forcing transition")
+                        svgsLoaded = true
+                        fadeInMainContent()
+                    }
                 }
             }
         }

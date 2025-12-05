@@ -24,6 +24,9 @@
 		7AA33B6E2EDC228500BC3033 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */; };
 		7AA33B702EDC228500BC3033 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */; };
 		7AA33B812EDC228700BC3033 /* TimeLeftTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7AA33BD12EDD6C1B00BC3033 /* Sabdevi-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */; };
+		7AA33BD22EDD6C1B00BC3033 /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */; };
+		7AA33BD32EDD6C1B00BC3033 /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */; };
 		9238BA4AFEAF8595BA53F736 /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */; };
 		9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7505302E61828393C7520B34 /* CustomEventTallyView.swift */; };
 		AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09556F403503875A3D4A47D /* CustomEvent.swift */; };
@@ -46,13 +49,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7AA33B6B2EDC228500BC3033;
 			remoteInfo = TimeLeftTrackerWidgetExtension;
-		};
-		7AA33B9C2EDC352F00BC3033 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = TimeProgressTracker;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -399,6 +395,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AA33BD12EDD6C1B00BC3033 /* Sabdevi-Bold.ttf in Resources */,
+				7AA33BD22EDD6C1B00BC3033 /* Sabdevi-Light.ttf in Resources */,
+				7AA33BD32EDD6C1B00BC3033 /* Sabdevi-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,6 +595,8 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = TimeProgressTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Days counter";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -629,6 +630,8 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = P284X6775D;
 				INFOPLIST_FILE = TimeProgressTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Days counter";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -672,7 +675,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TimeLeftTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Time left Tracker";
+				INFOPLIST_KEY_CFBundleDisplayName = "Days counter";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -717,7 +720,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TimeLeftTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Time left Tracker";
+				INFOPLIST_KEY_CFBundleDisplayName = "Days counter";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
