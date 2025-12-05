@@ -11,14 +11,24 @@ struct CustomEvent: Identifiable, Codable {
     let id: String
     let name: String
     let date: String // ISO format: YYYY-MM-DD
+    let startDate: String // ISO format: YYYY-MM-DD
     
-    init(id: String = UUID().uuidString, name: String, date: String) {
+    init(id: String = UUID().uuidString, name: String, date: String, startDate: String? = nil) {
         self.id = id
         self.name = name
         self.date = date
+        
+        if let start = startDate {
+            self.startDate = start
+        } else {
+            // Default to today
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            self.startDate = dateFormatter.string(from: Date())
+        }
     }
     
-    func calculateProgress() -> (daysLeft: Int, weeksLeft: Int, useWeeks: Bool, isPast: Bool, isToday: Bool, formattedDate: String) {
+    func calculateProgress() -> (daysLeft: Int, weeksLeft: Int, useWeeks: Bool, isPast: Bool, isToday: Bool, formattedDate: String, totalDays: Int, daysCompleted: Int) {
         let now = Date()
         let calendar = Calendar.current
         
@@ -26,15 +36,26 @@ struct CustomEvent: Identifiable, Codable {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         guard let eventDate = dateFormatter.date(from: date) else {
-            return (0, 0, false, false, false, "")
+            return (0, 0, false, false, false, "", 1, 0)
         }
         
-        // Set both dates to start of day
+        // Parse start date
+        let start = dateFormatter.date(from: startDate) ?? Date()
+        
+        // Set dates to start of day
         let today = calendar.startOfDay(for: now)
         let eventDay = calendar.startOfDay(for: eventDate)
+        let startDay = calendar.startOfDay(for: start)
         
         let diffTime = eventDay.timeIntervalSince(today)
         let diffDays = Int(diffTime / (24 * 60 * 60))
+        
+        // Calculate total duration and completed days
+        let totalDuration = eventDay.timeIntervalSince(startDay)
+        let totalDays = max(1, Int(totalDuration / (24 * 60 * 60)))
+        
+        let completedDuration = today.timeIntervalSince(startDay)
+        let daysCompleted = max(0, Int(completedDuration / (24 * 60 * 60)))
         
         // Calculate weeks for events > 30 days
         let weeksLeft = Int(ceil(Double(abs(diffDays)) / 7.0))
@@ -51,7 +72,9 @@ struct CustomEvent: Identifiable, Codable {
             useWeeks: useWeeks,
             isPast: diffDays < 0,
             isToday: diffDays == 0,
-            formattedDate: formattedDate
+            formattedDate: formattedDate,
+            totalDays: totalDays,
+            daysCompleted: daysCompleted
         )
     }
 }

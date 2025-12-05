@@ -46,14 +46,14 @@ struct SettingsView: View {
                             }
                         }
                     } header: {
-                        Text("Daily Tracking")
+                        Text("Daily  Tracking")
                             .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                     
                     // Customize Display Section
                     Section {
-                        Text("Choose 3 items to display")
+                        Text("Choose  3  items  to  display")
                             .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
@@ -90,7 +90,7 @@ struct SettingsView: View {
                             Button(action: {
                                 appState.showAddEvent = true
                             }) {
-                                Text("Add your events")
+                                Text("Add  your  events")
                                     .font(.sabdeviRegular(size: 12))
                                     .foregroundColor(.gray)
                                     .underline()
@@ -146,7 +146,7 @@ struct SettingsView: View {
                         Button(action: {
                             appState.showAddEvent = true
                         }) {
-                            Text("Add your events")
+                            Text("Add  your  events")
                                 .font(.sabdeviRegular(size: 12))
                                 .foregroundColor(.gray)
                                 .underline()
@@ -161,7 +161,7 @@ struct SettingsView: View {
                     
                     // Apple Watch Section
                     Section {
-                        Text("Choose what to display on Apple Watch")
+                        Text("Choose  what  to  display  on  Apple  Watch")
                             .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
@@ -179,14 +179,14 @@ struct SettingsView: View {
                             }
                         }
                     } header: {
-                        Text("Apple Watch")
+                        Text("Apple  Watch")
                             .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
                     
                     // Notification Section
                     Section {
-                        Text("Weekly progress updates every Monday")
+                        Text("Weekly  progress  updates  every  Monday")
                             .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
@@ -264,8 +264,8 @@ struct SettingsRow: View {
 extension Perspective {
     var displayName: String {
         switch self {
-        case .halfFull: return "Half Full"
-        case .halfEmpty: return "Half Empty"
+        case .halfFull: return "Half  Full"
+        case .halfEmpty: return "Half  Empty"
         }
     }
 }
@@ -273,8 +273,8 @@ extension Perspective {
 extension TimeMode {
     var displayName: String {
         switch self {
-        case .twentyFourHour: return "24 Hours"
-        case .nineToFive: return "9 to 5"
+        case .twentyFourHour: return "24  Hours"
+        case .nineToFive: return "9  to  5"
         }
     }
 }

@@ -21,15 +21,24 @@ class FontHelper {
         for (fileName, style) in fontFiles {
             // Try multiple paths
             var fontURL: URL?
-            // Try direct path first
-            fontURL = Bundle.main.url(forResource: fileName, withExtension: "ttf")
-            // Try Assets/Fonts path
-            if fontURL == nil {
-                fontURL = Bundle.main.url(forResource: "Assets/Fonts/\(fileName)", withExtension: "ttf")
+            
+            // Try main bundle first
+            if let url = Bundle.main.url(forResource: fileName, withExtension: "ttf") {
+                fontURL = url
+            } else if let url = Bundle.main.url(forResource: "Assets/Fonts/\(fileName)", withExtension: "ttf") {
+                fontURL = url
+            } else if let url = Bundle.main.url(forResource: fileName, withExtension: "ttf", subdirectory: "Assets/Fonts") {
+                fontURL = url
             }
-            // Try just the filename in bundle
+            
+            // If not found, try to find in any bundle (for Widget extension)
             if fontURL == nil {
-                fontURL = Bundle.main.url(forResource: fileName, withExtension: "ttf", subdirectory: "Assets/Fonts")
+                for bundle in Bundle.allBundles {
+                    if let url = bundle.url(forResource: fileName, withExtension: "ttf") {
+                        fontURL = url
+                        break
+                    }
+                }
             }
             
             if let url = fontURL,

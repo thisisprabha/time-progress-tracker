@@ -41,9 +41,37 @@ class TimeCalculator {
         // Day calculations
         let hour = calendar.component(.hour, from: now)
         let minute = calendar.component(.minute, from: now)
-        let hoursCompleted = hour
-        let hoursLeft = 24 - hour
-        let dayProgress = Double(hour * 60 + minute) / (24.0 * 60.0)
+        
+        var hoursCompleted = 0
+        var hoursLeft = 0
+        var dayProgress = 0.0
+        
+        if timeMode == .nineToFive {
+            // 9 AM to 5 PM (17:00)
+            let startHour = 9
+            let endHour = 17
+            let totalHours = endHour - startHour // 8 hours
+            
+            if hour < startHour {
+                hoursCompleted = 0
+                hoursLeft = totalHours
+                dayProgress = 0.0
+            } else if hour >= endHour {
+                hoursCompleted = totalHours
+                hoursLeft = 0
+                dayProgress = 1.0
+            } else {
+                hoursCompleted = hour - startHour
+                hoursLeft = totalHours - hoursCompleted
+                let minutesSinceStart = (hour - startHour) * 60 + minute
+                dayProgress = Double(minutesSinceStart) / Double(totalHours * 60)
+            }
+        } else {
+            // 24 Hour Mode
+            hoursCompleted = hour
+            hoursLeft = 24 - hour
+            dayProgress = Double(hour * 60 + minute) / (24.0 * 60.0)
+        }
         
         // Month calculations
         let dayOfMonth = calendar.component(.day, from: now)

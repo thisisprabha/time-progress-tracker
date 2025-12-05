@@ -19,15 +19,16 @@ struct CustomEventTallyView: View {
                 return (event.name, "Today!", "", 1, 1)
             } else if progress.isPast {
                 if progress.useWeeks {
-                    return (event.name, "\(progress.weeksLeft)", "wk ago", progress.weeksLeft, progress.weeksLeft)
+                    return (event.name, "\(progress.weeksLeft)", "wk  ago", progress.weeksLeft, progress.weeksLeft)
                 } else {
-                    return (event.name, "\(abs(progress.daysLeft))", "d ago", abs(progress.daysLeft), abs(progress.daysLeft))
+                    return (event.name, "\(abs(progress.daysLeft))", "d  ago", abs(progress.daysLeft), abs(progress.daysLeft))
                 }
             } else {
                 if progress.useWeeks {
-                    return (event.name, "\(progress.weeksLeft)", "wk left", progress.weeksLeft, 0)
+                    return (event.name, "\(progress.weeksLeft)", "wk  left", progress.weeksLeft, 0)
                 } else {
-                    return (event.name, "\(progress.daysLeft)", "d left", progress.daysLeft, 0)
+                    // Use total duration and completed days for the progress bar
+                    return (event.name, "\(progress.daysLeft)", "d  left", progress.totalDays, progress.daysCompleted)
                 }
             }
         }()

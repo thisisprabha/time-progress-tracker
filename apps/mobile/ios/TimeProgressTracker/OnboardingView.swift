@@ -58,7 +58,7 @@ struct OnboardingView: View {
                             appState.saveSettings()
                         }
                     }) {
-                        Text(currentStep < 1 ? "Next" : "Get Started")
+                        Text(currentStep < 1 ? "Next" : "Get  Started")
                             .font(.sabdeviBold(size: 16 * 0.7))
                             .foregroundColor(.white)
                             .padding(.horizontal, 24)
@@ -83,14 +83,14 @@ struct WelcomeStep: View {
                 .font(.system(size: 80))
                 .foregroundColor(.black)
             
-            Text("How do you see the glass?")
-                .font(.sabdeviBold(size: 18 * 0.7))
+            Text("How  do  you  see  the  glass?")
+                .font(.sabdeviBold(size: 16))
                 .foregroundColor(.black)
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
             
-            Text("Choose your perspective to track time progress.")
-                .font(.sabdeviRegular(size: 16 * 0.7))
+            Text("Choose  your  perspective  to  track  time  progress.")
+                .font(.sabdeviBold(size: 14))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
@@ -105,12 +105,13 @@ struct PerspectiveSelectionStep: View {
     var body: some View {
         VStack(spacing: 32) {
             Text("Half Full or Half Empty?")
-                .font(.sabdeviBold(size: 18 * 0.7))
+            .font(.sabdeviBold(size: 16))
                 .foregroundColor(.black)
             
-            Text("Your choice will determine how time progress is displayed.")
-                .font(.sabdeviRegular(size: 16 * 0.7))
+            Text("Your  choice  will  determine  how  time  progress  is  displayed.")
+            .font(.sabdeviBold(size: 12))
                 .foregroundColor(.gray)
+                .padding(.horizontal,40)
             
             VStack(spacing: 12) {
                 ForEach(Perspective.allCases, id: \.self) { perspective in
@@ -119,22 +120,22 @@ struct PerspectiveSelectionStep: View {
                     }) {
                         HStack {
                             Text(perspective.displayName)
-                                .font(.sabdeviRegular(size: 17 * 1.2))
+                            .font(.sabdeviBold(size: 16))
                                 .foregroundColor(appState.perspective == perspective ? .white : .black)
                             
                             Spacer()
                             
                             if appState.perspective == perspective {
                                 Image(systemName: "checkmark")
-                                    .font(.sabdeviBold(size: 17 * 1.2))
-                                    .foregroundColor(.white)
+                                .font(.sabdeviBold(size: 16))
+                                    .foregroundColor(.primary)
                             }
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(appState.perspective == perspective ? Color.black : Color(.systemGray6))
+                              .fill(appState.perspective == perspective ? Color.black : Color.secondary)
                         )
                     }
                     .buttonStyle(PlainButtonStyle())

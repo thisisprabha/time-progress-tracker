@@ -41,33 +41,33 @@ struct MainHomeView: View {
                                         ? "\(timeData.hoursCompleted)"
                                         : "\(timeData.hoursLeft)",
                                     unit: appState.perspective == .halfFull
-                                        ? "hrs done"
-                                        : "hrs left",
-                                    total: 24,
+                                        ? "hrs  done"
+                                        : "hrs  left",
+                                    total: appState.timeMode == .nineToFive ? 8 : 24,
                                     completed: timeData.hoursCompleted
                                 )
                             } else if item == .week {
                                 TallyCounterView(
-                                    label: "This Week",
+                                    label: "This  Week",
                                     value: appState.perspective == .halfFull
                                         ? "\(timeData.daysCompleted)"
                                         : "\(timeData.daysLeft)",
                                     unit: appState.perspective == .halfFull
-                                        ? "d done"
-                                        : "d left",
+                                        ? "d  done"
+                                        : "d  left",
                                     total: 7,
                                     completed: timeData.daysCompleted
                                 )
                             } else if item == .month {
                                 let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())?.count ?? 30
                                 TallyCounterView(
-                                    label: "This Month",
+                                    label: "This  Month",
                                     value: appState.perspective == .halfFull
                                         ? "\(timeData.daysCompleted)"
                                         : "\(timeData.daysLeft)",
                                     unit: appState.perspective == .halfFull
-                                        ? "d done"
-                                        : "d left",
+                                        ? "d  done"
+                                        : "d  left",
                                     total: daysInMonth,
                                     completed: timeData.daysCompleted
                                 )
@@ -78,20 +78,20 @@ struct MainHomeView: View {
                                         ? "\(timeData.weeksCompleted)"
                                         : "\(timeData.weeksLeft)",
                                     unit: appState.perspective == .halfFull
-                                        ? "wk done"
-                                        : "wk left",
+                                        ? "wk  done"
+                                        : "wk  left",
                                     total: 13,
                                     completed: timeData.weeksCompleted
                                 )
                             } else if item == .year {
                                 TallyCounterView(
-                                    label: "This Year",
+                                    label: "This  Year",
                                     value: appState.perspective == .halfFull
                                         ? "\(Int(timeData.yearProgress * 100))"
                                         : "\(Int(timeData.yearPercentLeft))",
                                     unit: appState.perspective == .halfFull
-                                        ? "% done"
-                                        : "% left",
+                                        ? "%  done"
+                                        : "%  left",
                                     total: 12,
                                     completed: Int(timeData.yearProgress * 12)
                                 )
@@ -149,6 +149,9 @@ struct MainHomeView: View {
         .onDisappear {
             timer?.invalidate()
         }
+        .onChange(of: appState.timeMode) { _ in
+            updateTimeData()
+        }
     }
     
     private func updateTimeData() {
@@ -169,10 +172,10 @@ struct EmptyEventSlotView: View {
                     .foregroundColor(.gray.opacity(0.5))
                 
                 VStack(spacing: 4) {
-                    Text("Add your custom event")
+                    Text("Add  your  custom  event")
                         .font(.sabdeviRegular(size: 13))
                         .foregroundColor(.gray.opacity(0.6))
-                    Text("date here")
+                    Text("date  here")
                         .font(.sabdeviRegular(size: 13))
                         .foregroundColor(.gray.opacity(0.6))
                 }

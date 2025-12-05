@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SwiftUI
+import UIKit
 
 // Copy of types needed by widget
 enum Perspective: String, Codable {
@@ -58,6 +60,7 @@ struct CustomEvent: Identifiable, Codable {
     let id: String
     let name: String
     let date: String // ISO format: YYYY-MM-DD
+    let startDate: String? // ISO format: YYYY-MM-DD
 }
 
 struct TimeData {
@@ -93,9 +96,37 @@ class TimeCalculator {
         // Day calculations
         let hour = calendar.component(.hour, from: now)
         let minute = calendar.component(.minute, from: now)
-        let hoursCompleted = hour
-        let hoursLeft = 24 - hour
-        let dayProgress = Double(hour * 60 + minute) / (24.0 * 60.0)
+        
+        var hoursCompleted = 0
+        var hoursLeft = 0
+        var dayProgress = 0.0
+        
+        if timeMode == .nineToFive {
+            // 9 AM to 5 PM (17:00)
+            let startHour = 9
+            let endHour = 17
+            let totalHours = endHour - startHour // 8 hours
+            
+            if hour < startHour {
+                hoursCompleted = 0
+                hoursLeft = totalHours
+                dayProgress = 0.0
+            } else if hour >= endHour {
+                hoursCompleted = totalHours
+                hoursLeft = 0
+                dayProgress = 1.0
+            } else {
+                hoursCompleted = hour - startHour
+                hoursLeft = totalHours - hoursCompleted
+                let minutesSinceStart = (hour - startHour) * 60 + minute
+                dayProgress = Double(minutesSinceStart) / Double(totalHours * 60)
+            }
+        } else {
+            // 24 Hour Mode
+            hoursCompleted = hour
+            hoursLeft = 24 - hour
+            dayProgress = Double(hour * 60 + minute) / (24.0 * 60.0)
+        }
         
         // Month calculations
         let dayOfMonth = calendar.component(.day, from: now)
@@ -173,13 +204,112 @@ extension DisplayItem {
     func displayName(in customEvents: [CustomEvent], quarterNumber: Int) -> String {
         switch self {
         case .today: return "Today"
-        case .month: return "This Month"
-        case .year: return "This Year"
-        case .week: return "This Week"
+        case .month: return "This  Month"
+        case .year: return "This  Year"
+        case .week: return "This  Week"
         case .quarter: return "Q\(quarterNumber)"
         case .customEvent(let id):
-            return customEvents.first(where: { $0.id == id })?.name ?? "Custom Event"
+            return customEvents.first(where: { $0.id == id })?.name ?? "Custom  Event"
         }
+    }
+}
+
+// Font Helper for Widget
+class WidgetFontHelper {
+    static var registeredFonts: [String: String] = [:]
+    
+    static func getFontName(for customName: String) -> String {
+        // First check if we registered it
+        if let registeredName = registeredFonts[customName] {
+            // Verify it's still valid (optional, but good for safety)
+            if registeredName == "System" { return "System" }
+            if UIFont(name: registeredName, size: 16) != nil {
+                return registeredName
+            }
+        }
+        
+        // Try the custom name directly
+        if UIFont(name: customName, size: 16) != nil {
+            registeredFonts[customName] = customName
+            return customName
+        }
+        
+        // Try variations
+        let variations = [
+            customName.replacingOccurrences(of: "-", with: " "),
+            customName.replacingOccurrences(of: "-Regular", with: ""),
+            customName.replacingOccurrences(of: "-Bold", with: " Bold"),
+            customName.replacingOccurrences(of: "-Light", with: " Light"),
+        ]
+        
+        for variation in variations {
+            if UIFont(name: variation, size: 16) != nil {
+                registeredFonts[customName] = variation
+                return variation
+            }
+        }
+        
+        // Check all fonts for partial match
+        for family in UIFont.familyNames {
+            if family.lowercased().contains("sabdevi") {
+                let fonts = UIFont.fontNames(forFamilyName: family)
+                // Try to match style
+                if customName.contains("Bold") {
+                    if let boldFont = fonts.first(where: { $0.lowercased().contains("bold") }) {
+                        registeredFonts[customName] = boldFont
+                        return boldFont
+                    }
+                } else if customName.contains("Light") {
+                    if let lightFont = fonts.first(where: { $0.lowercased().contains("light") }) {
+                        registeredFonts[customName] = lightFont
+                        return lightFont
+                    }
+                } else if customName.contains("Regular") {
+                    if let regularFont = fonts.first(where: { $0.lowercased().contains("regular") || !$0.lowercased().contains("bold") && !$0.lowercased().contains("light") }) {
+                        registeredFonts[customName] = regularFont
+                        return regularFont
+                    }
+                }
+                
+                // Fallback to first font in family
+                if let firstFont = fonts.first {
+                    registeredFonts[customName] = firstFont
+                    return firstFont
+                }
+            }
+        }
+        
+        // Final fallback
+        registeredFonts[customName] = "System"
+        return "System"
+    }
+}
+
+extension Font {
+    static func sabdeviRegular(size: CGFloat) -> Font {
+        // Match main app's approach - simpler and more direct
+        let fontName = WidgetFontHelper.getFontName(for: "Sabdevi-Regular")
+        if fontName == "System" {
+            return .system(size: size)
+        }
+        // Use the font name directly - SwiftUI will handle fallback if needed
+        return .custom(fontName, size: size)
+    }
+    
+    static func sabdeviBold(size: CGFloat) -> Font {
+        let fontName = WidgetFontHelper.getFontName(for: "Sabdevi-Bold")
+        if fontName == "System" {
+            return .system(size: size, weight: .bold)
+        }
+        return .custom(fontName, size: size)
+    }
+    
+    static func sabdeviLight(size: CGFloat) -> Font {
+        let fontName = WidgetFontHelper.getFontName(for: "Sabdevi-Light")
+        if fontName == "System" {
+            return .system(size: size, weight: .light)
+        }
+        return .custom(fontName, size: size)
     }
 }
 
