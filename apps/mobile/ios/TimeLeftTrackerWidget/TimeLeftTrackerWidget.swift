@@ -110,14 +110,85 @@ struct MediumWidgetView: View {
     let entry: SimpleEntry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Show all 3 configured items in medium widget
-            ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { _, item in
-                ProgressRow(item: item, entry: entry)
+        VStack(alignment: .leading, spacing: 8) {
+            // Show all 3 configured items in medium widget - TEXT ONLY FORMAT
+            if entry.selectedItems.isEmpty {
+                // Fallback if no items - use explicit color
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("No items selected")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                    Text("Items: \(entry.selectedItems.count)")
+                        .font(.system(size: 12))
+                        .foregroundColor(.primary)
+                }
+            } else {
+                ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { index, item in
+                    TextOnlyRow(item: item, entry: entry)
+                    
+                    // Add spacing between items (but not after the last one)
+                    if index < min(entry.selectedItems.count, 3) - 1 {
+                        Spacer()
+                            .frame(height: 12)
+                    }
+                }
             }
         }
-        .padding()
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .containerBackground(.fill.tertiary, for: .widget)
+    }
+}
+
+// Text-only row for Medium Widget
+struct TextOnlyRow: View {
+    let item: DisplayItem
+    let entry: SimpleEntry
+    
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            // Label - ensure it always displays with explicit color
+            let labelText = item.displayName(in: entry.customEvents, quarterNumber: entry.timeData.quarterNumber)
+            Text(labelText)
+                .font(.sabdeviRegular(size: 14))
+                .foregroundColor(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            Spacer(minLength: 8)
+            
+            // Value with unit - ensure it always displays with explicit color
+            let (value, total) = getValueAndTotal(item: item, entry: entry)
+            let unitText = getUnitText(for: item, value: value, total: total, entry: entry)
+            let valueText = "\(value)\(unitText)"
+            
+            Text(valueText)
+                .font(.sabdeviBold(size: 14))
+                .foregroundColor(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func getUnitText(for item: DisplayItem, value: Int, total: Int, entry: SimpleEntry) -> String {
+        switch item {
+        case .today:
+            return entry.perspective == .halfFull ? "hrs  done" : "hrs  left"
+        case .week:
+            return entry.perspective == .halfFull ? "d  done" : "d  left"
+        case .month:
+            return entry.perspective == .halfFull ? "d  done" : "d  left"
+        case .quarter:
+            return entry.perspective == .halfFull ? "wk  done" : "wk  left"
+        case .year:
+            return entry.perspective == .halfFull ? "%  done" : "%  left"
+        case .customEvent:
+            return entry.perspective == .halfFull ? "d  done" : "d  left"
+        }
     }
 }
 
@@ -125,12 +196,19 @@ struct LargeWidgetView: View {
     let entry: SimpleEntry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { _, item in
-                ProgressRow(item: item, entry: entry)
+        VStack(alignment: .leading, spacing: 0) {
+        
+            ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { index, item in
+              TallyProgressRow(item: item, entry: entry)
+                .padding(.vertical, 20.0)
+               
+              
             }
+            
+          
         }
-        .padding()
+        .padding(.vertical, 10.0)
+      
         .containerBackground(.fill.tertiary, for: .widget)
     }
 }
@@ -142,18 +220,18 @@ struct ProgressRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(item.displayName(in: entry.customEvents, quarterNumber: entry.timeData.quarterNumber))
-                .font(.system(size: 12, weight: .regular))
-                .foregroundColor(.secondary)
+                .font(.sabdeviRegular(size: 12))
+                .foregroundColor(.primary)
             
             HStack {
                 Text(valueText)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.sabdeviBold(size: 18))
                     .foregroundColor(.primary)
                 
                 Spacer()
                 
                 Text(unitText)
-                    .font(.system(size: 12, weight: .regular))
+                    .font(.sabdeviRegular(size: 12))
                     .foregroundColor(.secondary)
             }
             
@@ -173,17 +251,17 @@ struct ProgressRow: View {
     }
     
     private var valueText: String {
-        let (value, total) = getValueAndTotal()
+        let (value, _) = getValueAndTotal(item: item, entry: entry)
         return "\(value)"
     }
     
     private var unitText: String {
-        let (value, total) = getValueAndTotal()
-        return entry.perspective == .halfFull ? "/\(total) done" : "/\(total) left"
+        let (_, total) = getValueAndTotal(item: item, entry: entry)
+        return entry.perspective == .halfFull ? "/\(total)  done" : "/\(total)  left"
     }
     
     private var progress: Double {
-        let (value, total) = getValueAndTotal()
+        let (value, total) = getValueAndTotal(item: item, entry: entry)
         return Double(value) / Double(total)
     }
     
@@ -195,73 +273,289 @@ struct ProgressRow: View {
             return prog > 0.75 ? .green : prog > 0.5 ? .orange : .red
         }
     }
+}
+
+struct TallyProgressRow: View {
+    let item: DisplayItem
+    let entry: SimpleEntry
     
-    private func getValueAndTotal() -> (Int, Int) {
+    var body: some View {
+        let (value, total) = getValueAndTotal(item: item, entry: entry)
+        
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(item.displayName(in: entry.customEvents, quarterNumber: entry.timeData.quarterNumber))
+                    .font(.sabdeviRegular(size: 14))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                // Value with unit (same as Medium widget)
+                let unitText = getUnitTextForTally(for: item, value: value, total: total, entry: entry)
+                Text("\(value)\(unitText)")
+                    .font(.sabdeviBold(size: 14))
+                    .foregroundColor(.primary)
+            }
+            
+            // Tally Marks
+            TallyMarksView(total: total, completed: value)
+                .frame(height: 22)
+        }
+    }
+    
+    private func getUnitTextForTally(for item: DisplayItem, value: Int, total: Int, entry: SimpleEntry) -> String {
         switch item {
         case .today:
-            if entry.perspective == .halfFull {
-                return (entry.timeData.hoursCompleted, 24)
-            } else {
-                return (entry.timeData.hoursLeft, 24)
-            }
-        case .month:
-            if entry.perspective == .halfFull {
-                return (entry.timeData.daysCompleted, entry.timeData.daysCompleted + entry.timeData.daysLeft)
-            } else {
-                return (entry.timeData.daysLeft, entry.timeData.daysCompleted + entry.timeData.daysLeft)
-            }
-        case .year:
-            if entry.perspective == .halfFull {
-                return (entry.timeData.monthsCompleted, 12)
-            } else {
-                return (entry.timeData.monthsLeft, 12)
-            }
+            return entry.perspective == .halfFull ? "hrs  done" : "hrs  left"
         case .week:
-            if entry.perspective == .halfFull {
-                return (entry.timeData.daysCrossedInWeek, 7)
-            } else {
-                return (entry.timeData.daysLeftInWeek, 7)
-            }
+            return entry.perspective == .halfFull ? "d  done" : "d  left"
+        case .month:
+            return entry.perspective == .halfFull ? "d  done" : "d  left"
         case .quarter:
+            return entry.perspective == .halfFull ? "wk  done" : "wk  left"
+        case .year:
+            return entry.perspective == .halfFull ? "%  done" : "%  left"
+        case .customEvent:
+            return entry.perspective == .halfFull ? "d  done" : "d  left"
+        }
+    }
+}
+
+// Helper function for values
+func getValueAndTotal(item: DisplayItem, entry: SimpleEntry) -> (Int, Int) {
+    switch item {
+    case .today:
+        let total = entry.timeMode == .nineToFive ? 8 : 24
+        if entry.perspective == .halfFull {
+            return (entry.timeData.hoursCompleted, total)
+        } else {
+            return (entry.timeData.hoursLeft, total)
+        }
+    case .month:
+        let total = entry.timeData.daysCompleted + entry.timeData.daysLeft
+        if entry.perspective == .halfFull {
+            return (entry.timeData.daysCompleted, total)
+        } else {
+            return (entry.timeData.daysLeft, total)
+        }
+    case .year:
+        if entry.perspective == .halfFull {
+            // Calculate year percentage completed
+            let yearPercent = Int(entry.timeData.yearProgress * 100)
+            return (yearPercent, 100)
+        } else {
+            // Calculate year percentage left
+            let yearPercent = Int((1.0 - entry.timeData.yearProgress) * 100)
+            return (yearPercent, 100)
+        }
+    case .week:
+        if entry.perspective == .halfFull {
+            return (entry.timeData.daysCrossedInWeek, 7)
+        } else {
+            return (entry.timeData.daysLeftInWeek, 7)
+        }
+    case .quarter:
+        if entry.perspective == .halfFull {
+            return (entry.timeData.quartersCompleted, 4)
+        } else {
+            return (entry.timeData.quartersLeft, 4)
+        }
+    case .customEvent(let id):
+        if let event = entry.customEvents.first(where: { $0.id == id }) {
+            let calendar = Calendar.current
+            let now = Date()
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            
+            guard let eventDate = dateFormatter.date(from: event.date) else {
+                return (0, 1)
+            }
+            
+            // Parse start date (default to today if missing)
+            let startDate = dateFormatter.date(from: event.startDate ?? "") ?? now
+            
+            let today = calendar.startOfDay(for: now)
+            let eventDay = calendar.startOfDay(for: eventDate)
+            let startDay = calendar.startOfDay(for: startDate)
+            
+            let totalDuration = eventDay.timeIntervalSince(startDay)
+            let totalDays = max(1, Int(totalDuration / (24 * 60 * 60)))
+            
+            let completedDuration = today.timeIntervalSince(startDay)
+            let daysCompleted = max(0, Int(completedDuration / (24 * 60 * 60)))
+            let daysLeft = max(0, totalDays - daysCompleted)
+            
             if entry.perspective == .halfFull {
-                return (entry.timeData.quartersCompleted, 4)
+                return (daysCompleted, totalDays)
             } else {
-                return (entry.timeData.quartersLeft, 4)
+                return (daysLeft, totalDays)
             }
-        case .customEvent(let id):
-            if let event = entry.customEvents.first(where: { $0.id == id }) {
-                let calendar = Calendar.current
-                let now = Date()
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd"
-                guard let eventDate = dateFormatter.date(from: event.date) else {
-                    return (0, 1)
+        }
+        return (0, 1)
+    }
+}
+
+// Tally Marks Views
+struct TallyMarksView: View {
+    let total: Int
+    let completed: Int
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let availableWidth = geometry.size.width
+            let itemWidth: CGFloat = 16
+            let spacing: CGFloat = 4
+            let itemsPerRow = Int(availableWidth / (itemWidth + spacing))
+            let rows = (total + itemsPerRow - 1) / max(1, itemsPerRow)
+            
+            // Limit rows to avoid overflow in widget
+            let maxRows = 2
+            let displayRows = min(rows, maxRows)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(0..<displayRows, id: \.self) { row in
+                    HStack(spacing: 4) {
+                        let startIndex = row * itemsPerRow
+                        let endIndex = min(startIndex + itemsPerRow, total)
+                        
+                        ForEach(startIndex..<endIndex, id: \.self) { index in
+                            TallyMarkView(isCompleted: index < completed)
+                        }
+                    }
                 }
-                let today = calendar.startOfDay(for: now)
-                let eventDay = calendar.startOfDay(for: eventDate)
-                let daysDiff = calendar.dateComponents([.day], from: today, to: eventDay).day ?? 0
-                
-                if entry.perspective == .halfFull {
-                    return (max(0, -daysDiff), 365)
+            }
+        }
+    }
+}
+
+struct TallyMarkView: View {
+    let isCompleted: Bool
+    
+    var body: some View {
+        ZStack {
+            // Vertical line
+            Rectangle()
+                .fill(Color.gray.opacity(0.4))
+                .frame(width: 2, height: 20)
+            
+            // Diagonal cross line
+            if isCompleted {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.4))
+                    .frame(width: 14, height: 2)
+                    .rotationEffect(.degrees(45))
+            }
+        }
+        .frame(width: 16, height: 20)
+    }
+}
+
+// Font Registration for Widget - Made safe and non-fatal
+func registerFontsForWidget() {
+    print("🔤 [Widget] Starting font registration...")
+    
+    // First, list all available fonts to see what's actually available
+    print("🔤 [Widget] All available font families:")
+    for family in UIFont.familyNames.sorted() {
+        if family.lowercased().contains("sabdevi") || family.lowercased().contains("sabdev") {
+            print("  📦 Family: \(family)")
+            for fontName in UIFont.fontNames(forFamilyName: family) {
+                print("    - \(fontName)")
+                // Store the actual font names for lookup
+                if fontName.lowercased().contains("bold") {
+                    WidgetFontHelper.registeredFonts["Sabdevi-Bold"] = fontName
+                } else if fontName.lowercased().contains("light") {
+                    WidgetFontHelper.registeredFonts["Sabdevi-Light"] = fontName
                 } else {
-                    return (max(0, daysDiff), 365)
+                    WidgetFontHelper.registeredFonts["Sabdevi-Regular"] = fontName
                 }
             }
-            return (0, 1)
         }
     }
     
-    private func displayName(in entry: SimpleEntry) -> String {
-        switch item {
-        case .today: return "Today"
-        case .month: return "This Month"
-        case .year: return "This Year"
-        case .week: return "This Week"
-        case .quarter: return "Q\(entry.timeData.quarterNumber)"
-        case .customEvent(let id):
-            return entry.customEvents.first(where: { $0.id == id })?.name ?? "Custom Event"
+    // If fonts are declared in Info.plist, iOS should load them automatically
+    // But we can also try manual registration as backup
+    let fontFiles = [
+        ("Sabdevi-Regular", "Regular"),
+        ("Sabdevi-Bold", "Bold"),
+        ("Sabdevi-Light", "Light")
+    ]
+    
+    let widgetBundle = Bundle.main
+    
+    for (fontName, style) in fontFiles {
+        // Skip if already found from family names
+        if WidgetFontHelper.registeredFonts[fontName] != nil {
+            print("✅ [Widget] Font \(fontName) already available from system")
+            continue
+        }
+        
+        var fontURL: URL?
+        
+        // Try multiple paths (matching Info.plist format and common locations)
+        let paths = [
+            "Assets/Fonts/\(fontName)",  // Info.plist format
+            fontName,
+            "Assets/Fonts/\(fontName).ttf",
+            "\(fontName).ttf"
+        ]
+        
+        for path in paths {
+            if let url = widgetBundle.url(forResource: path, withExtension: path.hasSuffix(".ttf") ? nil : "ttf") {
+                fontURL = url
+                print("🔤 [Widget] Found \(fontName) at: \(path)")
+                break
+            }
+            if let url = widgetBundle.url(forResource: path, withExtension: path.hasSuffix(".ttf") ? nil : "ttf", subdirectory: nil) {
+                fontURL = url
+                print("🔤 [Widget] Found \(fontName) at subdirectory: \(path)")
+                break
+            }
+        }
+        
+        // Check all bundles
+        if fontURL == nil {
+            for bundle in Bundle.allBundles {
+                for path in paths {
+                    if let url = bundle.url(forResource: path, withExtension: path.hasSuffix(".ttf") ? nil : "ttf") {
+                        fontURL = url
+                        print("🔤 [Widget] Found \(fontName) in bundle: \(bundle.bundleIdentifier ?? "unknown")")
+                        break
+                    }
+                }
+                if fontURL != nil { break }
+            }
+        }
+        
+        if let url = fontURL {
+            guard let fontData = NSData(contentsOf: url),
+                  let dataProvider = CGDataProvider(data: fontData),
+                  let font = CGFont(dataProvider) else {
+                print("⚠️ [Widget] Failed to load font data for \(fontName)")
+                continue
+            }
+            
+            var error: Unmanaged<CFError>?
+            if CTFontManagerRegisterGraphicsFont(font, &error) {
+                if let postScriptName = font.postScriptName as String? {
+                    print("✅ [Widget] Registered font: \(fontName) -> \(postScriptName)")
+                    WidgetFontHelper.registeredFonts[fontName] = postScriptName
+                } else {
+                    WidgetFontHelper.registeredFonts[fontName] = fontName
+                }
+            } else {
+                // Font might already be registered (from Info.plist)
+                if let postScriptName = font.postScriptName as String? {
+                    WidgetFontHelper.registeredFonts[fontName] = postScriptName
+                    print("✅ [Widget] Font \(fontName) already registered: \(postScriptName)")
+                }
+            }
+        } else {
+            print("⚠️ [Widget] Font file not found: \(fontName).ttf")
         }
     }
+    
+    print("🔤 [Widget] Final registered fonts: \(WidgetFontHelper.registeredFonts)")
 }
 
 struct TimeLeftTrackerWidget: Widget {
@@ -271,15 +565,16 @@ struct TimeLeftTrackerWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             TimeLeftTrackerWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Time left Tracker")
+        .configurationDisplayName("Days counter")
         .description("Track your time progress")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
     
     init() {
         print("✅ [Widget] TimeLeftTrackerWidget initialized")
-        print("✅ [Widget] Widget kind: \(kind)")
-        print("✅ [Widget] Widget display name: Time left Tracker")
+        // Register fonts synchronously first to ensure they're available when views render
+        // Widgets need fonts registered before rendering
+        registerFontsForWidget()
     }
 }
 
