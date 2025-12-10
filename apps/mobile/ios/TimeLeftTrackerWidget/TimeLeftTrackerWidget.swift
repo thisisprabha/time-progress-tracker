@@ -86,6 +86,12 @@ struct TimeLeftTrackerWidgetEntryView : View {
             MediumWidgetView(entry: entry)
         case .systemLarge:
             LargeWidgetView(entry: entry)
+        case .accessoryCircular:
+            LockScreenCircularView(entry: entry)
+        case .accessoryRectangular:
+            LockScreenRectangularView(entry: entry)
+        case .accessoryInline:
+            LockScreenInlineView(entry: entry)
         default:
             MediumWidgetView(entry: entry)
         }
@@ -645,7 +651,7 @@ struct TimeLeftTrackerWidget: Widget {
         }
         .configurationDisplayName("Days counter")
         .description("Track your time progress")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
     
     init() {
@@ -653,6 +659,57 @@ struct TimeLeftTrackerWidget: Widget {
         // Register fonts synchronously first to ensure they're available when views render
         // Widgets need fonts registered before rendering
         registerFontsForWidget()
+    }
+}
+
+// MARK: - Lock Screen Widgets
+
+struct LockScreenCircularView: View {
+    let entry: SimpleEntry
+    
+    var body: some View {
+        let (value, total) = getValueAndTotal(item: .today, entry: entry)
+        let progress = Double(value) / Double(total)
+        
+        Gauge(value: progress) {
+            Text("Today")
+        } currentValueLabel: {
+            Text("\(value)")
+        }
+        .gaugeStyle(.accessoryCircular)
+    }
+}
+
+struct LockScreenRectangularView: View {
+    let entry: SimpleEntry
+    
+    var body: some View {
+        let (value, total) = getValueAndTotal(item: .today, entry: entry)
+        let progress = Double(value) / Double(total)
+        let unitText = entry.perspective == .halfFull ? "hrs done" : "hrs left"
+        
+        VStack(alignment: .leading) {
+            Text("Today")
+                .font(.headline)
+                .widgetAccentable()
+            
+            Text("\(value) \(unitText)")
+                .font(.body)
+            
+            ProgressView(value: progress)
+                .progressViewStyle(.linear)
+        }
+    }
+}
+
+struct LockScreenInlineView: View {
+    let entry: SimpleEntry
+    
+    var body: some View {
+        let (value, total) = getValueAndTotal(item: .today, entry: entry)
+        let unitText = entry.perspective == .halfFull ? "done" : "left"
+        
+        Text("Today: \(value)h \(unitText)")
     }
 }
 
