@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Time left Tracker",
-    "version": "1.0.75",
+    "version": "1.0.76",
     "sdkVersion": "54.0.0",
     "description": "Track your daily, monthly, and yearly progress with a unique perspective-based approach. Choose your glass perspective and see time differently.",
     "slug": "time-progress-tracker",
@@ -24,7 +24,7 @@
       },
       "permissions": [],
       "package": "com.timeprogresstracker.app",
-      "versionCode": 75
+      "versionCode": 76
     },
     "plugins": [
       [
