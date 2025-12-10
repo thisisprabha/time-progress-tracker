@@ -297,8 +297,11 @@ struct TallyProgressRow: View {
                     .foregroundColor(.primary)
             }
             
-            // Tally Marks
-            TallyMarksView(total: total, completed: value)
+            // Tally Marks - ALWAYS show completed count, regardless of perspective
+            let completedCount = getCompletedCount(item: item, entry: entry)
+            let totalCount = getTotalCount(item: item, entry: entry)
+            
+            TallyMarksView(total: totalCount, completed: completedCount)
                 .frame(height: 22)
         }
     }
@@ -393,6 +396,81 @@ func getValueAndTotal(item: DisplayItem, entry: SimpleEntry) -> (Int, Int) {
         }
         return (0, 1)
     }
+}
+
+// Helper to ALWAYS get completed count for Tally Marks (Crossed Out = Done)
+func getCompletedCount(item: DisplayItem, entry: SimpleEntry) -> Int {
+    switch item {
+    case .today:
+        return entry.timeData.hoursCompleted
+    case .month:
+        return entry.timeData.daysCompleted
+    case .year:
+        // For year, we use percentage (0-100) for tally marks if using TallyMarksView logic
+        // But the previous code used Int(yearProgress * 100) / 100 which implies 100 marks?
+        // Wait, TallyMarksView takes an Int count. If total is 12 for months, 365 for days?
+        // Ah, in MainHomeView, year uses total: 12.
+        // Let's check what getValueAndTotal returns for year... it returns (percent, 100).
+        // So for consistency with TallyMarksView(total: 100), we return percent completed.
+        return Int(entry.timeData.yearProgress * 100)
+    case .week:
+        return entry.timeData.daysCrossedInWeek
+    case .quarter:
+        return entry.timeData.quartersCompleted
+    case .customEvent(let id):
+        // Reuse logic but force completed
+        if let event = entry.customEvents.first(where: { $0.id == id }) {
+            let (completed, total) = getCustomEventValues(event: event, now: Date())
+            return completed
+        }
+        return 0
+    }
+}
+
+func getTotalCount(item: DisplayItem, entry: SimpleEntry) -> Int {
+    switch item {
+    case .today:
+        return entry.timeMode == .nineToFive ? 8 : 24
+    case .month:
+        return entry.timeData.daysCompleted + entry.timeData.daysLeft
+    case .year:
+        return 100 // Year is shown as percentage in getValueAndTotal
+    case .week:
+        return 7
+    case .quarter:
+        return 4
+    case .customEvent(let id):
+        if let event = entry.customEvents.first(where: { $0.id == id }) {
+            let (_, total) = getCustomEventValues(event: event, now: Date())
+            return total
+        }
+        return 1
+    }
+}
+
+func getCustomEventValues(event: CustomEvent, now: Date) -> (Int, Int) {
+    let calendar = Calendar.current
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+    
+    guard let eventDate = dateFormatter.date(from: event.date) else {
+        return (0, 1)
+    }
+    
+    // Parse start date (default to today if missing)
+    let startDate = dateFormatter.date(from: event.startDate ?? "") ?? now
+    
+    let today = calendar.startOfDay(for: now)
+    let eventDay = calendar.startOfDay(for: eventDate)
+    let startDay = calendar.startOfDay(for: startDate)
+    
+    let totalDuration = eventDay.timeIntervalSince(startDay)
+    let totalDays = max(1, Int(totalDuration / (24 * 60 * 60)))
+    
+    let completedDuration = today.timeIntervalSince(startDay)
+    let daysCompleted = max(0, Int(completedDuration / (24 * 60 * 60)))
+    
+    return (daysCompleted, totalDays)
 }
 
 // Tally Marks Views

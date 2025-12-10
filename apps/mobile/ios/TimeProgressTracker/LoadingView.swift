@@ -40,22 +40,46 @@ struct LoadingView: View {
                 Spacer()
                 
                 // Loading message - one random message per day
-                Text(dailyMessage)
-                    .font(.sabdeviBold(size: 24))
-                    .foregroundColor(.black)
-                    .opacity(opacity)
+                // Use custom typewriter effect
+                TypewriterText(text: dailyMessage)
                 
                 Spacer()
             }
         }
+    }
+}
+
+struct TypewriterText: View {
+    let text: String
+    @State private var characters: [String] = []
+    @State private var opacity: Double = 0
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(0..<characters.count, id: \.self) { index in
+                Text(characters[index])
+                    .font(.sabdeviBold(size: 24))
+                    .foregroundColor(.black)
+                    .opacity(opacity)
+                    .animation(
+                        .easeOut(duration: 0.5)
+                        .delay(Double(index) * 0.05), // Staggered delay for typewriter effect
+                        value: opacity
+                    )
+            }
+        }
         .onAppear {
-            // Simple fade in
-            withAnimation(.easeIn(duration: 1.0)) {
+            // Split text into characters (preserving spaces)
+            characters = text.map { String($0) }
+            
+            // Trigger animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 opacity = 1
             }
         }
     }
 }
+
 
 // Seeded random number generator for consistent daily selection
 struct SeededRandomNumberGenerator: RandomNumberGenerator {
