@@ -14,13 +14,11 @@
 		148D6DE1ED51918B5327ECEA /* TimeProgressApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */; };
 		1F5465377762A3FC9CE51953 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577D4748063ABA7293641A1B /* OnboardingView.swift */; };
 		2B50D0AC3E27805DAA8F4202 /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */; };
-		2D7050A93CABCD6108D8642D /* libPods-TimeProgressTracker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */; };
 		2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA3F4C41C103D266854A232 /* AppDelegate.swift */; };
 		601E89E13DD47C6E15F5EA92 /* cloud-2.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6246322E732A66493BA99AE8 /* cloud-2.svg */; };
 		61509038B3B40E05F9519E7E /* cloud-1.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2D137B90207C6DE7BC0F099B /* cloud-1.svg */; };
-		69F444863957225E8EF47CE3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */; };
 		7AA33B6E2EDC228500BC3033 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */; };
 		7AA33B702EDC228500BC3033 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */; };
 		7AA33B812EDC228700BC3033 /* TimeLeftTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -33,7 +31,6 @@
 		B34BD3B98B4E7AF4398FA7FD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12DC321E4BBF9709C97068B6 /* SettingsView.swift */; };
 		B4A978687A910B084BE58934 /* TimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */; };
 		B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */ = {isa = PBXBuildFile; fileRef = 399832AEC6BA23C7D21F5A74 /* sun.svg */; };
-		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77712E2F85D69CE0A85CDD08 /* FontHelper.swift */; };
 		BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */; };
 		C687A93299959AD487552FB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20537397C54D6146315D061C /* ContentView.swift */; };
@@ -88,21 +85,17 @@
 		577D4748063ABA7293641A1B /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
 		60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
 		6246322E732A66493BA99AE8 /* cloud-2.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "cloud-2.svg"; path = "TimeProgressTracker/Assets/cloud-2.svg"; sourceTree = "<group>"; };
-		6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.release.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.release.xcconfig"; sourceTree = "<group>"; };
 		7505302E61828393C7520B34 /* CustomEventTallyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
 		77712E2F85D69CE0A85CDD08 /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
-		78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-TimeProgressTracker/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimeLeftTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		7AA33B8A2EDC245F00BC3033 /* TimeLeftTrackerWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeLeftTrackerWidgetExtension.entitlements; sourceTree = "<group>"; };
-		8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TimeProgressTracker.debug.xcconfig"; path = "Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker.debug.xcconfig"; sourceTree = "<group>"; };
 		9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddCustomEventView.swift; path = TimeProgressTracker/AddCustomEventView.swift; sourceTree = "<group>"; };
 		9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
 		A09556F403503875A3D4A47D /* CustomEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = TimeProgressTracker/SplashScreen.storyboard; sourceTree = "<group>"; };
 		AC653398BF19E80AC69123C4 /* MainHomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MainHomeView.swift; path = TimeProgressTracker/MainHomeView.swift; sourceTree = "<group>"; };
-		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnimatedHeaderView.swift; path = TimeProgressTracker/AnimatedHeaderView.swift; sourceTree = "<group>"; };
 		C3CD501F15C2A2F4BA116DBC /* CustomEventTallyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEventTallyView.swift; path = TimeProgressTracker/CustomEventTallyView.swift; sourceTree = "<group>"; };
 		E2426D47112ED64156CFD3F1 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = TimeProgressTracker/SettingsView.swift; sourceTree = "<group>"; };
@@ -112,7 +105,6 @@
 		F11748442D0722820044C1D9 /* TimeProgressTracker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TimeProgressTracker-Bridging-Header.h"; path = "TimeProgressTracker/TimeProgressTracker-Bridging-Header.h"; sourceTree = "<group>"; };
 		FAA3F4C41C103D266854A232 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = TimeProgressTracker/AppDelegate.swift; sourceTree = "<group>"; };
 		FC0E35D81B73003266E89B7B /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
-		FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TimeProgressTracker.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -126,6 +118,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		7A2881D52EEB52C400CEF49D /* audio */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = audio; sourceTree = "<group>"; };
 		7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7AA33B852EDC228700BC3033 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TimeLeftTrackerWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -134,7 +127,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2D7050A93CABCD6108D8642D /* libPods-TimeProgressTracker.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +183,6 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				FCEE18C3271A854EB0FB3A34 /* libPods-TimeProgressTracker.a */,
 				7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */,
 				7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */,
 			);
@@ -214,13 +205,8 @@
 				7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				B96416ABC3EF00C6D8CBFC15 /* Pods */,
-				DD2E04FEE14ADB1FBB4F1E6D /* ExpoModulesProviders */,
 			);
-			indentWidth = 2;
 			sourceTree = "<group>";
-			tabWidth = 2;
-			usesTabs = 0;
 		};
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
@@ -231,38 +217,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B2D0AD89ADAB8A50B0754F4D /* TimeProgressTracker */ = {
-			isa = PBXGroup;
-			children = (
-				78E103B4F2355780BCA07371 /* ExpoModulesProvider.swift */,
-			);
-			name = TimeProgressTracker;
-			sourceTree = "<group>";
-		};
-		B96416ABC3EF00C6D8CBFC15 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */,
-				6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
-				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
 			path = TimeProgressTracker/Supporting;
-			sourceTree = "<group>";
-		};
-		DD2E04FEE14ADB1FBB4F1E6D /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				B2D0AD89ADAB8A50B0754F4D /* TimeProgressTracker */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		DD5A8399141E3F12160214F1 /* Fonts */ = {
@@ -278,6 +238,7 @@
 		F169ECCAEDAFEE8198E722BC /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				7A2881D52EEB52C400CEF49D /* audio */,
 				2D137B90207C6DE7BC0F099B /* cloud-1.svg */,
 				6246322E732A66493BA99AE8 /* cloud-2.svg */,
 				0D6478ECF00CE9570D133955 /* cloud-3.svg */,
@@ -294,20 +255,18 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "TimeProgressTracker" */;
 			buildPhases = (
-				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				222ACC61A76C8690EFF843AB /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
-				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				505A43432F56C69692CA3711 /* [CP] Embed Pods Frameworks */,
 				7AA33B822EDC228700BC3033 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				7AA33B802EDC228700BC3033 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				7A2881D52EEB52C400CEF49D /* audio */,
 			);
 			name = TimeProgressTracker;
 			productName = TimeProgressTracker;
@@ -377,7 +336,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				11B53125F3461B752866989E /* PrivacyInfo.xcprivacy in Resources */,
@@ -403,149 +361,12 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-			);
-			name = "Bundle React Native code and images";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\nif [[ \"$CONFIGURATION\" = *Debug* ]]; then\n  export SKIP_BUNDLING=1\nfi\nif [[ -z \"$ENTRY_FILE\" ]]; then\n  # Set the entry JS file using the bundler's entry resolution.\n  export ENTRY_FILE=\"$(\"$NODE_BINARY\" -e \"require('expo/scripts/resolveAppEntry')\" \"$PROJECT_ROOT\" ios absolute | tail -n 1)\"\nfi\n\nif [[ -z \"$CLI_PATH\" ]]; then\n  # Use Expo CLI\n  export CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })\")\"\nfi\nif [[ -z \"$BUNDLE_COMMAND\" ]]; then\n  # Default Expo CLI command for bundling\n  export BUNDLE_COMMAND=\"export:embed\"\nfi\n\n# Source .xcode.env.updates if it exists to allow\n# SKIP_BUNDLING to be unset if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.updates\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.updates\"\nfi\n# Source local changes to allow overrides\n# if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n`\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n\n";
-		};
-		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TimeProgressTracker-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		222ACC61A76C8690EFF843AB /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/TimeProgressTracker/TimeProgressTracker.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-TimeProgressTracker/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-TimeProgressTracker/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-TimeProgressTracker/expo-configure-project.sh\"\n";
-		};
-		505A43432F56C69692CA3711 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXNotifications/ExpoNotifications_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXUpdates/EXUpdates.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoDevice/ExpoDevice_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoSystemUI/ExpoSystemUI_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage/RNCAsyncStorage_resources.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG/RNSVGFilters.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/ReachabilitySwift/ReachabilitySwift.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/SDWebImage/SDWebImage.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/expo-dev-launcher/EXDevLauncher.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/expo-dev-menu/EXDevMenu.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoApplication_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoConstants_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoNotifications_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXUpdates.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoDevice_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoFileSystem_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoSystemUI_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNCAsyncStorage_resources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNSVGFilters.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ReachabilitySwift.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SDWebImage.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXDevLauncher.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXDevMenu.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TimeProgressTracker/Pods-TimeProgressTracker-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				69F444863957225E8EF47CE3 /* ExpoModulesProvider.swift in Sources */,
 				148D6DE1ED51918B5327ECEA /* TimeProgressApp.swift in Sources */,
 				C687A93299959AD487552FB6 /* ContentView.swift in Sources */,
 				0ECF2CA06D92D887E7ECDDB8 /* MainHomeView.swift in Sources */,
@@ -582,7 +403,6 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8EA92CED84812E25E4849609 /* Pods-TimeProgressTracker.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -608,7 +428,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.prabhakaran.timeprogresstracker;
 				PRODUCT_NAME = TimeProgressTracker;
 				SWIFT_OBJC_BRIDGING_HEADER = "TimeProgressTracker/TimeProgressTracker-Bridging-Header.h";
@@ -621,7 +441,6 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6A959DA4F199F0879DB17A8B /* Pods-TimeProgressTracker.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -643,7 +462,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.prabhakaran.timeprogresstracker;
 				PRODUCT_NAME = TimeProgressTracker;
 				SWIFT_OBJC_BRIDGING_HEADER = "TimeProgressTracker/TimeProgressTracker-Bridging-Header.h";
@@ -783,7 +602,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -796,11 +615,9 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
-				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -840,7 +657,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -852,10 +669,8 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
-				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

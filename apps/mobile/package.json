@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "patch-package",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "echo 'iOS uses native Xcode project. Open TimeProgressTracker.xcworkspace in Xcode.'"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
