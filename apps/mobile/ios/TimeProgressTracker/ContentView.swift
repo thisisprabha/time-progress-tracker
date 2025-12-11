@@ -77,9 +77,6 @@ struct ContentView: View {
     
     private func handleAnimationSequence() {
         // Step 1: Text animation is complete (already done)
-        // Play welcome chime sound
-        print("✅ [ContentView] Step 1: Text animation complete - playing welcome chime")
-        audioPlayer.playSound(named: "welcome_chime", withExtension: "mp3")
         
         // Step 2: Fade in page
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -94,6 +91,12 @@ struct ContentView: View {
                 print("✅ [ContentView] Step 3: Starting animations (sun, clouds, birds)")
                 startAnimations = true
             }
+        }
+        
+        // Play welcome chime sound 2 seconds after text animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            print("✅ [ContentView] Playing welcome chime (2s delay after text animation)")
+            audioPlayer.playSound(named: "welcome_chime", withExtension: "mp3")
         }
     }
 }
