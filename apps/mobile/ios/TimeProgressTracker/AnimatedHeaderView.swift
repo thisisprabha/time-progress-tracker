@@ -20,6 +20,7 @@ struct AnimatedHeaderView: View {
     @State private var birdsAnimationStarted = false
     var onSVGsLoaded: (() -> Void)? = nil
     var startAnimations: Bool = false
+    var animationRestartTrigger: Int = 0 // External trigger to restart animations
     var onSunStarted: (() -> Void)? = nil
     var onCloudsStarted: (() -> Void)? = nil
     var onBirdsStarted: (() -> Void)? = nil
@@ -48,28 +49,11 @@ struct AnimatedHeaderView: View {
                     }
                     .onChange(of: startAnimations) { shouldStart in
                         if shouldStart && !sunAnimationStarted {
-                            sunAnimationStarted = true
-                            print("✅ [AnimatedHeaderView] Starting sun animation")
-                            withAnimation(.easeOut(duration: 1.5)) {
-                                sunScale = 1.0 // Animate to full size
-                            }
-                            withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
-                                sunRotation = 360
-                            }
-                            onSunStarted?()
-                            
-                            // Start clouds after sun
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                cloudsAnimationStarted = true
-                                onCloudsStarted?()
-                            }
-                            
-                            // Start birds after clouds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                birdsAnimationStarted = true
-                                onBirdsStarted?()
-                            }
+                            startSunAnimation()
                         }
+                    }
+                    .onChange(of: animationRestartTrigger) { _ in
+                        restartAnimations()
                     }
             } else if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
                 SVGImageView(url: sunURL, onLoaded: {
@@ -84,28 +68,11 @@ struct AnimatedHeaderView: View {
                     .zIndex(0)
                     .onChange(of: startAnimations) { shouldStart in
                         if shouldStart && !sunAnimationStarted {
-                            sunAnimationStarted = true
-                            print("✅ [AnimatedHeaderView] Starting sun animation")
-                            withAnimation(.easeOut(duration: 1.5)) {
-                                sunScale = 1.0 // Animate to full size
-                            }
-                            withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
-                                sunRotation = 360
-                            }
-                            onSunStarted?()
-                            
-                            // Start clouds after sun
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                cloudsAnimationStarted = true
-                                onCloudsStarted?()
-                            }
-                            
-                            // Start birds after clouds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                birdsAnimationStarted = true
-                                onBirdsStarted?()
-                            }
+                            startSunAnimation()
                         }
+                    }
+                    .onChange(of: animationRestartTrigger) { _ in
+                        restartAnimations()
                     }
             }
             
@@ -143,6 +110,54 @@ struct AnimatedHeaderView: View {
             if shouldStart && !birdsAnimationStarted {
                 startBirdAnimations()
             }
+        }
+        .onChange(of: animationRestartTrigger) { _ in
+            // Restart animations when trigger changes
+            restartAnimations()
+        }
+    }
+    
+    private func restartAnimations() {
+        print("🔄 [AnimatedHeaderView] Restarting animations")
+        // Reset animation states
+        sunAnimationStarted = false
+        cloudsAnimationStarted = false
+        birdsAnimationStarted = false
+        sunScale = 0.1
+        sunRotation = 0
+        birdGroups = []
+        
+        // Reinitialize clouds
+        initializeClouds()
+        
+        // Start animations immediately
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            startSunAnimation()
+        }
+    }
+    
+    private func startSunAnimation() {
+        sunAnimationStarted = true
+        print("✅ [AnimatedHeaderView] Starting sun animation (restart)")
+        withAnimation(.easeOut(duration: 1.5)) {
+            sunScale = 1.0
+        }
+        withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
+            sunRotation = 360
+        }
+        onSunStarted?()
+        
+        // Start clouds after sun
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            cloudsAnimationStarted = true
+            onCloudsStarted?()
+        }
+        
+        // Start birds after clouds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            birdsAnimationStarted = true
+            startBirdAnimations()
+            onBirdsStarted?()
         }
     }
     

@@ -16,6 +16,7 @@ struct MainHomeView: View {
     @State private var sunStarted: Bool = false
     @State private var cloudsStarted: Bool = false
     @State private var birdsStarted: Bool = false
+    @State private var animationRestartTrigger: Int = 0
     var onSVGsLoaded: (() -> Void)? = nil
     var startAnimations: Bool = false
     
@@ -32,6 +33,7 @@ struct MainHomeView: View {
                                 onSVGsLoaded?()
                             },
                             startAnimations: startAnimations,
+                            animationRestartTrigger: animationRestartTrigger,
                             onSunStarted: {
                                 sunStarted = true
                                 startSectionReveal()
@@ -50,6 +52,7 @@ struct MainHomeView: View {
                                 onSVGsLoaded?()
                             },
                             startAnimations: startAnimations,
+                            animationRestartTrigger: animationRestartTrigger,
                             onSunStarted: {
                                 sunStarted = true
                                 startSectionReveal()
@@ -208,6 +211,17 @@ struct MainHomeView: View {
         }
         .onChange(of: appState.timeMode) { _ in
             updateTimeData()
+        }
+        .onChange(of: appState.showSettings) { isShowing in
+            // When settings closes (goes from true to false), restart animations
+            if !isShowing {
+                print("🔄 [MainHomeView] Settings closed - restarting animations")
+                // Reset content visibility
+                showContent = false
+                sunStarted = false
+                // Trigger animation restart
+                animationRestartTrigger += 1
+            }
         }
         .onDisappear {
             timer?.invalidate()
