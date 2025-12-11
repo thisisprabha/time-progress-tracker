@@ -32,6 +32,7 @@
 		B4A978687A910B084BE58934 /* TimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */; };
 		B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */ = {isa = PBXBuildFile; fileRef = 399832AEC6BA23C7D21F5A74 /* sun.svg */; };
 		BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77712E2F85D69CE0A85CDD08 /* FontHelper.swift */; };
+				417564696F506C6179657220 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 417564696F506C617965722E /* AudioPlayer.swift */; };
 		BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */; };
 		C687A93299959AD487552FB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20537397C54D6146315D061C /* ContentView.swift */; };
 		CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C3B32138009F241E20E2C1 /* LoadingView.swift */; };
@@ -105,6 +106,7 @@
 		F11748442D0722820044C1D9 /* TimeProgressTracker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TimeProgressTracker-Bridging-Header.h"; path = "TimeProgressTracker/TimeProgressTracker-Bridging-Header.h"; sourceTree = "<group>"; };
 		FAA3F4C41C103D266854A232 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = TimeProgressTracker/AppDelegate.swift; sourceTree = "<group>"; };
 		FC0E35D81B73003266E89B7B /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
+				417564696F506C617965722E /* AudioPlayer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = TimeProgressTracker/AudioPlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -174,6 +176,7 @@
 				C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */,
 				22C3B32138009F241E20E2C1 /* LoadingView.swift */,
 				9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */,
+				417564696F506C617965722E /* AudioPlayer.swift */,
 				F169ECCAEDAFEE8198E722BC /* Assets */,
 			);
 			name = TimeProgressTracker;
@@ -376,6 +379,7 @@
 				AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */,
 				9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */,
 				BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */,
+				417564696F506C6179657220 /* AudioPlayer.swift in Sources */,
 				479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */,
 				2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */,
 				CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */,

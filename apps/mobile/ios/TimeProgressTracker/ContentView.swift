@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
@@ -13,6 +14,7 @@ struct ContentView: View {
     @State private var textAnimationComplete = false
     @State private var pageFadedIn = false
     @State private var startAnimations = false
+    @StateObject private var audioPlayer = AudioPlayer()
     
     var body: some View {
         ZStack {
@@ -75,6 +77,10 @@ struct ContentView: View {
     
     private func handleAnimationSequence() {
         // Step 1: Text animation is complete (already done)
+        // Play welcome chime sound
+        print("✅ [ContentView] Step 1: Text animation complete - playing welcome chime")
+        audioPlayer.playSound(named: "welcome_chime", withExtension: "mp3")
+        
         // Step 2: Fade in page
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             print("✅ [ContentView] Step 2: Fading in page")
