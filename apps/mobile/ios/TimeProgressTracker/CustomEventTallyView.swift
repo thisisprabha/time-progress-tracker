@@ -33,12 +33,15 @@ struct CustomEventTallyView: View {
             }
         }()
         
+        let isCritical = !progress.isPast && progress.daysLeft <= 5
+        
         return TallyCounterView(
             label: label,
             value: value,
             unit: unit,
             total: max(total, 1),
-            completed: completed
+            completed: completed,
+            textColor: isCritical ? .red : .primary
         )
     }
 }

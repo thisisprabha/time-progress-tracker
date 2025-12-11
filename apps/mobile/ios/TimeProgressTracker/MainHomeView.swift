@@ -13,23 +13,58 @@ struct MainHomeView: View {
     @State private var timeData = TimeCalculator.calculateTimeData(timeMode: .twentyFourHour)
     @State private var timer: Timer?
     @State private var showContent: Bool = false
+    @State private var sunStarted: Bool = false
+    @State private var cloudsStarted: Bool = false
+    @State private var birdsStarted: Bool = false
     var onSVGsLoaded: (() -> Void)? = nil
+    var startAnimations: Bool = false
     
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Animated Header - moved to very top
-                AnimatedHeaderView(onSVGsLoaded: {
-                    // When SVGs are ready, animate content in
-                    withAnimation(.easeOut(duration: 0.8)) {
-                        showContent = true
+                Group {
+                    if appState.isDarkMode {
+                        AnimatedHeaderView(
+                            onSVGsLoaded: {
+                                onSVGsLoaded?()
+                            },
+                            startAnimations: startAnimations,
+                            onSunStarted: {
+                                sunStarted = true
+                                startSectionReveal()
+                            },
+                            onCloudsStarted: {
+                                cloudsStarted = true
+                            },
+                            onBirdsStarted: {
+                                birdsStarted = true
+                            }
+                        )
+                        .colorInvert()
+                    } else {
+                        AnimatedHeaderView(
+                            onSVGsLoaded: {
+                                onSVGsLoaded?()
+                            },
+                            startAnimations: startAnimations,
+                            onSunStarted: {
+                                sunStarted = true
+                                startSectionReveal()
+                            },
+                            onCloudsStarted: {
+                                cloudsStarted = true
+                            },
+                            onBirdsStarted: {
+                                birdsStarted = true
+                            }
+                        )
                     }
-                    onSVGsLoaded?()
-                })
-                    .frame(height: 200)
-                    .padding(.top, 0)
+                }
+                .frame(height: 200)
+                .padding(.top, 0)
                 
                 // Main content - centered on screen
                 GeometryReader { geometry in
@@ -43,6 +78,7 @@ struct MainHomeView: View {
                             ForEach(Array(appState.selectedDisplayItems.enumerated()), id: \.element) { index, item in
                                 Group {
                                     if item == .today {
+                                        let isCritical = timeData.hoursLeft < 4
                                         TallyCounterView(
                                             label: "Today",
                                             value: appState.perspective == .halfFull
@@ -52,7 +88,8 @@ struct MainHomeView: View {
                                                 ? "hrs  done"
                                                 : "hrs  left",
                                             total: appState.timeMode == .nineToFive ? 8 : 24,
-                                            completed: timeData.hoursCompleted
+                                            completed: timeData.hoursCompleted,
+                                            textColor: isCritical ? .primary : .primary
                                         )
                                     } else if item == .week {
                                         TallyCounterView(
@@ -92,6 +129,7 @@ struct MainHomeView: View {
                                             completed: timeData.weeksCompleted
                                         )
                                     } else if item == .year {
+                                        let isCritical = timeData.yearProgress >= 0.9
                                         TallyCounterView(
                                             label: "This  Year",
                                             value: appState.perspective == .halfFull
@@ -101,7 +139,8 @@ struct MainHomeView: View {
                                                 ? "%  done"
                                                 : "%  left",
                                             total: 12,
-                                            completed: Int(timeData.yearProgress * 12)
+                                            completed: Int(timeData.yearProgress * 12),
+                                            textColor: isCritical ? .primary : .primary
                                         )
                                     } else if case .customEvent(let eventId) = item {
                                         // Show specific custom event
@@ -147,7 +186,7 @@ struct MainHomeView: View {
                         }) {
                             Text("Customize")
                                 .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.gray)
+                                .foregroundColor(.secondary)
                                 .underline()
                         }
                         .padding(.bottom, 30)
@@ -161,21 +200,17 @@ struct MainHomeView: View {
             timer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { _ in
                 updateTimeData()
             }
-            
-            // Fallback: If SVGs don't load quickly or at all, show content anyway after a delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                if !showContent {
-                    withAnimation(.easeOut(duration: 0.8)) {
-                        showContent = true
-                    }
-                }
-            }
         }
-        .onDisappear {
-            timer?.invalidate()
+        .onChange(of: sunStarted) { started in
+            if started {
+                startSectionReveal()
+            }
         }
         .onChange(of: appState.timeMode) { _ in
             updateTimeData()
+        }
+        .onDisappear {
+            timer?.invalidate()
         }
         .sheet(isPresented: $appState.showSettings) {
             SettingsView()
@@ -184,6 +219,15 @@ struct MainHomeView: View {
         .sheet(isPresented: $appState.showAddEvent) {
             AddCustomEventView()
                 .environmentObject(appState)
+        }
+    }
+    
+    private func startSectionReveal() {
+        // Step 4: Reveal sections one by one after sun starts
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation(.easeOut(duration: 0.8)) {
+                showContent = true
+            }
         }
     }
     
@@ -202,25 +246,25 @@ struct EmptyEventSlotView: View {
             VStack(spacing: 12) {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(.gray.opacity(0.5))
+                    .foregroundColor(.secondary.opacity(0.5))
                 
                 VStack(spacing: 4) {
                     Text("Add  your  custom  event")
                         .font(.sabdeviRegular(size: 13))
-                        .foregroundColor(.gray.opacity(0.6))
+                        .foregroundColor(.secondary.opacity(0.6))
                     Text("date  here")
                         .font(.sabdeviRegular(size: 13))
-                        .foregroundColor(.gray.opacity(0.6))
+                        .foregroundColor(.secondary.opacity(0.6))
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 20)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.03))
+                    .fill(Color.secondary.opacity(0.05))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.gray.opacity(0.1), style: StrokeStyle(lineWidth: 1, dash: [5]))
+                            .stroke(Color.secondary.opacity(0.1), style: StrokeStyle(lineWidth: 1, dash: [5]))
                     )
             )
         }
@@ -234,6 +278,7 @@ struct TallyCounterView: View {
     let unit: String
     let total: Int
     let completed: Int
+    var textColor: Color = .primary
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -241,17 +286,17 @@ struct TallyCounterView: View {
             HStack {
                 Text(TimeCalculator.addDoubleSpaces(label))
                     .font(.sabdeviRegular(size: 15))
-                    .foregroundColor(.black)
+                    .foregroundColor(textColor)
                 
                 Spacer()
                 
                 HStack(spacing: 0) {
                     Text(value)
                         .font(.sabdeviBold(size: 15))
-                        .foregroundColor(.black)
+                        .foregroundColor(textColor)
                     Text(TimeCalculator.addDoubleSpaces(unit))
                         .font(.sabdeviBold(size: 15))
-                        .foregroundColor(.black)
+                        .foregroundColor(textColor)
                 }
             }
             
@@ -294,13 +339,13 @@ struct TallyMarkView: View {
         ZStack {
             // Vertical line (always shown)
             Rectangle()
-                .fill(Color.gray.opacity(0.4))
+                .fill(Color.secondary.opacity(0.4)) // increased contrast
                 .frame(width: 2, height: 20)
             
             // Diagonal cross line (only when completed) - from top-left to bottom-right
             if isCompleted {
                 Rectangle()
-                    .fill(Color.gray.opacity(0.4))
+                    .fill(Color.secondary.opacity(0.4))
                     .frame(width: 14, height: 2)
                     .rotationEffect(.degrees(45))
             }

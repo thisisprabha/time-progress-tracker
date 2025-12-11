@@ -40,35 +40,28 @@ struct AddCustomEventView: View {
                     DatePicker("", selection: $selectedDate, displayedComponents: .date)
                         .datePickerStyle(.graphical)
                         .accentColor(.black)
+                        .environment(\.locale, Locale(identifier: "en_US"))
                 }
                 
                 Spacer()
-                
-                Button(action: {
-                    addEvent()
-                }) {
-                    Text("Add Event")
-                        .font(.sabdeviBold(size: 17))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.black)
-                        )
-                }
-                .disabled(eventName.isEmpty)
-                .opacity(eventName.isEmpty ? 0.5 : 1.0)
             }
             .padding(20)
             .navigationTitle("Add Event")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
                     }
                     .font(.sabdeviRegular(size: 14))
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        addEvent()
+                    }
+                    .font(.sabdeviBold(size: 14))
+                    .disabled(eventName.isEmpty)
                 }
             }
         }

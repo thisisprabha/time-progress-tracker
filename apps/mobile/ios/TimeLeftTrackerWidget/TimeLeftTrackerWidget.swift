@@ -668,13 +668,17 @@ struct LockScreenCircularView: View {
     let entry: SimpleEntry
     
     var body: some View {
-        let (value, total) = getValueAndTotal(item: .today, entry: entry)
-        let progress = Double(value) / Double(total)
+        let (value, _) = getValueAndTotal(item: .today, entry: entry)
+        // Visual progress ALWAYS reflects "Done" (so it fills up as day passes)
+        let completed = getCompletedCount(item: .today, entry: entry)
+        let total = getTotalCount(item: .today, entry: entry)
+        let progress = Double(completed) / Double(total)
         
         Gauge(value: progress) {
             Text("Today")
         } currentValueLabel: {
             Text("\(value)")
+                .font(.sabdeviBold(size: 10)) // Try applying font
         }
         .gaugeStyle(.accessoryCircular)
     }
@@ -684,21 +688,37 @@ struct LockScreenRectangularView: View {
     let entry: SimpleEntry
     
     var body: some View {
-        let (value, total) = getValueAndTotal(item: .today, entry: entry)
-        let progress = Double(value) / Double(total)
+        let (value, _) = getValueAndTotal(item: .today, entry: entry)
+        // Visual progress ALWAYS reflects "Done"
+        let completed = getCompletedCount(item: .today, entry: entry)
+        let total = getTotalCount(item: .today, entry: entry)
+        let progress = Double(completed) / Double(total)
+        
+        // Check if office hours are done (9-5 mode)
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: Date())
+        let isOfficeHoursDone = entry.timeMode == .nineToFive && hour >= 17
+        
         let unitText = entry.perspective == .halfFull ? "hrs done" : "hrs left"
         
-        VStack(alignment: .leading) {
-            Text("Today")
-                .font(.headline)
-                .widgetAccentable()
-            
-            Text("\(value) \(unitText)")
-                .font(.body)
+        VStack(alignment: .leading, spacing: 5) {
+            if isOfficeHoursDone {
+                Text("Chill now")
+                    .font(.sabdeviRegular(size: 14))
+                    .widgetAccentable()
+            } else {
+                Text("\(value) \(unitText) today")
+                    .font(.sabdeviRegular(size: 14))
+                    .widgetAccentable()
+            }
             
             ProgressView(value: progress)
                 .progressViewStyle(.linear)
+                .frame(height: 12) // Increased height to 12pt
+                .tint(.primary) // Use system tint for contrast
         }
+        .padding(.vertical, 5)
+        .padding(.horizontal, 8)
     }
 }
 
@@ -706,10 +726,11 @@ struct LockScreenInlineView: View {
     let entry: SimpleEntry
     
     var body: some View {
-        let (value, total) = getValueAndTotal(item: .today, entry: entry)
+        let (value, _) = getValueAndTotal(item: .today, entry: entry)
         let unitText = entry.perspective == .halfFull ? "done" : "left"
         
         Text("Today: \(value)h \(unitText)")
+            .font(.sabdeviBold(size: 12)) // Inline might override this, but we try
     }
 }
 

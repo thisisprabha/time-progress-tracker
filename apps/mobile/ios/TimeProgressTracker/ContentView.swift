@@ -10,21 +10,22 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @State private var showLoadingScreen = true
-    @State private var svgsLoaded = false
+    @State private var textAnimationComplete = false
+    @State private var pageFadedIn = false
+    @State private var startAnimations = false
     
     var body: some View {
         ZStack {
             // Always render MainHomeView (even if hidden) so SVGs can load
             if appState.hasCompletedOnboarding {
-                MainHomeView(onSVGsLoaded: {
-                    print("✅ [ContentView] SVGs loaded callback received")
-                    if !svgsLoaded {
-                        svgsLoaded = true
-                        fadeInMainContent()
-                    }
-                })
-                    .opacity(showLoadingScreen ? 0.01 : 1) // Use 0.01 instead of 0 so view still renders
-                    .allowsHitTesting(!showLoadingScreen)
+                MainHomeView(
+                    onSVGsLoaded: {
+                        print("✅ [ContentView] SVGs loaded callback received")
+                    },
+                    startAnimations: startAnimations
+                )
+                    .opacity(pageFadedIn ? 1 : 0.01) // Use 0.01 instead of 0 so view still renders
+                    .allowsHitTesting(pageFadedIn)
                     .transition(.opacity)
                     .zIndex(1)
             } else {
@@ -37,43 +38,55 @@ struct ContentView: View {
             
             // Show loader on top
             if showLoadingScreen {
-                LoadingView()
+                LoadingView(onTextAnimationComplete: {
+                    print("✅ [ContentView] Text animation complete")
+                    textAnimationComplete = true
+                    if appState.hasCompletedOnboarding {
+                        // If onboarding is complete, start main screen animation sequence
+                        handleAnimationSequence()
+                    } else {
+                        // If onboarding not complete, show onboarding after text animation
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            withAnimation(.easeOut(duration: 0.8)) {
+                                showLoadingScreen = false
+                            }
+                        }
+                    }
+                })
                     .transition(.opacity)
                     .zIndex(2)
             }
         }
         .animation(.easeInOut(duration: 1.0), value: showLoadingScreen)
+        .preferredColorScheme(appState.isDarkMode ? .dark : .light)
         .onAppear {
             print("✅ [ContentView] ContentView appeared, hasCompletedOnboarding: \(appState.hasCompletedOnboarding)")
-            
-            if !appState.hasCompletedOnboarding {
-                // If onboarding, just fade out loader after a short delay
-                print("ℹ️ [ContentView] Onboarding mode - scheduling loader dismissal")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    withAnimation(.easeOut(duration: 0.8)) {
-                        showLoadingScreen = false
-                    }
-                }
-            } else {
-                // Fallback timeout: if SVGs don't load within 5 seconds, transition anyway
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-                    if showLoadingScreen && appState.hasCompletedOnboarding {
-                        print("⚠️ [ContentView] Timeout reached, forcing transition")
-                        svgsLoaded = true
-                        fadeInMainContent()
-                    }
-                }
+            // Loading screen will show by default, text animation will trigger the next step
+        }
+        .onChange(of: appState.hasCompletedOnboarding) { completed in
+            if completed && !pageFadedIn {
+                // Onboarding just completed - show loading screen and trigger animation sequence
+                print("✅ [ContentView] Onboarding just completed - showing loading screen")
+                showLoadingScreen = true
+                // Wait for text animation to complete (it will call handleAnimationSequence)
             }
         }
     }
     
-    private func fadeInMainContent() {
-        print("✅ [ContentView] fadeInMainContent called, showLoadingScreen: \(showLoadingScreen)")
-        // Fade out loader after SVGs are loaded
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+    private func handleAnimationSequence() {
+        // Step 1: Text animation is complete (already done)
+        // Step 2: Fade in page
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            print("✅ [ContentView] Step 2: Fading in page")
             withAnimation(.easeOut(duration: 0.8)) {
+                pageFadedIn = true
                 showLoadingScreen = false
-                print("✅ [ContentView] showLoadingScreen set to false")
+            }
+            
+            // Step 3: Start sun animation (after page fades in)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                print("✅ [ContentView] Step 3: Starting animations (sun, clouds, birds)")
+                startAnimations = true
             }
         }
     }

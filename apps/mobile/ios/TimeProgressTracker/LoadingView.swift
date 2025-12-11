@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LoadingView: View {
     @State private var opacity: Double = 0
+    var onTextAnimationComplete: (() -> Void)? = nil
     
     let primaryMessage = "Time  is  inevitable."
     let randomMessages = [
@@ -19,29 +20,24 @@ struct LoadingView: View {
         "Time  waits  for  no  one."
     ]
     
-    // Get one random message per day (same message all day, different next day)
+    // Get a random message every time the app loads
     private var dailyMessage: String {
         let allMessages = [primaryMessage] + randomMessages
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let dayOfYear = calendar.ordinality(of: .day, in: .year, for: today) ?? 0
-        
-        // Use day of year as seed for consistent random selection per day
-        var generator = SeededRandomNumberGenerator(seed: UInt64(dayOfYear))
-        let randomIndex = Int.random(in: 0..<allMessages.count, using: &generator)
-        return allMessages[randomIndex]
+        return allMessages.randomElement() ?? primaryMessage
     }
     
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea()
             
             VStack {
                 Spacer()
                 
                 // Loading message - one random message per day
                 // Use custom typewriter effect
-                TypewriterText(text: dailyMessage)
+                TypewriterText(text: dailyMessage, onAnimationComplete: {
+                    onTextAnimationComplete?()
+                })
                 
                 Spacer()
             }
@@ -51,31 +47,46 @@ struct LoadingView: View {
 
 struct TypewriterText: View {
     let text: String
+    var onAnimationComplete: (() -> Void)? = nil
     @State private var characters: [String] = []
     @State private var opacity: Double = 0
+    @State private var displayedCount: Int = 0
     
     var body: some View {
         HStack(spacing: 0) {
             ForEach(0..<characters.count, id: \.self) { index in
                 Text(characters[index])
                     .font(.sabdeviBold(size: 24))
-                    .foregroundColor(.black)
-                    .opacity(opacity)
-                    .animation(
-                        .easeOut(duration: 0.5)
-                        .delay(Double(index) * 0.05), // Staggered delay for typewriter effect
-                        value: opacity
-                    )
+                    .foregroundColor(.primary)
+                    .opacity(index < displayedCount ? 1 : 0)
             }
         }
         .onAppear {
             // Split text into characters (preserving spaces)
             characters = text.map { String($0) }
             
-            // Trigger animation
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                opacity = 1
+            // Animate character by character
+            animateText()
+        }
+    }
+    
+    private func animateText() {
+        guard displayedCount < characters.count else {
+            // Animation complete
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                onAnimationComplete?()
             }
+            return
+        }
+        
+        // Show next character
+        withAnimation(.easeOut(duration: 0.05)) {
+            displayedCount += 1
+        }
+        
+        // Continue to next character
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            animateText()
         }
     }
 }

@@ -21,6 +21,7 @@ class AppState: ObservableObject {
     @Published var showAddEvent: Bool = false
     @Published var customEvents: [CustomEvent] = []
     @Published var watchComplicationItem: DisplayItem = .today
+    @Published var isDarkMode: Bool = false
     
     init() {
         print("✅ [AppState] AppState initialized")
@@ -45,6 +46,13 @@ class AppState: ObservableObject {
         if let savedTimeMode = UserDefaults.standard.string(forKey: "timeMode"),
            let timeMode = TimeMode(rawValue: savedTimeMode) {
             self.timeMode = timeMode
+        }
+        
+        if UserDefaults.standard.object(forKey: "isDarkMode") != nil {
+            self.isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
+        } else {
+            // Default to system setting
+            self.isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
         }
         
         if let savedItems = UserDefaults.standard.array(forKey: "selectedDisplayItems") as? [String] {
@@ -76,6 +84,7 @@ class AppState: ObservableObject {
         UserDefaults.standard.set(perspective.rawValue, forKey: "userPerspective")
         UserDefaults.standard.set(timeMode.rawValue, forKey: "timeMode")
         UserDefaults.standard.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
+        UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
         
         // Save custom events
         if let eventsData = try? JSONEncoder().encode(customEvents) {
@@ -90,6 +99,7 @@ class AppState: ObservableObject {
             sharedDefaults.set(perspective.rawValue, forKey: "userPerspective")
             sharedDefaults.set(timeMode.rawValue, forKey: "timeMode")
             sharedDefaults.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
+            sharedDefaults.set(isDarkMode, forKey: "isDarkMode")
             sharedDefaults.set(watchComplicationItem.rawValue, forKey: "watchComplicationItem")
             if let eventsData = try? JSONEncoder().encode(customEvents) {
                 sharedDefaults.set(eventsData, forKey: "customEvents")

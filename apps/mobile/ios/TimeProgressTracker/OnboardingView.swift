@@ -13,7 +13,7 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 Spacer()
@@ -22,18 +22,18 @@ struct OnboardingView: View {
                 VStack(spacing: 24) {
                     Image(systemName: "clock.fill")
                         .font(.system(size: 80))
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding(.bottom, 10)
                     
                     Text("How  do  you  see  the  glass?")
                         .font(.sabdeviBold(size: 20)) // Slightly larger
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .lineSpacing(6)
                     
                     Text("Choose  your  perspective  to  track  time  progress.")
                         .font(.sabdeviBold(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .lineSpacing(6)
                         .padding(.horizontal, 40)
@@ -51,25 +51,25 @@ struct OnboardingView: View {
                             HStack {
                                 Text(perspective.displayName)
                                 .font(.sabdeviBold(size: 16))
-                                    .foregroundColor(appState.perspective == perspective ? .white : .black)
+                                    .foregroundColor(appState.perspective == perspective ? Color(.systemBackground) : .primary)
                                 
                                 Spacer()
                                 
                                 if appState.perspective == perspective {
                                     Image(systemName: "checkmark")
                                     .font(.sabdeviBold(size: 16))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(Color(.systemBackground))
                                 }
                             }
                             .padding(.horizontal, 24)
                             .padding(.vertical, 18) // Slightly taller
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                  .fill(appState.perspective == perspective ? Color.black : Color.gray.opacity(0.1))
+                                  .fill(appState.perspective == perspective ? Color.primary : Color.secondary.opacity(0.1))
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.black.opacity(0.1), lineWidth: 1)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             )
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -94,12 +94,12 @@ struct OnboardingView: View {
                 }) {
                     Text("Get  Started")
                         .font(.sabdeviBold(size: 16))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(.systemBackground))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.black)
+                                .fill(Color.primary)
                         )
                 }
                 .padding(.horizontal, 24)

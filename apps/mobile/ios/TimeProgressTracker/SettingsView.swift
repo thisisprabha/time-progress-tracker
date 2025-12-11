@@ -17,6 +17,24 @@ struct SettingsView: View {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 
                 List {
+                    // Appearance Section
+                    Section {
+                        Toggle(isOn: $appState.isDarkMode) {
+                            Text("Dark  Mode")
+                                .font(.sabdeviRegular(size: 14))
+                                .foregroundColor(.primary)
+                        }
+                        .tint(.black) // Use black tint for toggle (or white in dark mode?)
+                        .onChange(of: appState.isDarkMode) { _ in
+                            appState.saveSettings()
+                        }
+                        .listRowBackground(Color(.secondarySystemGroupedBackground))
+                    } header: {
+                        Text("Appearance")
+                            .font(.sabdeviBold(size: 16))
+                            .foregroundColor(.primary)
+                    }
+                    
                     // Your Mindset Section
                     Section {
                         ForEach(Perspective.allCases, id: \.self) { perspective in
@@ -159,6 +177,8 @@ struct SettingsView: View {
                             .foregroundColor(.primary)
                     }
                     
+                    // MARK: - Apple Watch Section (Hidden - To be implemented)
+                    /*
                     // Apple Watch Section
                     Section {
                         Text("Choose  what  to  display  on  Apple  Watch")
@@ -183,6 +203,7 @@ struct SettingsView: View {
                             .font(.sabdeviBold(size: 16))
                             .foregroundColor(.primary)
                     }
+                    */
                     
                     // Notification Section
                     Section {
@@ -216,6 +237,7 @@ struct SettingsView: View {
                     .environmentObject(appState)
             }
         }
+        .preferredColorScheme(appState.isDarkMode ? .dark : .light)
     }
 }
 
@@ -227,17 +249,19 @@ struct SettingsRow: View {
     var number: Int? = nil
     let action: () -> Void
     
+    @Environment(\.colorScheme) var colorScheme
+    
     var body: some View {
         Button(action: action) {
             HStack {
                 if showNumber, let num = number {
                     ZStack {
                         Circle()
-                            .fill(Color.black)
+                            .fill(Color.primary)
                             .frame(width: 24, height: 24)
                         Text("\(num)")
                             .font(.sabdeviBold(size: 14))
-                            .foregroundColor(.white)
+                            .foregroundColor(colorScheme == .dark ? .black : .white)
                     }
                     .padding(.trailing, 8)
                 }
@@ -255,9 +279,14 @@ struct SettingsRow: View {
                 }
             }
             .contentShape(Rectangle())
+            .padding(.vertical, 8)
         }
         .disabled(isDisabled)
-        .listRowBackground(Color(.systemBackground))
+        .listRowBackground(
+            isSelected 
+                ? Color(.secondarySystemGroupedBackground)
+                : Color(.systemGroupedBackground)
+        )
     }
 }
 

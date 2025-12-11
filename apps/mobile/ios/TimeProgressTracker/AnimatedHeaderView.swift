@@ -11,10 +11,18 @@ import WebKit
 struct AnimatedHeaderView: View {
     @State private var clouds: [CloudData] = []
     @State private var sunRotation: Double = 0
+    @State private var sunScale: CGFloat = 0.1 // Start small
     @State private var birdGroups: [BirdGroupData] = []
     @State private var loadedSVGsCount: Int = 0 // Count individual SVG loads, not unique names
     @State private var svgCache: [String: String] = [:] // Cache SVG strings for faster loading
+    @State private var sunAnimationStarted = false
+    @State private var cloudsAnimationStarted = false
+    @State private var birdsAnimationStarted = false
     var onSVGsLoaded: (() -> Void)? = nil
+    var startAnimations: Bool = false
+    var onSunStarted: (() -> Void)? = nil
+    var onCloudsStarted: (() -> Void)? = nil
+    var onBirdsStarted: (() -> Void)? = nil
     
     private let headerHeight: CGFloat = 200
     private let screenWidth = UIScreen.main.bounds.width
@@ -29,6 +37,7 @@ struct AnimatedHeaderView: View {
             if let sunString = svgCache["sun"] {
                 SVGView(svgString: sunString)
                     .frame(width: 80, height: 80)
+                    .scaleEffect(sunScale) // Scale animation
                     .rotationEffect(.degrees(sunRotation))
                     .position(x: screenWidth / 2, y: headerHeight / 2)
                     .zIndex(0)
@@ -36,8 +45,30 @@ struct AnimatedHeaderView: View {
                         print("✅ [AnimatedHeaderView] Sun SVG rendered from cache")
                         loadedSVGsCount += 1
                         checkAllSVGsLoaded()
-                        withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
-                            sunRotation = 360
+                    }
+                    .onChange(of: startAnimations) { shouldStart in
+                        if shouldStart && !sunAnimationStarted {
+                            sunAnimationStarted = true
+                            print("✅ [AnimatedHeaderView] Starting sun animation")
+                            withAnimation(.easeOut(duration: 1.5)) {
+                                sunScale = 1.0 // Animate to full size
+                            }
+                            withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
+                                sunRotation = 360
+                            }
+                            onSunStarted?()
+                            
+                            // Start clouds after sun
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                cloudsAnimationStarted = true
+                                onCloudsStarted?()
+                            }
+                            
+                            // Start birds after clouds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                birdsAnimationStarted = true
+                                onBirdsStarted?()
+                            }
                         }
                     }
             } else if let sunURL = Bundle.main.url(forResource: "sun", withExtension: "svg") {
@@ -47,29 +78,55 @@ struct AnimatedHeaderView: View {
                     checkAllSVGsLoaded()
                 })
                     .frame(width: 80, height: 80)
+                    .scaleEffect(sunScale) // Scale animation
                     .rotationEffect(.degrees(sunRotation))
                     .position(x: screenWidth / 2, y: headerHeight / 2)
                     .zIndex(0)
-                    .onAppear {
-                        withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
-                            sunRotation = 360
+                    .onChange(of: startAnimations) { shouldStart in
+                        if shouldStart && !sunAnimationStarted {
+                            sunAnimationStarted = true
+                            print("✅ [AnimatedHeaderView] Starting sun animation")
+                            withAnimation(.easeOut(duration: 1.5)) {
+                                sunScale = 1.0 // Animate to full size
+                            }
+                            withAnimation(.linear(duration: 60).repeatForever(autoreverses: false)) {
+                                sunRotation = 360
+                            }
+                            onSunStarted?()
+                            
+                            // Start clouds after sun
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                cloudsAnimationStarted = true
+                                onCloudsStarted?()
+                            }
+                            
+                            // Start birds after clouds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                birdsAnimationStarted = true
+                                onBirdsStarted?()
+                            }
                         }
                     }
             }
             
             // Clouds - in front of sun
             ForEach(clouds) { cloud in
-                CloudView(cloud: cloud, svgCache: svgCache, onSVGLoaded: {
-                    print("✅ [AnimatedHeaderView] Cloud SVG loaded: \(cloud.name)")
-                    loadedSVGsCount += 1
-                    checkAllSVGsLoaded()
-                })
+                CloudView(
+                    cloud: cloud,
+                    svgCache: svgCache,
+                    startAnimation: cloudsAnimationStarted,
+                    onSVGLoaded: {
+                        print("✅ [AnimatedHeaderView] Cloud SVG loaded: \(cloud.name)")
+                        loadedSVGsCount += 1
+                        checkAllSVGsLoaded()
+                    }
+                )
                     .zIndex(1)
             }
             
             // Birds - random appearances
             ForEach(birdGroups) { group in
-                BirdGroupView(group: group)
+                BirdGroupView(group: group, startAnimation: birdsAnimationStarted)
                     .zIndex(2)
             }
         }
@@ -79,8 +136,13 @@ struct AnimatedHeaderView: View {
             // Preload all SVGs immediately
             preloadSVGs()
             initializeClouds()
-            startBirdAnimations()
+            // Don't start bird animations immediately - wait for startAnimations signal
             print("✅ [AnimatedHeaderView] Initialized \(clouds.count) clouds")
+        }
+        .onChange(of: startAnimations) { shouldStart in
+            if shouldStart && !birdsAnimationStarted {
+                startBirdAnimations()
+            }
         }
     }
     
@@ -130,8 +192,8 @@ struct AnimatedHeaderView: View {
         var newClouds: [CloudData] = []
         let cloudNames = ["cloud-1", "cloud-2", "cloud-3"]
         
-        // Create 6 clouds with random starting positions
-        for i in 0..<6 {
+        // Create 12 clouds with random starting positions (increased from 6)
+        for i in 0..<12 {
             let cloudName = cloudNames[i % cloudNames.count]
             let sizeMultiplier = 0.7 + Double.random(in: 0...0.6) // 0.7x to 1.3x
             let baseWidth: CGFloat = 120
@@ -139,13 +201,31 @@ struct AnimatedHeaderView: View {
             let width = baseWidth * sizeMultiplier
             let height = baseHeight * sizeMultiplier
             
-            // Even Y distribution
-            let top = (CGFloat(i) / 5.0) * (headerHeight - height - 20) + 10
+            // Better Y distribution - spread clouds across the full header height with more breathing room
+            // Use modulo to create layers, with random offset within each layer
+            let layer = i % 4 // 4 layers for better vertical distribution
+            let layerHeight = (headerHeight - height - 40) / 4 // Divide into 4 layers with padding
+            let randomOffset = CGFloat.random(in: 0...20) // Random offset within layer
+            let top = 20 + (CGFloat(layer) * layerHeight) + randomOffset
             
-            // Random starting X position (not always from edges)
-            let startX = Double.random(in: -width...screenWidth + width)
-            let direction: CloudDirection = i % 3 == 0 ? .rightToLeft : .leftToRight
+            // Determine direction
+            let direction: CloudDirection = i % 2 == 0 ? .leftToRight : .rightToLeft
+            
+            // Start clouds OFF-SCREEN to prevent sudden appearance
+            let startX: CGFloat
+            if direction == .leftToRight {
+                // Start completely off the left edge
+                startX = -width - 50
+            } else {
+                // Start completely off the right edge
+                startX = screenWidth + width + 50
+            }
+            
             let duration = 50.0 + Double.random(in: -10...10) // Slower, 50+ seconds
+            
+            // Stagger cloud starts - each cloud starts at a different time
+            // This spreads them across the screen instead of grouping them
+            let delay = Double(i) * (duration / 12.0) + Double.random(in: 0...5)
             
             let cloud = CloudData(
                 id: UUID(),
@@ -156,7 +236,8 @@ struct AnimatedHeaderView: View {
                 startX: startX,
                 direction: direction,
                 duration: duration,
-                opacity: 0.65 + Double.random(in: 0...0.25)
+                opacity: 0.65 + Double.random(in: 0...0.25),
+                delay: delay
             )
             newClouds.append(cloud)
         }
@@ -195,6 +276,7 @@ struct CloudData: Identifiable {
     let direction: CloudDirection
     let duration: Double
     let opacity: Double
+    let delay: Double // Delay before starting animation
 }
 
 enum CloudDirection {
@@ -205,7 +287,9 @@ enum CloudDirection {
 struct CloudView: View {
     let cloud: CloudData
     let svgCache: [String: String] // Pass cache from parent
+    var startAnimation: Bool = false
     @State private var offsetX: CGFloat = 0
+    @State private var hasAnimated = false
     var onSVGLoaded: (() -> Void)? = nil
     
     private let screenWidth = UIScreen.main.bounds.width
@@ -220,7 +304,15 @@ struct CloudView: View {
                 .onAppear {
                     print("✅ [CloudView] Cloud \(cloud.name) rendered from cache")
                     onSVGLoaded?()
-                    animateCloud()
+                }
+                .onChange(of: startAnimation) { shouldStart in
+                    if shouldStart && !hasAnimated {
+                        hasAnimated = true
+                        // Delay animation start to spread clouds across screen
+                        DispatchQueue.main.asyncAfter(deadline: .now() + cloud.delay) {
+                            animateCloud()
+                        }
+                    }
                 }
         } else if let cloudURL = Bundle.main.url(forResource: cloud.name, withExtension: "svg") {
             SVGImageView(url: cloudURL, onLoaded: onSVGLoaded)
@@ -228,26 +320,37 @@ struct CloudView: View {
                 .opacity(cloud.opacity)
                 .offset(x: offsetX)
                 .position(x: cloud.startX + offsetX, y: cloud.top + cloud.height / 2)
-                .onAppear {
-                    animateCloud()
+                .onChange(of: startAnimation) { shouldStart in
+                    if shouldStart && !hasAnimated {
+                        hasAnimated = true
+                        // Delay animation start to spread clouds across screen
+                        DispatchQueue.main.asyncAfter(deadline: .now() + cloud.delay) {
+                            animateCloud()
+                        }
+                    }
                 }
         }
     }
     
     private func animateCloud() {
-        let endX = cloud.direction == .leftToRight
-            ? screenWidth + cloud.width + 50
-            : -cloud.width - 50
+        // Calculate end position based on direction (always off-screen on the opposite side)
+        let endX: CGFloat
+        if cloud.direction == .leftToRight {
+            endX = screenWidth + cloud.width + 50
+        } else {
+            endX = -cloud.width - 50
+        }
         
-        // Start animation
-        offsetX = cloud.startX
+        // Start from current position (which should be off-screen initially)
         withAnimation(.linear(duration: cloud.duration)) {
-            offsetX = endX
+            offsetX = endX - cloud.startX
         }
         
         // Reset and loop after animation completes
         DispatchQueue.main.asyncAfter(deadline: .now() + cloud.duration) {
-            offsetX = cloud.startX
+            // Reset to starting position (off-screen)
+            offsetX = 0
+            // Restart animation
             animateCloud()
         }
     }
@@ -262,8 +365,10 @@ struct BirdGroupData: Identifiable {
 
 struct BirdGroupView: View {
     let group: BirdGroupData
+    var startAnimation: Bool = false
     @State private var offsetX: Double = 0
     @State private var offsetY: Double = 0
+    @State private var hasAnimated = false
     
     private let screenWidth = UIScreen.main.bounds.width
     
@@ -276,14 +381,17 @@ struct BirdGroupView: View {
             }
         }
         .position(x: group.startX + offsetX, y: group.startY + offsetY)
-        .onAppear {
-            let duration = Double.random(in: 15...25)
-            let endX = screenWidth + 200
-            let endY = group.startY + Double.random(in: -30...30)
-            
-            withAnimation(.linear(duration: duration)) {
-                offsetX = endX - group.startX
-                offsetY = endY - group.startY
+        .onChange(of: startAnimation) { shouldStart in
+            if shouldStart && !hasAnimated {
+                hasAnimated = true
+                let duration = Double.random(in: 15...25)
+                let endX = screenWidth + 200
+                let endY = group.startY + Double.random(in: -30...30)
+                
+                withAnimation(.linear(duration: duration)) {
+                    offsetX = endX - group.startX
+                    offsetY = endY - group.startY
+                }
             }
         }
     }
