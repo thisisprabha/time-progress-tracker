@@ -22,6 +22,8 @@ class AppState: ObservableObject {
     @Published var customEvents: [CustomEvent] = []
     @Published var watchComplicationItem: DisplayItem = .today
     @Published var isDarkMode: Bool = false
+    @Published var userAge: Int = 30 // Default age
+    @Published var lifeExpectancy: Int = 80 // Default life expectancy
     
     init() {
         print("✅ [AppState] AppState initialized")
@@ -77,6 +79,15 @@ class AppState: ObservableObject {
            let watchItem = DisplayItem(rawValue: savedWatchItem) {
             self.watchComplicationItem = watchItem
         }
+        
+        // Load age and life expectancy
+        if UserDefaults.standard.object(forKey: "userAge") != nil {
+            self.userAge = UserDefaults.standard.integer(forKey: "userAge")
+        }
+        
+        if UserDefaults.standard.object(forKey: "lifeExpectancy") != nil {
+            self.lifeExpectancy = UserDefaults.standard.integer(forKey: "lifeExpectancy")
+        }
     }
     
     func saveSettings() {
@@ -85,6 +96,8 @@ class AppState: ObservableObject {
         UserDefaults.standard.set(timeMode.rawValue, forKey: "timeMode")
         UserDefaults.standard.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
         UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
+        UserDefaults.standard.set(userAge, forKey: "userAge")
+        UserDefaults.standard.set(lifeExpectancy, forKey: "lifeExpectancy")
         
         // Save custom events
         if let eventsData = try? JSONEncoder().encode(customEvents) {
@@ -100,6 +113,8 @@ class AppState: ObservableObject {
             sharedDefaults.set(timeMode.rawValue, forKey: "timeMode")
             sharedDefaults.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
             sharedDefaults.set(isDarkMode, forKey: "isDarkMode")
+            sharedDefaults.set(userAge, forKey: "userAge")
+            sharedDefaults.set(lifeExpectancy, forKey: "lifeExpectancy")
             sharedDefaults.set(watchComplicationItem.rawValue, forKey: "watchComplicationItem")
             if let eventsData = try? JSONEncoder().encode(customEvents) {
                 sharedDefaults.set(eventsData, forKey: "customEvents")

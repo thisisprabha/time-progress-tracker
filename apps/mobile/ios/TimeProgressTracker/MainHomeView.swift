@@ -69,14 +69,15 @@ struct MainHomeView: View {
                 .frame(height: 200)
                 .padding(.top, 0)
                 
-                // Main content - centered on screen
-                GeometryReader { geometry in
+                // Main content - scrollable
+                ScrollView {
                     VStack(spacing: 0) {
                         // Top spacer to push content to center
                         Spacer()
+                            .frame(height: 20)
                         
-                        // Main 3 sections - centered
-                        VStack(spacing: 20) {
+                        // Main sections
+                        VStack(spacing: 16) {
                             // Show items in order from selectedDisplayItems (preserves order from settings)
                             ForEach(Array(appState.selectedDisplayItems.enumerated()), id: \.element) { index, item in
                                 Group {
@@ -177,11 +178,22 @@ struct MainHomeView: View {
                                         )
                                 }
                             }
+                            
+                            // Life Progress card - always shown as 4th section (last)
+                            LifeProgressCardView()
+                                .environmentObject(appState)
+                                .opacity(showContent ? 1 : 0)
+                                .offset(y: showContent ? 0 : 20)
+                                .animation(
+                                    .easeOut(duration: 0.6).delay(Double(displayedCount + emptySlotsNeeded) * 0.2),
+                                    value: showContent
+                                )
                         }
                         .padding(.horizontal, 20)
                         
-                        // Bottom spacer to push content to center
+                        // Bottom spacer
                         Spacer()
+                            .frame(height: 20)
                         
                         // Customize button at bottom
                         Button(action: {
@@ -192,9 +204,9 @@ struct MainHomeView: View {
                                 .foregroundColor(.secondary)
                                 .underline()
                         }
-                        .padding(.bottom, 30)
+                        .padding(.bottom, 20)
                     }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .frame(minHeight: UIScreen.main.bounds.height - 200) // Min height to allow centering
                 }
             }
         }
@@ -295,7 +307,7 @@ struct TallyCounterView: View {
     var textColor: Color = .primary
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             // Label on left (regular), Value on right (bold)
             HStack {
                 Text(TimeCalculator.addDoubleSpaces(label))
@@ -327,12 +339,12 @@ struct TallyMarksView: View {
     
     var body: some View {
         // Render tally marks in rows (like Android)
-        let itemsPerRow = 15 // Approximate items per row
+        let itemsPerRow = 18 // Approximate items per row
         let rows = (total + itemsPerRow - 1) / itemsPerRow
         
         VStack(alignment: .leading, spacing: 4) {
             ForEach(0..<rows, id: \.self) { row in
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     let startIndex = row * itemsPerRow
                     let endIndex = min(startIndex + itemsPerRow, total)
                     
@@ -365,5 +377,86 @@ struct TallyMarkView: View {
             }
         }
         .frame(width: 16, height: 20)
+    }
+}
+
+struct LifeProgressCardView: View {
+    @EnvironmentObject var appState: AppState
+    @State private var showLifeDataSelection = false
+    
+    // Check if life data is set (not default values or not saved)
+    private var isLifeDataSet: Bool {
+        // Check if values are saved in UserDefaults
+        return UserDefaults.standard.object(forKey: "userAge") != nil &&
+               UserDefaults.standard.object(forKey: "lifeExpectancy") != nil
+    }
+    
+    // Calculate percentage left and done based on user's age and life expectancy
+    private var percentageLeft: Int {
+        let yearsLeft = appState.lifeExpectancy - appState.userAge
+        guard appState.lifeExpectancy > 0 else { return 0 }
+        return max(0, min(100, Int((Double(yearsLeft) / Double(appState.lifeExpectancy)) * 100)))
+    }
+    
+    private var percentageDone: Int {
+        return 100 - percentageLeft
+    }
+    
+    var body: some View {
+        Button(action: {
+            showLifeDataSelection = true
+        }) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Label on left (regular), Value on right (bold)
+                HStack {
+                    HStack(spacing: 8) {
+                        if !isLifeDataSet {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary.opacity(0.6))
+                        }
+                        Text("Your  life")
+                            .font(.sabdeviRegular(size: 15))
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Spacer()
+                    
+                    if isLifeDataSet {
+                        HStack(spacing: 0) {
+                            Text(appState.perspective == .halfFull ? "\(percentageDone)" : "\(percentageLeft)")
+                                .font(.sabdeviBold(size: 15))
+                                .foregroundColor(.primary)
+                            Text(appState.perspective == .halfFull ? "%  done" : "%  left")
+                                .font(.sabdeviBold(size: 15))
+                                .foregroundColor(.primary)
+                        }
+                    } else {
+                        Text("Tap  to  add")
+                            .font(.sabdeviRegular(size: 13))
+                            .foregroundColor(.secondary.opacity(0.6))
+                    }
+                }
+                
+                // Progress bar with tally marks style (always show what's completed/lived)
+                if isLifeDataSet {
+                    TallyMarksView(total: 100, completed: percentageDone)
+                } else {
+                    // Show empty state
+                    HStack {
+                        Text("Add  your  age  and  life  expectancy")
+                            .font(.sabdeviRegular(size: 13))
+                            .foregroundColor(.secondary.opacity(0.6))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding()
+        }
+        .buttonStyle(PlainButtonStyle())
+        .sheet(isPresented: $showLifeDataSelection) {
+            LifeDataSelectionView(age: appState.userAge, lifeExpectancy: appState.lifeExpectancy)
+                .environmentObject(appState)
+        }
     }
 }

@@ -1,16 +1,23 @@
 //
-//  OnboardingView.swift
+//  LifeDataSelectionView.swift
 //  TimeProgressTracker
 //
-//  Onboarding Screen
-//
+//  Reusable view for selecting age and life expectancy
 //
 
 import SwiftUI
 
-struct OnboardingView: View {
+struct LifeDataSelectionView: View {
     @EnvironmentObject var appState: AppState
-    @State private var currentStep: Int = 1 // 1: Mindset, 2: Age, 3: Life Expectancy
+    @Environment(\.dismiss) var dismiss
+    @State private var currentStep: Int = 1 // 1: Age, 2: Life Expectancy
+    @State private var tempAge: Int
+    @State private var tempLifeExpectancy: Int
+    
+    init(age: Int, lifeExpectancy: Int) {
+        _tempAge = State(initialValue: age)
+        _tempLifeExpectancy = State(initialValue: lifeExpectancy)
+    }
     
     var body: some View {
         ZStack {
@@ -19,18 +26,13 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 Spacer()
                 
-                // Step 1: Mindset Selection
+                // Step 1: Age Selection
                 if currentStep == 1 {
-                    mindsetSelectionView
-                }
-                
-                // Step 2: Age Selection
-                if currentStep == 2 {
                     ageSelectionView
                 }
                 
-                // Step 3: Life Expectancy Selection
-                if currentStep == 3 {
+                // Step 2: Life Expectancy Selection
+                if currentStep == 2 {
                     lifeExpectancySelectionView
                 }
                 
@@ -40,7 +42,7 @@ struct OnboardingView: View {
                 Button(action: {
                     handleNextStep()
                 }) {
-                    Text(currentStep == 3 ? "Get  Started" : "Next")
+                    Text(currentStep == 2 ? "Done" : "Next")
                         .font(.sabdeviBold(size: 16))
                         .foregroundColor(Color(.systemBackground))
                         .frame(maxWidth: .infinity)
@@ -56,73 +58,7 @@ struct OnboardingView: View {
         }
     }
     
-    // MARK: - Step 1: Mindset Selection
-    private var mindsetSelectionView: some View {
-        VStack(spacing: 0) {
-            // Header Section
-            VStack(spacing: 24) {
-                Image(systemName: "clock.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.primary)
-                    .padding(.bottom, 10)
-                
-                Text("How  do  you  see  the  glass?")
-                    .font(.sabdeviBold(size: 20))
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-                
-                Text("Choose  your  perspective  to  track  time  progress.")
-                    .font(.sabdeviBold(size: 14))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-                    .padding(.horizontal, 40)
-            }
-            
-            Spacer()
-            .frame(height: 50)
-            
-            // Selection Section
-            VStack(spacing: 16) {
-                ForEach(Perspective.allCases, id: \.self) { perspective in
-                    Button(action: {
-                        appState.perspective = perspective
-                    }) {
-                        HStack {
-                            Text(perspective.displayName)
-                                .font(.sabdeviBold(size: 16))
-                                .foregroundColor(appState.perspective == perspective ? Color(.systemBackground) : .primary)
-                            
-                            Spacer()
-                            
-                            if appState.perspective == perspective {
-                                Image(systemName: "checkmark")
-                                    .font(.sabdeviBold(size: 16))
-                                    .foregroundColor(Color(.systemBackground))
-                            }
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 18)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(appState.perspective == perspective ? Color.primary : Color.secondary.opacity(0.1))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .scaleEffect(appState.perspective == perspective ? 1.02 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: appState.perspective)
-                }
-            }
-            .padding(.horizontal, 24)
-        }
-    }
-    
-    // MARK: - Step 2: Age Selection
+    // MARK: - Step 1: Age Selection
     private var ageSelectionView: some View {
         VStack(spacing: 0) {
             // Header Section
@@ -144,13 +80,13 @@ struct OnboardingView: View {
             
             // Age Slider
             VStack(spacing: 24) {
-                Text("\(appState.userAge)")
+                Text("\(tempAge)")
                     .font(.sabdeviBold(size: 48))
                     .foregroundColor(.primary)
                 
                 Slider(value: Binding(
-                    get: { Double(appState.userAge) },
-                    set: { appState.userAge = Int($0) }
+                    get: { Double(tempAge) },
+                    set: { tempAge = Int($0) }
                 ), in: 10...70, step: 1)
                 .tint(.primary)
                 .padding(.horizontal, 24)
@@ -170,7 +106,7 @@ struct OnboardingView: View {
         }
     }
     
-    // MARK: - Step 3: Life Expectancy Selection
+    // MARK: - Step 2: Life Expectancy Selection
     private var lifeExpectancySelectionView: some View {
         VStack(spacing: 0) {
             // Header Section
@@ -194,16 +130,16 @@ struct OnboardingView: View {
             VStack(spacing: 16) {
                 ForEach([60, 70, 80, 90], id: \.self) { expectancy in
                     Button(action: {
-                        appState.lifeExpectancy = expectancy
+                        tempLifeExpectancy = expectancy
                     }) {
                         HStack {
                             Text(expectancy == 90 ? "90+" : "\(expectancy)")
                                 .font(.sabdeviBold(size: 16))
-                                .foregroundColor(appState.lifeExpectancy == expectancy ? Color(.systemBackground) : .primary)
+                                .foregroundColor(tempLifeExpectancy == expectancy ? Color(.systemBackground) : .primary)
                             
                             Spacer()
                             
-                            if appState.lifeExpectancy == expectancy {
+                            if tempLifeExpectancy == expectancy {
                                 Image(systemName: "checkmark")
                                     .font(.sabdeviBold(size: 16))
                                     .foregroundColor(Color(.systemBackground))
@@ -213,7 +149,7 @@ struct OnboardingView: View {
                         .padding(.vertical, 18)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(appState.lifeExpectancy == expectancy ? Color.primary : Color.secondary.opacity(0.1))
+                                .fill(tempLifeExpectancy == expectancy ? Color.primary : Color.secondary.opacity(0.1))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
@@ -221,8 +157,8 @@ struct OnboardingView: View {
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .scaleEffect(appState.lifeExpectancy == expectancy ? 1.02 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: appState.lifeExpectancy)
+                    .scaleEffect(tempLifeExpectancy == expectancy ? 1.02 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: tempLifeExpectancy)
                 }
             }
             .padding(.horizontal, 24)
@@ -231,19 +167,16 @@ struct OnboardingView: View {
     
     // MARK: - Navigation
     private func handleNextStep() {
-        if currentStep < 3 {
+        if currentStep < 2 {
             withAnimation(.easeInOut(duration: 0.3)) {
                 currentStep += 1
             }
         } else {
-            // Complete onboarding
-            if appState.selectedDisplayItems.isEmpty || appState.selectedDisplayItems.count < 3 {
-                appState.selectedDisplayItems = [.today, .month, .year]
-            }
-            withAnimation {
-                appState.hasCompletedOnboarding = true
-                appState.saveSettings()
-            }
+            // Save values
+            appState.userAge = tempAge
+            appState.lifeExpectancy = tempLifeExpectancy
+            appState.saveSettings()
+            dismiss()
         }
     }
 }
