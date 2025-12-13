@@ -207,8 +207,8 @@ struct AnimatedHeaderView: View {
         var newClouds: [CloudData] = []
         let cloudNames = ["cloud-1", "cloud-2", "cloud-3"]
         
-        // Create 12 clouds with random starting positions (increased from 6)
-        for i in 0..<12 {
+        // Create 7 clouds for better coverage (increased from 5, but less than 12)
+        for i in 0..<7 {
             let cloudName = cloudNames[i % cloudNames.count]
             let sizeMultiplier = 0.7 + Double.random(in: 0...0.6) // 0.7x to 1.3x
             let baseWidth: CGFloat = 120
@@ -218,8 +218,8 @@ struct AnimatedHeaderView: View {
             
             // Better Y distribution - spread clouds across the full header height with more breathing room
             // Use modulo to create layers, with random offset within each layer
-            let layer = i % 4 // 4 layers for better vertical distribution
-            let layerHeight = (headerHeight - height - 40) / 4 // Divide into 4 layers with padding
+            let layer = i % 4 // 4 layers now for 7 clouds
+            let layerHeight = (headerHeight - height - 40) / 4 
             let randomOffset = CGFloat.random(in: 0...20) // Random offset within layer
             let top = 20 + (CGFloat(layer) * layerHeight) + randomOffset
             
@@ -240,7 +240,8 @@ struct AnimatedHeaderView: View {
             
             // Stagger cloud starts - each cloud starts at a different time
             // This spreads them across the screen instead of grouping them
-            let delay = Double(i) * (duration / 12.0) + Double.random(in: 0...5)
+            // Increase spread factor with more clouds
+            let delay = Double(i) * (duration / 7.0) + Double.random(in: 0...5)
             
             let cloud = CloudData(
                 id: UUID(),
@@ -252,7 +253,8 @@ struct AnimatedHeaderView: View {
                 direction: direction,
                 duration: duration,
                 opacity: 0.65 + Double.random(in: 0...0.25),
-                delay: delay
+                delay: delay,
+                restartDelay: Double.random(in: 10...30) // Random restart delay to break patterns
             )
             newClouds.append(cloud)
         }
@@ -292,6 +294,7 @@ struct CloudData: Identifiable {
     let duration: Double
     let opacity: Double
     let delay: Double // Delay before starting animation
+    let restartDelay: Double // Random delay before restarting animation loop
 }
 
 enum CloudDirection {
@@ -365,8 +368,15 @@ struct CloudView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + cloud.duration) {
             // Reset to starting position (off-screen)
             offsetX = 0
-            // Restart animation
-            animateCloud()
+            
+            // Wait for restart delay before animating again
+            // Ensure some randomness in the restart to prevent patterns forming
+            let restartWait = cloud.restartDelay + Double.random(in: 0...5)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + restartWait) {
+                // Restart animation
+                animateCloud()
+            }
         }
     }
 }

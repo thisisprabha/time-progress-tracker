@@ -12,6 +12,7 @@ import SwiftUI
 struct TimeLeftTrackerWidgetBundle: WidgetBundle {
     var body: some Widget {
         TimeLeftTrackerWidget()
-        // Removed Control and LiveActivity widgets - not needed for time progress tracking
+        CustomEventsWidget()
     }
+    // Removed Control and LiveActivity widgets - not needed for time progress tracking
 }

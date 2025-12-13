@@ -39,6 +39,30 @@ class AppState: ObservableObject {
             self.customEvents = events
         }
         
+        // Filter out past events (Auto-cleanup)
+        let today = Date()
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: today)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        self.customEvents = self.customEvents.filter { event in
+            // Keep event if date is valid AND (date >= today OR event is permanent/recurring type if added later)
+            // For now, based on user request: "not 30 lines... stays counting using days"
+            // Wait, User said: "Once the cusotm envet ended, or date corssed, can we remove the event?"
+            // So logic: If event.date < today, remove it.
+            if let date = dateFormatter.date(from: event.date),
+               calendar.startOfDay(for: date) < startOfToday {
+                return false // Remove past events
+            }
+            return true
+        }
+        
+        // Save cleaned up events
+        if let eventsData = try? JSONEncoder().encode(customEvents) {
+            UserDefaults.standard.set(eventsData, forKey: "customEvents")
+        }
+        
         if let savedPerspective = UserDefaults.standard.string(forKey: "userPerspective"),
            let perspective = Perspective(rawValue: savedPerspective) {
             self.perspective = perspective
@@ -59,19 +83,42 @@ class AppState: ObservableObject {
         
         if let savedItems = UserDefaults.standard.array(forKey: "selectedDisplayItems") as? [String] {
             let items = savedItems.compactMap { DisplayItem(rawValue: $0) }
-            // Filter out custom events that no longer exist
+            // Filter out custom events that no longer exist (deleted or expired)
             let validItems = items.filter { item in
                 if case .customEvent(let id) = item {
                     return customEvents.contains { $0.id == id }
                 }
                 return true
             }
-            // Ensure at least 3 items, default to today, month, year
-            if validItems.count >= 3 {
-                self.selectedDisplayItems = validItems
-            } else {
-                self.selectedDisplayItems = [.today, .month, .year]
+            
+            // Enforce limits: Max 3 predefined, Max 5 custom
+            var predefined: [DisplayItem] = []
+            var custom: [DisplayItem] = []
+            
+            for item in validItems {
+                if case .customEvent = item {
+                    if custom.count < 5 { custom.append(item) }
+                } else {
+                    if predefined.count < 3 { predefined.append(item) }
+                }
             }
+            
+            var finalItems = predefined + custom
+            
+            // Ensure at least 3 items default if empty (or very low), using predefined defaults
+            if finalItems.isEmpty {
+                 finalItems = [.today, .month, .year]
+            } else if finalItems.count < 3 && custom.isEmpty {
+                 // If user only selected 1 or 2 predefined and no custom, maybe add more predefined?
+                 // But sticking to user choice is better if they explicitly chose less.
+                 // However, original logic enforced at least 3. Let's keep "defaults if totally invalid" or "preserve valid".
+                 // Actually, if we have valid items, trust them, unless everything was invalid.
+                 if finalItems.isEmpty {
+                      finalItems = [.today, .month, .year]
+                 }
+            }
+            
+            self.selectedDisplayItems = finalItems
         }
         
         // Load watch complication item

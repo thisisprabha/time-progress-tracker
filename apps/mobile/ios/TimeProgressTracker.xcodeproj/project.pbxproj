@@ -16,12 +16,14 @@
 		2B50D0AC3E27805DAA8F4202 /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */; };
 		2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E9F189A804124F44112518 /* AnimatedHeaderView.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		417564696F506C6179657220 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 417564696F506C617965722E /* AudioPlayer.swift */; };
 		479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA3F4C41C103D266854A232 /* AppDelegate.swift */; };
+		4C6966654461746153656C66 /* LifeDataSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6966654461746153656C65 /* LifeDataSelectionView.swift */; };
 		601E89E13DD47C6E15F5EA92 /* cloud-2.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6246322E732A66493BA99AE8 /* cloud-2.svg */; };
 		61509038B3B40E05F9519E7E /* cloud-1.svg in Resources */ = {isa = PBXBuildFile; fileRef = 2D137B90207C6DE7BC0F099B /* cloud-1.svg */; };
 		7AA33B6E2EDC228500BC3033 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */; };
 		7AA33B702EDC228500BC3033 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */; };
-		7AA33B812EDC228700BC3033 /* TimeLeftTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy); }; };
+		7AA33B812EDC228700BC3033 /* TimeLeftTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		7AA33BD12EDD6C1B00BC3033 /* Sabdevi-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */; };
 		7AA33BD22EDD6C1B00BC3033 /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */; };
 		7AA33BD32EDD6C1B00BC3033 /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */; };
@@ -32,8 +34,6 @@
 		B4A978687A910B084BE58934 /* TimeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */; };
 		B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */ = {isa = PBXBuildFile; fileRef = 399832AEC6BA23C7D21F5A74 /* sun.svg */; };
 		BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77712E2F85D69CE0A85CDD08 /* FontHelper.swift */; };
-				417564696F506C6179657220 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 417564696F506C617965722E /* AudioPlayer.swift */; };
-				4C6966654461746153656C66 /* LifeDataSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6966654461746153656C65 /* LifeDataSelectionView.swift */; };
 		BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */; };
 		C687A93299959AD487552FB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20537397C54D6146315D061C /* ContentView.swift */; };
 		CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C3B32138009F241E20E2C1 /* LoadingView.swift */; };
@@ -58,7 +58,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				7AA33B812EDC228700BC3033 /* TimeLeftTrackerWidgetExtension.appex in Embed Foundation Extensions */);
+				7AA33B812EDC228700BC3033 /* TimeLeftTrackerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,8 +82,10 @@
 		333C834883214B3C464FDBC6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = TimeProgressTracker/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		399832AEC6BA23C7D21F5A74 /* sun.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = sun.svg; path = TimeProgressTracker/Assets/sun.svg; sourceTree = "<group>"; };
 		3C7A8567590A035A85C9C00D /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
+		417564696F506C617965722E /* AudioPlayer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = TimeProgressTracker/AudioPlayer.swift; sourceTree = "<group>"; };
 		45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = "Sabdevi-Regular.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Regular.ttf"; sourceTree = "<group>"; };
 		470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = "Sabdevi-Bold.ttf"; path = "TimeProgressTracker/Assets/Fonts/Sabdevi-Bold.ttf"; sourceTree = "<group>"; };
+		4C6966654461746153656C65 /* LifeDataSelectionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LifeDataSelectionView.swift; path = TimeProgressTracker/LifeDataSelectionView.swift; sourceTree = "<group>"; };
 		577D4748063ABA7293641A1B /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = TimeProgressTracker/OnboardingView.swift; sourceTree = "<group>"; };
 		60BA6D8620AF9177F6591F44 /* TimeProgressApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeProgressApp.swift; path = TimeProgressTracker/TimeProgressApp.swift; sourceTree = "<group>"; };
 		6246322E732A66493BA99AE8 /* cloud-2.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "cloud-2.svg"; path = "TimeProgressTracker/Assets/cloud-2.svg"; sourceTree = "<group>"; };
@@ -106,22 +109,21 @@
 		F11748442D0722820044C1D9 /* TimeProgressTracker-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TimeProgressTracker-Bridging-Header.h"; path = "TimeProgressTracker/TimeProgressTracker-Bridging-Header.h"; sourceTree = "<group>"; };
 		FAA3F4C41C103D266854A232 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = TimeProgressTracker/AppDelegate.swift; sourceTree = "<group>"; };
 		FC0E35D81B73003266E89B7B /* FontHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FontHelper.swift; path = TimeProgressTracker/FontHelper.swift; sourceTree = "<group>"; };
-				417564696F506C617965722E /* AudioPlayer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = TimeProgressTracker/AudioPlayer.swift; sourceTree = "<group>"; };
-				4C6966654461746153656C65 /* LifeDataSelectionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LifeDataSelectionView.swift; path = TimeProgressTracker/LifeDataSelectionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		7AA33B852EDC228700BC3033 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist);
+				Info.plist,
+			);
 			target = 7AA33B6B2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7A2881D52EEB52C400CEF49D /* audio */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = audio; sourceTree = "<group>"; };
-		7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7AA33B852EDC228700BC3033 /* PBXFileSystemSynchronizedBuildFileExceptionSet */); explicitFileTypes = {}; explicitFolders = (); path = TimeLeftTrackerWidget; sourceTree = "<group>"; };
+		7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7AA33B852EDC228700BC3033 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TimeLeftTrackerWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,7 +139,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7AA33B702EDC228500BC3033 /* SwiftUI.framework in Frameworks */,
-				7AA33B6E2EDC228500BC3033 /* WidgetKit.framework in Frameworks */);
+				7AA33B6E2EDC228500BC3033 /* WidgetKit.framework in Frameworks */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -177,7 +180,8 @@
 				9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */,
 				417564696F506C617965722E /* AudioPlayer.swift */,
 				4C6966654461746153656C65 /* LifeDataSelectionView.swift */,
-				F169ECCAEDAFEE8198E722BC /* Assets */);
+				F169ECCAEDAFEE8198E722BC /* Assets */,
+			);
 			name = TimeProgressTracker;
 			sourceTree = "<group>";
 		};
@@ -186,7 +190,8 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */,
-				7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */);
+				7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */,
+			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
@@ -205,14 +210,16 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */,
 				83CBBA001A601CBA00E9B192 /* Products */,
-				2D16E6871FA4F8E400B85C8A /* Frameworks */);
+				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+			);
 			sourceTree = "<group>";
 		};
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */,
-				7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */);
+				7AA33B6C2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension.appex */,
+			);
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -229,7 +236,8 @@
 			children = (
 				45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */,
 				470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */,
-				1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */);
+				1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */,
+			);
 			name = Fonts;
 			sourceTree = "<group>";
 		};
@@ -241,7 +249,8 @@
 				6246322E732A66493BA99AE8 /* cloud-2.svg */,
 				0D6478ECF00CE9570D133955 /* cloud-3.svg */,
 				399832AEC6BA23C7D21F5A74 /* sun.svg */,
-				DD5A8399141E3F12160214F1 /* Fonts */);
+				DD5A8399141E3F12160214F1 /* Fonts */,
+			);
 			name = Assets;
 			sourceTree = "<group>";
 		};
@@ -255,13 +264,16 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
-				7AA33B822EDC228700BC3033 /* Embed Foundation Extensions */);
+				7AA33B822EDC228700BC3033 /* Embed Foundation Extensions */,
+			);
 			buildRules = (
 			);
 			dependencies = (
-				7AA33B802EDC228700BC3033 /* PBXTargetDependency */);
+				7AA33B802EDC228700BC3033 /* PBXTargetDependency */,
+			);
 			fileSystemSynchronizedGroups = (
-				7A2881D52EEB52C400CEF49D /* audio */);
+				7A2881D52EEB52C400CEF49D /* audio */,
+			);
 			name = TimeProgressTracker;
 			productName = TimeProgressTracker;
 			productReference = 13B07F961A680F5B00A75B9A /* TimeProgressTracker.app */;
@@ -273,13 +285,15 @@
 			buildPhases = (
 				7AA33B682EDC228500BC3033 /* Sources */,
 				7AA33B692EDC228500BC3033 /* Frameworks */,
-				7AA33B6A2EDC228500BC3033 /* Resources */);
+				7AA33B6A2EDC228500BC3033 /* Resources */,
+			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */);
+				7AA33B712EDC228500BC3033 /* TimeLeftTrackerWidget */,
+			);
 			name = TimeLeftTrackerWidgetExtension;
 			packageProductDependencies = (
 			);
@@ -310,14 +324,16 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base);
+				Base,
+			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* TimeProgressTracker */,
-				7AA33B6B2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension */);
+				7AA33B6B2EDC228500BC3033 /* TimeLeftTrackerWidgetExtension */,
+			);
 		};
 /* End PBXProject section */
 
@@ -335,7 +351,8 @@
 				B8069A65FB8E4B3B308C2DBB /* sun.svg in Resources */,
 				9238BA4AFEAF8595BA53F736 /* Sabdevi-Regular.ttf in Resources */,
 				1145280CA28F47FB67DB6ACC /* Sabdevi-Bold.ttf in Resources */,
-				2B50D0AC3E27805DAA8F4202 /* Sabdevi-Light.ttf in Resources */);
+				2B50D0AC3E27805DAA8F4202 /* Sabdevi-Light.ttf in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		7AA33B6A2EDC228500BC3033 /* Resources */ = {
@@ -344,7 +361,8 @@
 			files = (
 				7AA33BD12EDD6C1B00BC3033 /* Sabdevi-Bold.ttf in Resources */,
 				7AA33BD22EDD6C1B00BC3033 /* Sabdevi-Light.ttf in Resources */,
-				7AA33BD32EDD6C1B00BC3033 /* Sabdevi-Regular.ttf in Resources */);
+				7AA33BD32EDD6C1B00BC3033 /* Sabdevi-Regular.ttf in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
@@ -369,7 +387,8 @@
 				479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */,
 				2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */,
 				CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */,
-				BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */);
+				BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		7AA33B682EDC228500BC3033 /* Sources */ = {
@@ -401,19 +420,22 @@
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"FB_SONARKIT_ENABLED=1");
+					"FB_SONARKIT_ENABLED=1",
+				);
 				INFOPLIST_FILE = TimeProgressTracker/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Days counter";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks");
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
-					"-lc++");
+					"-lc++",
+				);
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.prabhakaran.timeprogresstracker;
 				PRODUCT_NAME = TimeProgressTracker;
@@ -440,12 +462,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks");
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
-					"-lc++");
+					"-lc++",
+				);
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.prabhakaran.timeprogresstracker;
 				PRODUCT_NAME = TimeProgressTracker;
@@ -484,7 +508,8 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks");
+					"@executable_path/../../Frameworks",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -528,7 +553,8 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks");
+					"@executable_path/../../Frameworks",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
@@ -580,7 +606,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-					"$(inherited)");
+					"$(inherited)",
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -591,7 +618,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
-					"$(inherited)");
+					"$(inherited)",
+				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -645,7 +673,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
-					"$(inherited)");
+					"$(inherited)",
+				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
@@ -661,7 +690,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
-				13B07F951A680F5B00A75B9A /* Release */);
+				13B07F951A680F5B00A75B9A /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
@@ -669,7 +699,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7AA33B832EDC228700BC3033 /* Debug */,
-				7AA33B842EDC228700BC3033 /* Release */);
+				7AA33B842EDC228700BC3033 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
@@ -677,7 +708,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
-				83CBBA211A601CBA00E9B192 /* Release */);
+				83CBBA211A601CBA00E9B192 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};

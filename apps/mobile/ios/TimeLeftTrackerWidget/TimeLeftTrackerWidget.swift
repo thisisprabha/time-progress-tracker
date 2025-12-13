@@ -54,12 +54,45 @@ struct Provider: TimelineProvider {
         
         let timeData = TimeCalculator.calculateTimeData(timeMode: timeMode)
         
+        // Sort selected items by "time remaining" (priority: lower time left = higher priority)
+        // Today is usually most urgent.
+        // Needs a way to compare "urgency".
+        let sortedItems = selectedItems.sorted { item1, item2 in
+            // Helper to estimate "days remaining" for sorting
+            func getApproxDaysRemaining(item: DisplayItem) -> Double {
+                switch item {
+                case .today:
+                    return 0.5 // Treat as < 1 day (urgency high)
+                case .week:
+                    return Double(timeData.daysLeftInWeek)
+                case .month:
+                    return Double(timeData.daysLeft)
+                case .quarter:
+                    // Use progress to estimate days left in current quarter
+                    // Approx 91 days per quarter
+                    return (1.0 - timeData.quarterProgress) * 91.0
+                case .year:
+                    // Use progress to estimate days left in year
+                    // This prevents "0 months left" issue in December
+                    return (1.0 - timeData.yearProgress) * 365.0
+                case .customEvent(let id):
+                    if let event = customEvents.first(where: { $0.id == id }) {
+                        let (daysLeft, _, _, _, _, _, _, _) = event.calculateProgress()
+                        return Double(max(0, daysLeft))
+                    }
+                    return 9999 // Fallback
+                }
+            }
+            
+            return getApproxDaysRemaining(item: item1) < getApproxDaysRemaining(item: item2)
+        }
+        
         return SimpleEntry(
             date: Date(),
             timeData: timeData,
             perspective: perspective,
             timeMode: timeMode,
-            selectedItems: selectedItems,
+            selectedItems: sortedItems,
             customEvents: customEvents
         )
     }
@@ -380,8 +413,8 @@ func getValueAndTotal(item: DisplayItem, entry: SimpleEntry) -> (Int, Int) {
                 return (0, 1)
             }
             
-            // Parse start date (default to today if missing)
-            let startDate = dateFormatter.date(from: event.startDate ?? "") ?? now
+            // Parse start date
+            let startDate = dateFormatter.date(from: event.startDate) ?? now
             
             let today = calendar.startOfDay(for: now)
             let eventDay = calendar.startOfDay(for: eventDate)
@@ -463,8 +496,8 @@ func getCustomEventValues(event: CustomEvent, now: Date) -> (Int, Int) {
         return (0, 1)
     }
     
-    // Parse start date (default to today if missing)
-    let startDate = dateFormatter.date(from: event.startDate ?? "") ?? now
+    // Parse start date
+    let startDate = dateFormatter.date(from: event.startDate) ?? now
     
     let today = calendar.startOfDay(for: now)
     let eventDay = calendar.startOfDay(for: eventDate)
@@ -681,6 +714,7 @@ struct LockScreenCircularView: View {
                 .font(.sabdeviBold(size: 10)) // Try applying font
         }
         .gaugeStyle(.accessoryCircular)
+        .containerBackground(.clear, for: .widget)
     }
 }
 
@@ -719,6 +753,7 @@ struct LockScreenRectangularView: View {
         }
         .padding(.vertical, 5)
         .padding(.horizontal, 8)
+        .containerBackground(.clear, for: .widget)
     }
 }
 
@@ -731,6 +766,7 @@ struct LockScreenInlineView: View {
         
         Text("Today: \(value)h \(unitText)")
             .font(.sabdeviBold(size: 12)) // Inline might override this, but we try
+            .containerBackground(.clear, for: .widget)
     }
 }
 

@@ -71,10 +71,21 @@ struct SettingsView: View {
                     
                     // Customize Display Section
                     Section {
-                        Text("Choose  3  items  to  display")
+                        Text("Choose  8  items  to  display")
                             .font(.sabdeviRegular(size: 12))
                             .foregroundColor(.secondary)
                             .listRowBackground(Color.clear)
+                        
+                        // Count separate types
+                        let predefinedCount = appState.selectedDisplayItems.filter { item in
+                            if case .customEvent = item { return false }
+                            return true
+                        }.count
+                        
+                        let customCount = appState.selectedDisplayItems.filter { item in
+                            if case .customEvent = item { return true }
+                            return false
+                        }.count
                         
                         // Predefined items
                         let predefinedItems: [DisplayItem] = [.today, .week, .month, .quarter, .year]
@@ -86,7 +97,7 @@ struct SettingsView: View {
                             SettingsRow(
                                 title: item.displayName(in: appState),
                                 isSelected: isSelected,
-                                isDisabled: !isSelected && appState.selectedDisplayItems.count >= 3,
+                                isDisabled: !isSelected && predefinedCount >= 3,
                                 showNumber: isSelected,
                                 number: index != nil ? index! + 1 : nil
                             ) {
@@ -95,7 +106,7 @@ struct SettingsView: View {
                                         appState.selectedDisplayItems.removeAll { $0 == item }
                                     }
                                 } else {
-                                    if appState.selectedDisplayItems.count < 3 {
+                                    if predefinedCount < 3 {
                                         appState.selectedDisplayItems.append(item)
                                     }
                                 }
@@ -127,7 +138,7 @@ struct SettingsView: View {
                                 SettingsRow(
                                     title: event.name,
                                     isSelected: isSelected,
-                                    isDisabled: !isSelected && appState.selectedDisplayItems.count >= 3,
+                                    isDisabled: !isSelected && customCount >= 5,
                                     showNumber: isSelected,
                                     number: index != nil ? index! + 1 : nil
                                 ) {
@@ -136,7 +147,7 @@ struct SettingsView: View {
                                             appState.selectedDisplayItems.removeAll { $0 == customItem }
                                         }
                                     } else {
-                                        if appState.selectedDisplayItems.count < 3 {
+                                        if customCount < 5 {
                                             appState.selectedDisplayItems.append(customItem)
                                         }
                                     }
