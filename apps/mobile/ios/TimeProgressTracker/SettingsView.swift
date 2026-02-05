@@ -2,7 +2,7 @@
 //  SettingsView.swift
 //  TimeProgressTracker
 //
-//  Modern Minimal iOS Style Settings
+//  Modern Minimal iOS Style Settings - Tabbed Layout
 //
 
 import SwiftUI
@@ -10,495 +10,209 @@ import UserNotifications
 import UIKit
 import UniformTypeIdentifiers
 
+enum SettingsTab: String, CaseIterable {
+    case display = "Display"
+    case mindset = "Mindset"
+    case appearance = "Appearance"
+}
+
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
-    @State private var eventCategoryFilter: EventCategoryFilter = .all
+    @State private var selectedTab: SettingsTab = .display
+    
+    // Add/Edit Event State
+    @State private var presentedSheetItem: EventSheetItem? = nil
+    @State private var showModeSelectionActionSheet: Bool = false
+    @State private var selectedInitMode: EventMode = .countdown
+    
+    // Calendar Picker State
+    @State private var showCalendarPicker: Bool = false
+    
+    // Toast Message State
+    @State private var toastMessage: String? = nil
+    
+    // Notifications & Import/Export
     @State private var notificationStatus: UNAuthorizationStatus = .notDetermined
     @State private var exportURL: URL? = nil
     @State private var showShareSheet: Bool = false
     @State private var showImportPicker: Bool = false
     @State private var importStatusText: String? = nil
-    @State private var calendarImportText: String? = nil
-    @State private var showPhotoPicker: Bool = false
-
-    private var customPinnedCount: Int {
-        appState.selectedDisplayItems.filter { item in
-            if case .customEvent = item { return true }
-            return false
-        }.count
-    }
-
-    private var filteredEvents: [CustomEvent] {
-        let events: [CustomEvent]
-        if let category = eventCategoryFilter.category {
-            events = appState.customEvents.filter { $0.category == category }
-        } else {
-            events = appState.customEvents
-        }
-
-        return events.sorted { lhs, rhs in
-            if lhs.mode != rhs.mode {
-                return lhs.mode == .countdown
-            }
-            if lhs.mode == .countup && rhs.mode == .countup {
-                return lhs.nextRelevantDate() > rhs.nextRelevantDate()
-            }
-            return lhs.nextRelevantDate() < rhs.nextRelevantDate()
-        }
-    }
-
-    private func displayIndex(for item: DisplayItem) -> Int? {
-        appState.selectedDisplayItems.firstIndex(of: item).map { $0 + 1 }
-    }
-
-    private func togglePin(for event: CustomEvent) {
-        let customItem = DisplayItem.customEvent(id: event.id)
-        let isPinned = appState.selectedDisplayItems.contains(customItem)
-
-        if isPinned {
-            if appState.selectedDisplayItems.count > 1 {
-                appState.selectedDisplayItems.removeAll { $0 == customItem }
-            }
-        } else if customPinnedCount < 5 {
-            appState.selectedDisplayItems.append(customItem)
-        }
-
-        appState.saveSettings()
-    }
-
-    private func deleteEvent(_ event: CustomEvent) {
-        let customItem = DisplayItem.customEvent(id: event.id)
-        appState.selectedDisplayItems.removeAll { $0 == customItem }
-        appState.customEvents.removeAll { $0.id == event.id }
-        appState.saveSettings()
-    }
-
-    private var notificationStatusText: String {
-        switch notificationStatus {
-        case .authorized: return "Notifications: On"
-        case .provisional: return "Notifications: Provisional"
-        case .denied: return "Notifications: Off (Denied)"
-        case .notDetermined: return "Notifications: Not Requested"
-        case .ephemeral: return "Notifications: Temporary"
-        @unknown default: return "Notifications: Unknown"
-        }
-    }
     
     var body: some View {
         NavigationView {
             ZStack {
-                appState.theme.groupedBackgroundColor(isDark: appState.isDarkMode)
-                    .ignoresSafeArea()
-                
-                List {
-                    // Appearance Section
-                    Section {
-                        Toggle(isOn: $appState.isDarkMode) {
-                            Text("Dark  Mode")
-                                .font(.sabdeviRegular(size: 14))
-                                .foregroundColor(.primary)
+                VStack(spacing: 0) {
+                    // Custom Segmented Control
+                    Picker("Settings Section", selection: $selectedTab) {
+                        ForEach(SettingsTab.allCases, id: \.self) { tab in
+                            Text(tab.rawValue).tag(tab)
                         }
-                        .tint(appState.theme.accentColor(isDark: appState.isDarkMode))
-                        .onChange(of: appState.isDarkMode) { _ in
-                            appState.saveSettings()
-                        }
-                        .listRowBackground(Color(.secondarySystemGroupedBackground))
-                    } header: {
-                        Text("Appearance")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
                     }
-
-                    // Theme Section
-                    Section {
-                        ForEach(AppTheme.allCases, id: \.self) { theme in
-                            SettingsRow(
-                                title: theme.displayName,
-                                isSelected: appState.theme == theme
-                            ) {
-                                appState.theme = theme
-                                appState.saveSettings()
-                            }
-                        }
-
-                        Button(action: {
-                            showPhotoPicker = true
-                        }) {
-                            Text("Add  custom  background")
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.gray)
-                                .underline()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .listRowBackground(Color.clear)
-
-                        if appState.customBackgroundImageData != nil {
-                            Button(action: {
-                                appState.customBackgroundImageData = nil
-                                appState.saveSettings()
-                            }) {
-                                Text("Remove  background")
-                                    .font(.sabdeviRegular(size: 12))
-                                    .foregroundColor(.gray)
-                                    .underline()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .listRowBackground(Color.clear)
-                        }
-                    } header: {
-                        Text("Theme")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
+                    .pickerStyle(.segmented)
+                    .padding()
+                    .background(Color(.systemGroupedBackground))
                     
-                    // Your Mindset Section
-                    Section {
-                        ForEach(Perspective.allCases, id: \.self) { perspective in
-                            SettingsRow(
-                                title: perspective.displayName,
-                                isSelected: appState.perspective == perspective
-                            ) {
-                                appState.perspective = perspective
-                                appState.saveSettings()
-                            }
-                        }
-                    } header: {
-                        Text("Your Mindset")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-                    
-                    // Daily Tracking Section
-                    Section {
-                        ForEach(TimeMode.allCases, id: \.self) { mode in
-                            SettingsRow(
-                                title: mode.displayName,
-                                isSelected: appState.timeMode == mode
-                            ) {
-                                appState.timeMode = mode
-                                appState.saveSettings()
-                            }
-                        }
-                    } header: {
-                        Text("Daily  Tracking")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-
-                    // Widget Style Section
-                    Section {
-                        ForEach(WidgetStyle.allCases, id: \.self) { style in
-                            SettingsRow(
-                                title: style.displayName,
-                                isSelected: appState.widgetStyle == style
-                            ) {
-                                appState.widgetStyle = style
-                                appState.saveSettings()
-                            }
-                        }
-                    } header: {
-                        Text("Widget  Style")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-                    
-                    // Customize Display Section
-                    Section {
-                        Text("Choose  3  time  items  to  display")
-                            .font(.sabdeviRegular(size: 12))
-                            .foregroundColor(.secondary)
-                            .listRowBackground(Color.clear)
-
-                        // Count separate types
-                        let predefinedCount = appState.selectedDisplayItems.filter { item in
-                            if case .customEvent = item { return false }
-                            return true
-                        }.count
-
-                        // Predefined items
-                        let predefinedItems: [DisplayItem] = [.today, .week, .month, .quarter, .year]
-
-                        ForEach(predefinedItems, id: \.self) { item in
-                            let isSelected = appState.selectedDisplayItems.contains(item)
-                            let index = displayIndex(for: item)
-
-                            SettingsRow(
-                                title: item.displayName(in: appState),
-                                isSelected: isSelected,
-                                isDisabled: !isSelected && predefinedCount >= 3,
-                                showNumber: isSelected,
-                                number: index
-                            ) {
-                                if isSelected {
-                                    if appState.selectedDisplayItems.count > 1 {
-                                        appState.selectedDisplayItems.removeAll { $0 == item }
-                                    }
-                                } else {
-                                    if predefinedCount < 3 {
-                                        appState.selectedDisplayItems.append(item)
-                                    }
-                                }
-                                appState.saveSettings()
-                            }
-                        }
-                    } header: {
-                        Text("Customize Display")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-
-                    // Events Section
-                    Section {
-                        Text("Pin  up  to  5  events  to  show  on  Home  +  widgets")
-                            .font(.sabdeviRegular(size: 12))
-                            .foregroundColor(.secondary)
-                            .listRowBackground(Color.clear)
-
-                        Picker("Filter", selection: $eventCategoryFilter) {
-                            ForEach(EventCategoryFilter.allCases, id: \.self) { filter in
-                                Text(filter.displayName)
-                                    .font(.sabdeviRegular(size: 12))
-                                    .tag(filter)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .listRowBackground(Color.clear)
-
-                        if filteredEvents.isEmpty {
-                            Text("No  events  yet")
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.secondary)
-                                .listRowBackground(Color.clear)
-                        } else {
-                            ForEach(filteredEvents, id: \.id) { event in
-                                let customItem = DisplayItem.customEvent(id: event.id)
-                                let isPinned = appState.selectedDisplayItems.contains(customItem)
-                                let index = displayIndex(for: customItem)
-
-                                EventManagementRow(
-                                    event: event,
-                                    isPinned: isPinned,
-                                    isPinDisabled: !isPinned && customPinnedCount >= 5,
-                                    displayIndex: index,
-                                    onPinToggle: { togglePin(for: event) },
-                                    onDelete: { deleteEvent(event) }
-                                )
-                            }
-                        }
-
-                        Button(action: {
-                            appState.showAddEvent = true
-                        }) {
-                            Text("Add  your  events")
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.gray)
-                                .underline()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .listRowBackground(Color.clear)
-                    } header: {
-                        Text("Events")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-
-                    // Backup & Export Section
-                    Section {
-                        Button(action: {
-                            do {
-                                exportURL = try AppBackupManager.exportBackup(appState: appState)
-                                showShareSheet = exportURL != nil
-                            } catch {
-                                importStatusText = "Export failed"
-                            }
-                        }) {
-                            Text("Export  Backup")
-                                .font(.sabdeviRegular(size: 14))
-                                .foregroundColor(.primary)
-                        }
-
-                        Button(action: {
-                            showImportPicker = true
-                        }) {
-                            Text("Import  Backup")
-                                .font(.sabdeviRegular(size: 14))
-                                .foregroundColor(.primary)
-                        }
-
-                        Button(action: {
-                            do {
-                                exportURL = try EventCSVExporter.export(events: appState.customEvents)
-                                showShareSheet = exportURL != nil
-                            } catch {
-                                importStatusText = "Export failed"
-                            }
-                        }) {
-                            Text("Export  Events  (CSV)")
-                                .font(.sabdeviRegular(size: 14))
-                                .foregroundColor(.primary)
-                        }
-
-                        if let importStatusText {
-                            Text(importStatusText)
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.secondary)
-                                .listRowBackground(Color.clear)
-                        }
-                    } header: {
-                        Text("Backup  &  Export")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-
-                    // Calendar Import Section
-                    Section {
-                        Button(action: {
-                            Task {
-                                let result = await CalendarImportManager.shared.importUpcomingEvents(into: appState)
-                                calendarImportText = "Imported \(result.imported) • Skipped \(result.skipped)"
-                            }
-                        }) {
-                            Text("Import  Calendar  Events")
-                                .font(.sabdeviRegular(size: 14))
-                                .foregroundColor(.primary)
-                        }
-
-                        if let calendarImportText {
-                            Text(calendarImportText)
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.secondary)
-                                .listRowBackground(Color.clear)
-                        }
-                    } header: {
-                        Text("Calendar  Import")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-                    
-                    // MARK: - Apple Watch Section (Hidden - To be implemented)
-                    /*
-                    // Apple Watch Section
-                    Section {
-                        Text("Choose  what  to  display  on  Apple  Watch")
-                            .font(.sabdeviRegular(size: 12))
-                            .foregroundColor(.secondary)
-                            .listRowBackground(Color.clear)
-                        
-                        let watchItems: [DisplayItem] = [.today, .week, .month, .quarter, .year]
-                        ForEach(watchItems, id: \.self) { item in
-                            let isSelected = appState.watchComplicationItem == item
-                            
-                            SettingsRow(
-                                title: item.displayName(in: appState),
-                                isSelected: isSelected
-                            ) {
-                                appState.watchComplicationItem = item
-                                appState.saveSettings()
-                            }
-                        }
-                    } header: {
-                        Text("Apple  Watch")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
-                    }
-                    */
-                    
-                    // Notification Section
-                    Section {
-                        Toggle(isOn: $appState.remindersEnabled) {
-                            Text("Event  Reminders")
-                                .font(.sabdeviRegular(size: 14))
-                                .foregroundColor(.primary)
-                        }
-                        .tint(appState.theme.accentColor(isDark: appState.isDarkMode))
-                        .onChange(of: appState.remindersEnabled) { enabled in
-                            Task {
-                                if enabled {
-                                    let granted = await NotificationManager.shared.requestAuthorization()
-                                    notificationStatus = await NotificationManager.shared.authorizationStatus()
-                                    if !granted {
-                                        appState.remindersEnabled = false
-                                    }
-                                } else {
-                                    NotificationManager.shared.cancelAll()
-                                }
-                                appState.saveSettings()
-                            }
-                        }
-                        .listRowBackground(Color(.secondarySystemGroupedBackground))
-
-                        Text(notificationStatusText)
-                            .font(.sabdeviRegular(size: 12))
-                            .foregroundColor(.secondary)
-                            .listRowBackground(Color.clear)
-
-                        if notificationStatus == .denied {
-                            Button(action: {
-                                if let url = URL(string: UIApplication.openSettingsURLString) {
-                                    UIApplication.shared.open(url)
-                                }
-                            }) {
-                                Text("Open  Settings")
-                                    .font(.sabdeviRegular(size: 12))
-                                    .foregroundColor(.gray)
-                                    .underline()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .listRowBackground(Color.clear)
-                        }
-                    } header: {
-                        Text("Notification")
-                            .font(.sabdeviBold(size: 16))
-                            .foregroundColor(.primary)
+                    // Tab Content
+                    if selectedTab == .display {
+                         DisplaySettingsView(
+                            showModeSelection: $showModeSelectionActionSheet,
+                            showCalendarPicker: $showCalendarPicker,
+                            presentedSheetItem: $presentedSheetItem,
+                            notificationStatus: $notificationStatus,
+                            exportURL: $exportURL,
+                            showShareSheet: $showShareSheet,
+                            showImportPicker: $showImportPicker,
+                            importStatusText: $importStatusText
+                        )
+                    } else if selectedTab == .mindset {
+                        MindsetSettingsView()
+                    } else {
+                        AppearanceSettingsView()
                     }
                 }
-                .listStyle(.insetGrouped)
+                
+                // Toast Overlay
+                if let message = toastMessage {
+                    VStack {
+                        Spacer()
+                        Text(message)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Capsule().fill(Color.black.opacity(0.8)))
+                            .padding(.bottom, 50)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                    .zIndex(100)
+                }
             }
-            .navigationTitle("Customize")
+            .navigationTitle("Configure")
             .navigationBarTitleDisplayMode(.inline)
+            .background(Color(.systemGroupedBackground))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
+                    Button("Done") {
                         dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.sabdeviRegular(size: 17))
-                            .foregroundColor(.primary)
                     }
+                    .font(.system(.body))
                 }
             }
-            .sheet(isPresented: $appState.showAddEvent) {
-                AddCustomEventView()
+            .confirmationDialog("What kind of event?", isPresented: $showModeSelectionActionSheet, titleVisibility: .visible) {
+                 Button("Countdown (e.g. Birthday)") {
+                     presentedSheetItem = EventSheetItem(initialMode: .countdown)
+                 }
+                 Button("Count Up (e.g. Sobriety)") {
+                     presentedSheetItem = EventSheetItem(initialMode: .countup)
+                 }
+                 Button("Habit (e.g. Daily Run)") {
+                     presentedSheetItem = EventSheetItem(initialMode: .habit)
+                 }
+                 Button("Cancel", role: .cancel) {}
+            }
+            .sheet(item: $presentedSheetItem) { item in
+                AddCustomEventView(initialMode: item.initialMode, existingEvent: item.event)
                     .environmentObject(appState)
+            }
+            .sheet(isPresented: $showCalendarPicker) {
+                CalendarEventPickerView(toastMessage: $toastMessage)
+                    .environmentObject(appState)
+            }
+            .sheet(isPresented: $showShareSheet) {
+                if let exportURL {
+                    ShareSheet(items: [exportURL])
+                }
+            }
+            .fileImporter(isPresented: $showImportPicker, allowedContentTypes: [.json]) { result in
+                switch result {
+                case .success(let url):
+                    let didAccess = url.startAccessingSecurityScopedResource()
+                    defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
+                    do {
+                        try AppBackupManager.importBackup(from: url, appState: appState)
+                        importStatusText = "Backup imported"
+                    } catch {
+                        importStatusText = "Import failed"
+                    }
+                case .failure:
+                    importStatusText = "Import cancelled"
+                }
             }
         }
         .preferredColorScheme(appState.isDarkMode ? .dark : .light)
-        .task {
-            notificationStatus = await NotificationManager.shared.authorizationStatus()
-        }
-        .fileImporter(isPresented: $showImportPicker, allowedContentTypes: [.json]) { result in
-            switch result {
-            case .success(let url):
-                let didAccess = url.startAccessingSecurityScopedResource()
-                defer {
-                    if didAccess { url.stopAccessingSecurityScopedResource() }
+        .font(.system(size: 14))
+        .onChange(of: toastMessage) { newValue in
+            if newValue != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation {
+                        toastMessage = nil
+                    }
                 }
-                do {
-                    try AppBackupManager.importBackup(from: url, appState: appState)
-                    importStatusText = "Backup imported"
-                } catch {
-                    importStatusText = "Import failed"
-                }
-            case .failure:
-                importStatusText = "Import cancelled"
             }
         }
-        .sheet(isPresented: $showShareSheet) {
-            if let exportURL {
-                ShareSheet(items: [exportURL])
+    }
+}
+
+// MARK: - Mindset Tab
+
+struct MindsetSettingsView: View {
+    @EnvironmentObject var appState: AppState
+    
+    var body: some View {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("How do you view your journey?")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Picker("Mindset", selection: $appState.perspective) {
+                        ForEach(Perspective.allCases, id: \.self) { perspective in
+                            Text(perspective == .halfFull ? "Half Full (Focus on Done)" : "Half Empty (Focus on Left)")
+                                .tag(perspective)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                    .onChange(of: appState.perspective) { _ in
+                        appState.saveSettings()
+                    }
+                }
+                .padding(.vertical, 4)
+            } header: {
+                Text("Your Perspective")
+            } footer: {
+                Text("This changes how progress is displayed across the app and widgets.")
             }
         }
+        .listStyle(.insetGrouped)
+    }
+}
+
+// MARK: - Appearance Tab
+
+struct AppearanceSettingsView: View {
+    @EnvironmentObject var appState: AppState
+    @State private var showPhotoPicker: Bool = false
+    
+    var body: some View {
+        List {
+            Section {
+                Toggle("Dark Mode", isOn: $appState.isDarkMode)
+                    .onChange(of: appState.isDarkMode) { _ in appState.saveSettings() }
+                
+                Picker("Widget Style", selection: $appState.widgetStyle) {
+                    ForEach(WidgetStyle.allCases, id: \.self) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .onChange(of: appState.widgetStyle) { _ in appState.saveSettings() }
+            } header: {
+                Text("Style")
+            }
+        }
+        .listStyle(.insetGrouped)
         .sheet(isPresented: $showPhotoPicker) {
             PhotoPicker(imageData: $appState.customBackgroundImageData) {
                 appState.saveSettings()
@@ -507,124 +221,270 @@ struct SettingsView: View {
     }
 }
 
-struct SettingsRow: View {
-    let title: String
-    let isSelected: Bool
-    var isDisabled: Bool = false
-    var showNumber: Bool = false
-    var number: Int? = nil
-    let action: () -> Void
+// MARK: - Display Tab
+
+struct DisplaySettingsView: View {
+    @EnvironmentObject var appState: AppState
+    @Binding var showModeSelection: Bool
+    @Binding var showCalendarPicker: Bool
+    @Binding var presentedSheetItem: EventSheetItem?
     
-    @Environment(\.colorScheme) var colorScheme
+    // Bindings for parent actions
+    @Binding var notificationStatus: UNAuthorizationStatus
+    @Binding var exportURL: URL?
+    @Binding var showShareSheet: Bool
+    @Binding var showImportPicker: Bool
+    @Binding var importStatusText: String?
+    
+    // Local filters
+    @State private var eventCategoryFilter: EventCategoryFilter = .all
+    
+    var customPinnedCount: Int {
+        appState.selectedDisplayItems.filter { item in
+            if case .customEvent = item { return true }
+            return false
+        }.count
+    }
+    
+    var filteredEvents: [CustomEvent] {
+         let events: [CustomEvent]
+         if let category = eventCategoryFilter.category {
+             events = appState.customEvents.filter { $0.category == category }
+         } else {
+             events = appState.customEvents
+         }
+         return events.sorted { lhs, rhs in
+              if lhs.mode != rhs.mode { return lhs.mode == .countdown }
+              return lhs.name < rhs.name
+         }
+    }
     
     var body: some View {
-        Button(action: action) {
-            HStack {
-                if showNumber, let num = number {
-                    ZStack {
-                        Circle()
-                            .fill(Color.primary)
-                            .frame(width: 24, height: 24)
-                        Text("\(num)")
-                            .font(.sabdeviBold(size: 14))
-                            .foregroundColor(colorScheme == .dark ? .black : .white)
+        List {
+            // 1. Default Events
+            Section {
+                 PredefinedItemRow(item: .today, icon: "sun.max", appState: appState)
+                 PredefinedItemRow(item: .week, icon: "calendar", appState: appState)
+                 PredefinedItemRow(item: .month, icon: "calendar.badge.clock", appState: appState)
+                 PredefinedItemRow(item: .quarter, icon: "chart.pie", appState: appState)
+                 PredefinedItemRow(item: .year, icon: "hourglass", appState: appState)
+            } header: {
+                Text("Default Events (Select max 3)")
+            }
+            
+            // 2. My Events
+            Section {
+                if !appState.customEvents.isEmpty {
+                    if filteredEvents.isEmpty {
+                        Text("No \(eventCategoryFilter.displayName) events added")
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.vertical, 20)
+                    } else {
+                        ForEach(filteredEvents) { event in
+                            Button(action: {
+                                presentedSheetItem = EventSheetItem(event: event)
+                            }) {
+                                EventRowSystem(event: event)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    deleteEvent(event)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                
+                                Button {
+                                    togglePin(for: event)
+                                } label: {
+                                    let isPinned = appState.selectedDisplayItems.contains(.customEvent(id: event.id))
+                                    Label(isPinned ? "Unpin" : "Pin", systemImage: isPinned ? "pin.slash" : "pin")
+                                }
+                                .tint(.orange)
+                            }
+                        }
                     }
-                    .padding(.trailing, 8)
+                } else {
+                     Text("No events yet")
+                         .foregroundColor(.secondary)
+                         .frame(maxWidth: .infinity, alignment: .center)
+                         .padding(.vertical, 20)
+                }
+            } header: {
+                HStack {
+                    Text("My Events")
+                    Spacer()
+                    
+                    if !appState.customEvents.isEmpty {
+                        HStack(spacing: 8) {
+                            Text("\(customPinnedCount)/5 Pinned")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                            
+                            Menu {
+                                Picker("Filter", selection: $eventCategoryFilter) {
+                                    ForEach(EventCategoryFilter.allCases, id: \.self) { filter in
+                                        Label(filter.displayName, systemImage: filter.icon).tag(filter)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.accentColor)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 3. Manage Events
+            Section {
+                Button(action: { showModeSelection = true }) {
+                    Label("Create New Event", systemImage: "plus.circle")
+                        .font(.body)
+                        .foregroundColor(.accentColor)
                 }
                 
-                Text(title)
-                    .font(isSelected ? .sabdeviBold(size: 14) : .sabdeviRegular(size: 14))
-                    .foregroundColor(isDisabled ? .secondary : .primary)
+                Button(action: { showCalendarPicker = true }) {
+                    Label("Import from Calendar", systemImage: "calendar.badge.plus")
+                        .font(.body)
+                        .foregroundColor(.primary)
+                }
+            } header: {
+                 Text("Manage Events")
+            }
+            
+            // 4. Life Progress Toggle
+            Section {
+                Toggle("Show Life Progress", isOn: $appState.showLifeProgress)
+                     .onChange(of: appState.showLifeProgress) { _ in appState.saveSettings() }
+            } header: {
+                Text("Life Progress")
+            }
+            
+            // 5. Data & Safety
+            Section {
+                Button("Export Backup") {
+                    do {
+                        exportURL = try AppBackupManager.exportBackup(appState: appState)
+                        showShareSheet = (exportURL != nil)
+                    } catch { importStatusText = "Export failed" }
+                }
+                
+                Button("Import Backup") {
+                    showImportPicker = true
+                }
+                if let status = importStatusText {
+                    Text(status).font(.caption).foregroundColor(.secondary)
+                }
+            } header: {
+                Text("Data & Safety")
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+    
+    private func togglePin(for event: CustomEvent) {
+        let customItem = DisplayItem.customEvent(id: event.id)
+        if appState.selectedDisplayItems.contains(customItem) {
+             if appState.selectedDisplayItems.count > 1 {
+                 appState.selectedDisplayItems.removeAll { $0 == customItem }
+             }
+        } else {
+             if customPinnedCount < 5 {
+                 appState.selectedDisplayItems.append(customItem)
+             }
+        }
+        appState.saveSettings()
+    }
+    
+    private func deleteEvent(_ event: CustomEvent) {
+        let customItem = DisplayItem.customEvent(id: event.id)
+        appState.selectedDisplayItems.removeAll { $0 == customItem }
+        appState.customEvents.removeAll { $0.id == event.id }
+        appState.saveSettings()
+    }
+}
+
+struct PredefinedItemRow: View {
+    let item: DisplayItem
+    let icon: String
+    @ObservedObject var appState: AppState
+    
+    var body: some View {
+        let isSelected = appState.selectedDisplayItems.contains(item)
+        let predefinedSelectedCount = appState.selectedDisplayItems.filter { item in
+            if case .customEvent = item { return false }
+            return true
+        }.count
+        
+        Button(action: {
+            if isSelected {
+                if appState.selectedDisplayItems.count > 1 {
+                    appState.selectedDisplayItems.removeAll { $0 == item }
+                }
+            } else {
+                if predefinedSelectedCount < 3 {
+                    appState.selectedDisplayItems.append(item)
+                }
+            }
+            appState.saveSettings()
+        }) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(isSelected ? .accentColor : .secondary)
+                    .frame(width: 24)
+                
+                Text(item.displayName(in: appState))
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
                 if isSelected {
                     Image(systemName: "checkmark")
-                        .font(.sabdeviBold(size: 14))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.accentColor)
                 }
             }
-            .contentShape(Rectangle())
-            .padding(.vertical, 8)
         }
-        .disabled(isDisabled)
-        .listRowBackground(
-            isSelected 
-                ? Color(.secondarySystemGroupedBackground)
-                : Color(.systemGroupedBackground)
-        )
     }
 }
 
-struct EventManagementRow: View {
+struct EventRowSystem: View {
     let event: CustomEvent
-    let isPinned: Bool
-    let isPinDisabled: Bool
-    let displayIndex: Int?
-    let onPinToggle: () -> Void
-    let onDelete: () -> Void
-
-    @Environment(\.colorScheme) var colorScheme
-
+    @EnvironmentObject var appState: AppState
+    
+    var isPinned: Bool {
+        appState.selectedDisplayItems.contains(.customEvent(id: event.id))
+    }
+    
     var body: some View {
-        HStack(spacing: 12) {
-            if let index = displayIndex {
-                ZStack {
-                    Circle()
-                        .fill(Color.primary)
-                        .frame(width: 24, height: 24)
-                    Text("\(index)")
-                        .font(.sabdeviBold(size: 14))
-                        .foregroundColor(colorScheme == .dark ? .black : .white)
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
+        HStack {
+            VStack(alignment: .leading) {
                 Text(event.name)
-                    .font(.sabdeviBold(size: 14))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.primary)
-                    .lineLimit(1)
-
                 Text(event.summaryText())
-                    .font(.sabdeviRegular(size: 11))
+                    .font(.caption)
                     .foregroundColor(.secondary)
-                    .lineLimit(1)
             }
-
             Spacer()
-
-            Button(action: onPinToggle) {
-                HStack(spacing: 4) {
-                    Image(systemName: isPinned ? "pin.fill" : "pin")
-                        .font(.sabdeviRegular(size: 12))
-                    Text(isPinned ? "Pinned" : "Pin")
-                        .font(.sabdeviRegular(size: 12))
-                }
-                .foregroundColor(isPinned ? .primary : .secondary)
+            if isPinned {
+                Image(systemName: "pin.fill")
+                    .foregroundColor(.orange)
+                    .font(.caption)
             }
-            .buttonStyle(PlainButtonStyle())
-            .disabled(isPinDisabled)
-            .opacity(isPinDisabled ? 0.4 : 1.0)
-
-            Button(action: onDelete) {
-                Image(systemName: "trash")
-                    .font(.sabdeviRegular(size: 14))
-                    .foregroundColor(.red)
-            }
-            .buttonStyle(PlainButtonStyle())
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.secondary.opacity(0.3))
         }
-        .padding(.vertical, 8)
-        .listRowBackground(Color(.secondarySystemGroupedBackground))
+        .padding(.vertical, 4)
     }
 }
 
 enum EventCategoryFilter: String, CaseIterable {
-    case all
-    case personal
-    case work
-    case family
-    case custom
-
+    case all, personal, work, family, custom
+    
     var displayName: String {
         switch self {
         case .all: return "All"
@@ -634,7 +494,17 @@ enum EventCategoryFilter: String, CaseIterable {
         case .custom: return "Custom"
         }
     }
-
+    
+    var icon: String {
+        switch self {
+        case .all: return "line.3.horizontal.decrease.circle"
+        case .personal: return "person.circle"
+        case .work: return "briefcase.circle"
+        case .family: return "house.circle"
+        case .custom: return "star.circle"
+        }
+    }
+    
     var category: EventCategory? {
         switch self {
         case .all: return nil
@@ -649,8 +519,8 @@ enum EventCategoryFilter: String, CaseIterable {
 extension Perspective {
     var displayName: String {
         switch self {
-        case .halfFull: return "Half  Full"
-        case .halfEmpty: return "Half  Empty"
+        case .halfFull: return "Half Full"
+        case .halfEmpty: return "Half Empty"
         }
     }
 }
@@ -658,8 +528,8 @@ extension Perspective {
 extension TimeMode {
     var displayName: String {
         switch self {
-        case .twentyFourHour: return "24  Hours"
-        case .nineToFive: return "9  to  5"
+        case .twentyFourHour: return "24 Hours"
+        case .nineToFive: return "9 to 5"
         }
     }
 }
@@ -672,3 +542,175 @@ extension WidgetStyle {
         }
     }
 }
+
+// MARK: - Calendar Picker
+
+import EventKit
+
+struct CalendarEventPickerView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.dismiss) var dismiss
+    @Binding var toastMessage: String?
+    
+    @State private var events: [EKEvent] = []
+    @State private var isLoading = true
+    @State private var hasAccess = false
+    
+    var body: some View {
+        NavigationView {
+            Group {
+                if isLoading {
+                    ProgressView("Loading Calendar...")
+                } else if !hasAccess {
+                    VStack(spacing: 16) {
+                        Image(systemName: "lock.shield")
+                            .font(.system(size: 50))
+                            .foregroundColor(.secondary)
+                        Text("Calendar Access Required")
+                            .font(.headline)
+                        Text("Please allow access to your calendar to import events.")
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                        Button("Open Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    }
+                    .padding()
+                } else if events.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 50))
+                            .foregroundColor(.secondary)
+                        Text("No Upcoming Events")
+                            .font(.headline)
+                        Text("Found no events in the next 90 days.")
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    List {
+                        ForEach(events, id: \.eventIdentifier) { event in
+                            Button(action: {
+                                importEvent(event)
+                            }) {
+                                HStack(spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(event.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        
+                                        HStack {
+                                            Text(formatDate(event.startDate))
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+                                            if !event.isAllDay {
+                                                Text("•")
+                                                Text(formatTime(event.startDate))
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        }
+                                    }
+                                    Spacer()
+                                    Image(systemName: "plus.circle")
+                                        .font(.title2)
+                                        .foregroundColor(.accentColor)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                    }
+                    .listStyle(.insetGrouped)
+                }
+            }
+            .navigationTitle("Pick Event")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+        .onAppear {
+            loadEvents()
+        }
+    }
+    
+    private func loadEvents() {
+        Task {
+            isLoading = true
+            let granted = await CalendarImportManager.shared.requestAccess()
+            hasAccess = granted
+            if granted {
+                events = await CalendarImportManager.shared.fetchEvents()
+            }
+            isLoading = false
+        }
+    }
+    
+    private func importEvent(_ event: EKEvent) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "HH:mm"
+        
+        let isoDate = dateFormatter.string(from: event.startDate)
+        let timeOfDay = event.isAllDay ? nil : timeFormatter.string(from: event.startDate)
+        
+        var recurrence: EventRecurrence = .none
+        if let rule = event.recurrenceRules?.first {
+            switch rule.frequency {
+            case .weekly: recurrence = .weekly
+            case .monthly: recurrence = .monthly
+            case .yearly: recurrence = .yearly
+            default: recurrence = .none
+            }
+        }
+        
+        let newEvent = CustomEvent(
+            name: event.title,
+            date: isoDate,
+            startDate: isoDate,
+            category: .personal,
+            mode: .countdown,
+            recurrence: recurrence,
+            timeOfDay: timeOfDay,
+            reminders: []
+        )
+        
+        appState.customEvents.append(newEvent)
+        
+        let customCount = appState.selectedDisplayItems.filter {
+            if case .customEvent = $0 { return true }
+            return false
+        }.count
+        
+        if customCount < 5 {
+            appState.selectedDisplayItems.append(.customEvent(id: newEvent.id))
+        }
+        
+        appState.saveSettings()
+        toastMessage = "Event imported: \(event.title)"
+        dismiss()
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, MMM d"
+        return formatter.string(from: date)
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+}
+
+struct EventSheetItem: Identifiable {
+    let id = UUID()
+    var event: CustomEvent? = nil
+    var initialMode: EventMode = .countdown
+}
+

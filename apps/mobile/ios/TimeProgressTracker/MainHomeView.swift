@@ -53,53 +53,53 @@ struct MainHomeView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Animated Header - moved to very top
-                Group {
-                    if appState.isDarkMode {
-                        AnimatedHeaderView(
-                            onSVGsLoaded: {
-                                onSVGsLoaded?()
-                            },
-                            startAnimations: startAnimations,
-                            animationRestartTrigger: animationRestartTrigger,
-                            onSunStarted: {
-                                sunStarted = true
-                                startSectionReveal()
-                            },
-                            onCloudsStarted: {
-                                cloudsStarted = true
-                            },
-                            onBirdsStarted: {
-                                birdsStarted = true
-                            }
-                        )
-                        .colorInvert()
-                    } else {
-                        AnimatedHeaderView(
-                            onSVGsLoaded: {
-                                onSVGsLoaded?()
-                            },
-                            startAnimations: startAnimations,
-                            animationRestartTrigger: animationRestartTrigger,
-                            onSunStarted: {
-                                sunStarted = true
-                                startSectionReveal()
-                            },
-                            onCloudsStarted: {
-                                cloudsStarted = true
-                            },
-                            onBirdsStarted: {
-                                birdsStarted = true
-                            }
-                        )
-                    }
-                }
-                .frame(height: 200)
-                .padding(.top, 0)
-                
                 // Main content - scrollable
                 ScrollView {
                     VStack(spacing: 0) {
+                        // Animated Header - moved inside ScrollView to hide on scroll
+                        Group {
+                            if appState.isDarkMode {
+                                AnimatedHeaderView(
+                                    onSVGsLoaded: {
+                                        onSVGsLoaded?()
+                                    },
+                                    startAnimations: startAnimations,
+                                    animationRestartTrigger: animationRestartTrigger,
+                                    onSunStarted: {
+                                        sunStarted = true
+                                        startSectionReveal()
+                                    },
+                                    onCloudsStarted: {
+                                        cloudsStarted = true
+                                    },
+                                    onBirdsStarted: {
+                                        birdsStarted = true
+                                    }
+                                )
+                                .colorInvert()
+                            } else {
+                                AnimatedHeaderView(
+                                    onSVGsLoaded: {
+                                        onSVGsLoaded?()
+                                    },
+                                    startAnimations: startAnimations,
+                                    animationRestartTrigger: animationRestartTrigger,
+                                    onSunStarted: {
+                                        sunStarted = true
+                                        startSectionReveal()
+                                    },
+                                    onCloudsStarted: {
+                                        cloudsStarted = true
+                                    },
+                                    onBirdsStarted: {
+                                        birdsStarted = true
+                                    }
+                                )
+                            }
+                        }
+                        .frame(height: 180) // Slightly reduced height to fit better
+                        .padding(.top, 0)
+
                         // Top spacer to push content to center
                         Spacer()
                             .frame(height: 20)
@@ -208,14 +208,16 @@ struct MainHomeView: View {
                             }
                             
                             // Life Progress card - always shown as 4th section (last)
-                            LifeProgressCardView()
-                                .environmentObject(appState)
-                                .opacity(showContent ? 1 : 0)
-                                .offset(y: showContent ? 0 : 20)
-                                .animation(
-                                    .easeOut(duration: 0.6).delay(Double(displayedCount + emptySlotsNeeded) * 0.2),
-                                    value: showContent
-                                )
+                            if appState.showLifeProgress {
+                                LifeProgressCardView()
+                                    .environmentObject(appState)
+                                    .opacity(showContent ? 1 : 0)
+                                    .offset(y: showContent ? 0 : 20)
+                                    .animation(
+                                        .easeOut(duration: 0.6).delay(Double(displayedCount + emptySlotsNeeded) * 0.2),
+                                        value: showContent
+                                    )
+                            }
                         }
                         .padding(.horizontal, 20)
                         

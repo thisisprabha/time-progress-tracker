@@ -87,6 +87,23 @@ final class CalendarImportManager {
         return (imported, skipped)
     }
 
+    func fetchEvents(daysAhead: Int = 90) async -> [EKEvent] {
+        let status = EKEventStore.authorizationStatus(for: .event)
+        if status != .authorized {
+            let granted = await requestAccess()
+            if !granted { return [] }
+        }
+        
+        let calendars = store.calendars(for: .event)
+        let now = Date()
+        let startDate = Calendar.current.date(byAdding: .day, value: -1, to: now) ?? now
+        let endDate = Calendar.current.date(byAdding: .day, value: daysAhead, to: now) ?? now
+        
+        let predicate = store.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+        let events = store.events(matching: predicate).sorted { $0.startDate < $1.startDate }
+        return events
+    }
+
     private func mapRecurrence(_ rule: EKRecurrenceRule?) -> EventRecurrence {
         guard let rule else { return .none }
         switch rule.frequency {

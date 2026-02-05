@@ -68,6 +68,7 @@ struct CustomEvent: Identifiable, Codable {
     let timeOfDay: String? // "HH:mm"
     let reminders: [EventReminder]
     var streakHistory: Set<String> // ISO dates "YYYY-MM-DD"
+    let goalCount: Int? // For Habits, default 90
 
     init(
         id: String = UUID().uuidString,
@@ -79,7 +80,8 @@ struct CustomEvent: Identifiable, Codable {
         recurrence: EventRecurrence = .none,
         timeOfDay: String? = nil,
         reminders: [EventReminder] = [],
-        streakHistory: Set<String> = []
+        streakHistory: Set<String> = [],
+        goalCount: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -90,6 +92,7 @@ struct CustomEvent: Identifiable, Codable {
         self.timeOfDay = timeOfDay
         self.reminders = reminders
         self.streakHistory = streakHistory
+        self.goalCount = goalCount
 
         if let start = startDate {
             self.startDate = start
@@ -112,6 +115,7 @@ struct CustomEvent: Identifiable, Codable {
         case timeOfDay
         case reminders
         case streakHistory
+        case goalCount
     }
 
     init(from decoder: Decoder) throws {
@@ -126,6 +130,7 @@ struct CustomEvent: Identifiable, Codable {
         timeOfDay = try container.decodeIfPresent(String.self, forKey: .timeOfDay)
         reminders = try container.decodeIfPresent([EventReminder].self, forKey: .reminders) ?? []
         streakHistory = try container.decodeIfPresent(Set<String>.self, forKey: .streakHistory) ?? []
+        goalCount = try container.decodeIfPresent(Int.self, forKey: .goalCount)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -140,6 +145,7 @@ struct CustomEvent: Identifiable, Codable {
         try container.encodeIfPresent(timeOfDay, forKey: .timeOfDay)
         try container.encode(reminders, forKey: .reminders)
         try container.encode(streakHistory, forKey: .streakHistory)
+        try container.encodeIfPresent(goalCount, forKey: .goalCount)
     }
 
     func calculateProgress() -> (daysLeft: Int, weeksLeft: Int, useWeeks: Bool, isPast: Bool, isToday: Bool, formattedDate: String, totalDays: Int, daysCompleted: Int) {
@@ -232,7 +238,7 @@ struct CustomEvent: Identifiable, Codable {
                 isPast: false,
                 isToday: isCheckedInToday,
                 formattedDate: "Streak",
-                totalDays: max(longestStreak, 1),
+                totalDays: goalCount ?? 90,
                 daysCompleted: currentStreak
             )
         }
@@ -551,7 +557,8 @@ extension CustomEvent {
             let start = dateFormatter.date(from: startDate) ?? now
             dateText = "Since \(formattedDisplayDate(start))"
         } else if mode == .habit {
-             dateText = "Current Streak: \(currentStreak)"
+             let goal = goalCount ?? 90
+             dateText = "Streak: \(currentStreak)/\(goal)"
         } else {
             let nextDate = nextRelevantDate(from: now)
             if recurrence == .none {

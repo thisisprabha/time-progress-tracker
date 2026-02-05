@@ -29,6 +29,7 @@ class AppState: ObservableObject {
     @Published var remindersEnabled: Bool = false
     @Published var theme: AppTheme = .classic
     @Published var customBackgroundImageData: Data? = nil
+    @Published var showLifeProgress: Bool = true
     
     init() {
         print("✅ [AppState] AppState initialized")
@@ -142,6 +143,10 @@ class AppState: ObservableObject {
                 await NotificationManager.shared.applySettings(events: customEvents, enabled: true)
             }
         }
+        
+        if UserDefaults.standard.object(forKey: "showLifeProgress") != nil {
+            self.showLifeProgress = UserDefaults.standard.bool(forKey: "showLifeProgress")
+        }
     }
     
     func saveSettings() {
@@ -155,6 +160,7 @@ class AppState: ObservableObject {
         UserDefaults.standard.set(widgetStyle.rawValue, forKey: "widgetStyle")
         UserDefaults.standard.set(remindersEnabled, forKey: "remindersEnabled")
         UserDefaults.standard.set(theme.rawValue, forKey: "appTheme")
+        UserDefaults.standard.set(showLifeProgress, forKey: "showLifeProgress")
         if let customBackgroundImageData {
             UserDefaults.standard.set(customBackgroundImageData, forKey: "customBackgroundImageData")
         } else {
