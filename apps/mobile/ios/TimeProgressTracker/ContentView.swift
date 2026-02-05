@@ -60,6 +60,7 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 1.0), value: showLoadingScreen)
+        .tint(appState.theme.accentColor(isDark: appState.isDarkMode))
         .preferredColorScheme(appState.isDarkMode ? .dark : .light)
         .onAppear {
             print("✅ [ContentView] ContentView appeared, hasCompletedOnboarding: \(appState.hasCompletedOnboarding)")
@@ -72,6 +73,10 @@ struct ContentView: View {
                 showLoadingScreen = true
                 // Wait for text animation to complete (it will call handleAnimationSequence)
             }
+        }
+        .onOpenURL { url in
+            print("✅ [ContentView] Received deep link: \(url.absoluteString)")
+            appState.handleDeepLink(url)
         }
     }
     
@@ -100,4 +105,3 @@ struct ContentView: View {
         }
     }
 }
-

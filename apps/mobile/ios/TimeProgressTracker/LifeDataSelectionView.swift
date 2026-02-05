@@ -21,7 +21,8 @@ struct LifeDataSelectionView: View {
     
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            appState.theme.backgroundColor(isDark: appState.isDarkMode)
+                .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 Spacer()
@@ -180,4 +181,6 @@ struct LifeDataSelectionView: View {
         }
     }
 }
+
+
 

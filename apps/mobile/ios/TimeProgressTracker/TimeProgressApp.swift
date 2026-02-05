@@ -24,6 +24,11 @@ class AppState: ObservableObject {
     @Published var isDarkMode: Bool = false
     @Published var userAge: Int = 30 // Default age
     @Published var lifeExpectancy: Int = 80 // Default life expectancy
+    @Published var widgetStyle: WidgetStyle = .classic
+    @Published var pendingDeepLinkEventID: String? = nil
+    @Published var remindersEnabled: Bool = false
+    @Published var theme: AppTheme = .classic
+    @Published var customBackgroundImageData: Data? = nil
     
     init() {
         print("✅ [AppState] AppState initialized")
@@ -39,29 +44,7 @@ class AppState: ObservableObject {
             self.customEvents = events
         }
         
-        // Filter out past events (Auto-cleanup)
-        let today = Date()
-        let calendar = Calendar.current
-        let startOfToday = calendar.startOfDay(for: today)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        self.customEvents = self.customEvents.filter { event in
-            // Keep event if date is valid AND (date >= today OR event is permanent/recurring type if added later)
-            // For now, based on user request: "not 30 lines... stays counting using days"
-            // Wait, User said: "Once the cusotm envet ended, or date corssed, can we remove the event?"
-            // So logic: If event.date < today, remove it.
-            if let date = dateFormatter.date(from: event.date),
-               calendar.startOfDay(for: date) < startOfToday {
-                return false // Remove past events
-            }
-            return true
-        }
-        
-        // Save cleaned up events
-        if let eventsData = try? JSONEncoder().encode(customEvents) {
-            UserDefaults.standard.set(eventsData, forKey: "customEvents")
-        }
+        // Keep all events for unlimited history and count-up tracking.
         
         if let savedPerspective = UserDefaults.standard.string(forKey: "userPerspective"),
            let perspective = Perspective(rawValue: savedPerspective) {
@@ -72,6 +55,16 @@ class AppState: ObservableObject {
         if let savedTimeMode = UserDefaults.standard.string(forKey: "timeMode"),
            let timeMode = TimeMode(rawValue: savedTimeMode) {
             self.timeMode = timeMode
+        }
+
+        if let savedWidgetStyle = UserDefaults.standard.string(forKey: "widgetStyle"),
+           let style = WidgetStyle(rawValue: savedWidgetStyle) {
+            self.widgetStyle = style
+        }
+
+        if let savedTheme = UserDefaults.standard.string(forKey: "appTheme"),
+           let theme = AppTheme(rawValue: savedTheme) {
+            self.theme = theme
         }
         
         if UserDefaults.standard.object(forKey: "isDarkMode") != nil {
@@ -135,6 +128,20 @@ class AppState: ObservableObject {
         if UserDefaults.standard.object(forKey: "lifeExpectancy") != nil {
             self.lifeExpectancy = UserDefaults.standard.integer(forKey: "lifeExpectancy")
         }
+
+        if let backgroundData = UserDefaults.standard.data(forKey: "customBackgroundImageData") {
+            self.customBackgroundImageData = backgroundData
+        }
+
+        if UserDefaults.standard.object(forKey: "remindersEnabled") != nil {
+            self.remindersEnabled = UserDefaults.standard.bool(forKey: "remindersEnabled")
+        }
+
+        if remindersEnabled {
+            Task {
+                await NotificationManager.shared.applySettings(events: customEvents, enabled: true)
+            }
+        }
     }
     
     func saveSettings() {
@@ -145,6 +152,14 @@ class AppState: ObservableObject {
         UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
         UserDefaults.standard.set(userAge, forKey: "userAge")
         UserDefaults.standard.set(lifeExpectancy, forKey: "lifeExpectancy")
+        UserDefaults.standard.set(widgetStyle.rawValue, forKey: "widgetStyle")
+        UserDefaults.standard.set(remindersEnabled, forKey: "remindersEnabled")
+        UserDefaults.standard.set(theme.rawValue, forKey: "appTheme")
+        if let customBackgroundImageData {
+            UserDefaults.standard.set(customBackgroundImageData, forKey: "customBackgroundImageData")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "customBackgroundImageData")
+        }
         
         // Save custom events
         if let eventsData = try? JSONEncoder().encode(customEvents) {
@@ -163,13 +178,54 @@ class AppState: ObservableObject {
             sharedDefaults.set(userAge, forKey: "userAge")
             sharedDefaults.set(lifeExpectancy, forKey: "lifeExpectancy")
             sharedDefaults.set(watchComplicationItem.rawValue, forKey: "watchComplicationItem")
+            sharedDefaults.set(widgetStyle.rawValue, forKey: "widgetStyle")
+            sharedDefaults.set(remindersEnabled, forKey: "remindersEnabled")
+            sharedDefaults.set(theme.rawValue, forKey: "appTheme")
             if let eventsData = try? JSONEncoder().encode(customEvents) {
                 sharedDefaults.set(eventsData, forKey: "customEvents")
             }
         }
+
+        Task {
+            await NotificationManager.shared.applySettings(events: customEvents, enabled: remindersEnabled)
+        }
         
         // Update widgets and watch complications
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    func toggleCheckIn(for event: CustomEvent) {
+        if let index = customEvents.firstIndex(where: { $0.id == event.id }) {
+            customEvents[index].toggleCheckIn()
+            saveSettings()
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    func handleDeepLink(_ url: URL) {
+        guard let scheme = url.scheme,
+              scheme == "com.prabhakaran.timeprogresstracker" || scheme == "com.timeprogresstracker.app" else {
+            return
+        }
+
+        let host = url.host ?? ""
+
+        if host == "home" {
+            pendingDeepLinkEventID = nil
+            return
+        }
+
+        if host == "event" {
+            let pathComponents = url.pathComponents.dropFirst()
+            guard let rawID = pathComponents.first,
+                  let decodedID = rawID.removingPercentEncoding else {
+                return
+            }
+
+            if customEvents.contains(where: { $0.id == decodedID }) {
+                pendingDeepLinkEventID = decodedID
+            }
+        }
     }
 }
 
@@ -182,6 +238,14 @@ enum TimeMode: String, CaseIterable {
     case twentyFourHour = "24h"
     case nineToFive = "9-5"
 }
+
+enum WidgetStyle: String, CaseIterable {
+    case classic = "classic"
+    case minimal = "minimal"
+}
+
+
+
 
 enum DisplayItem: Hashable {
     case today
@@ -237,4 +301,3 @@ enum DisplayItem: Hashable {
         [.today, .week, .month, .quarter, .year]
     }
 }
-

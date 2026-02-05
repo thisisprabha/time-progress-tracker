@@ -10,7 +10,15 @@ import SwiftUI
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour), perspective: .halfFull, timeMode: .twentyFourHour, selectedItems: [.today, .month, .year], customEvents: [])
+        SimpleEntry(
+            date: Date(),
+            timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour),
+            perspective: .halfFull,
+            timeMode: .twentyFourHour,
+            selectedItems: [.today, .month, .year],
+            customEvents: [],
+            widgetStyle: .classic
+        )
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
@@ -35,6 +43,7 @@ struct Provider: TimelineProvider {
         
         let perspective = Perspective(rawValue: sharedDefaults?.string(forKey: "userPerspective") ?? "half-full") ?? .halfFull
         let timeMode = TimeMode(rawValue: sharedDefaults?.string(forKey: "timeMode") ?? "24h") ?? .twentyFourHour
+        let widgetStyle = WidgetStyle(rawValue: sharedDefaults?.string(forKey: "widgetStyle") ?? "classic") ?? .classic
         
         // Load selected items
         var selectedItems: [DisplayItem] = [.today, .month, .year]
@@ -93,7 +102,8 @@ struct Provider: TimelineProvider {
             perspective: perspective,
             timeMode: timeMode,
             selectedItems: sortedItems,
-            customEvents: customEvents
+            customEvents: customEvents,
+            widgetStyle: widgetStyle
         )
     }
 }
@@ -105,6 +115,7 @@ struct SimpleEntry: TimelineEntry {
     let timeMode: TimeMode
     let selectedItems: [DisplayItem]
     let customEvents: [CustomEvent]
+    let widgetStyle: WidgetStyle
 }
 
 struct TimeLeftTrackerWidgetEntryView : View {
@@ -114,11 +125,23 @@ struct TimeLeftTrackerWidgetEntryView : View {
     var body: some View {
         switch family {
         case .systemSmall:
-            SmallWidgetView(entry: entry)
+            if entry.widgetStyle == .minimal {
+                MinimalSmallWidgetView(entry: entry)
+            } else {
+                SmallWidgetView(entry: entry)
+            }
         case .systemMedium:
-            MediumWidgetView(entry: entry)
+            if entry.widgetStyle == .minimal {
+                MinimalMediumWidgetView(entry: entry)
+            } else {
+                MediumWidgetView(entry: entry)
+            }
         case .systemLarge:
-            LargeWidgetView(entry: entry)
+            if entry.widgetStyle == .minimal {
+                MinimalLargeWidgetView(entry: entry)
+            } else {
+                LargeWidgetView(entry: entry)
+            }
         case .accessoryCircular:
             LockScreenCircularView(entry: entry)
         case .accessoryRectangular:
@@ -126,8 +149,154 @@ struct TimeLeftTrackerWidgetEntryView : View {
         case .accessoryInline:
             LockScreenInlineView(entry: entry)
         default:
-            MediumWidgetView(entry: entry)
+            if entry.widgetStyle == .minimal {
+                MinimalMediumWidgetView(entry: entry)
+            } else {
+                MediumWidgetView(entry: entry)
+            }
         }
+    }
+}
+
+// MARK: - Widget Link Helpers
+
+@ViewBuilder
+func widgetLink(for item: DisplayItem, @ViewBuilder content: () -> some View) -> some View {
+    if let url = widgetURL(for: item) {
+        Link(destination: url) {
+            content()
+        }
+    } else {
+        content()
+    }
+}
+
+func widgetUnitText(for item: DisplayItem, entry: SimpleEntry) -> String {
+    switch item {
+    case .today:
+        return entry.perspective == .halfFull ? "hrs  done" : "hrs  left"
+    case .week:
+        return entry.perspective == .halfFull ? "d  done" : "d  left"
+    case .month:
+        return entry.perspective == .halfFull ? "d  done" : "d  left"
+    case .quarter:
+        return entry.perspective == .halfFull ? "wk  done" : "wk  left"
+    case .year:
+        return entry.perspective == .halfFull ? "%  done" : "%  left"
+    case .customEvent(let id):
+        guard let event = entry.customEvents.first(where: { $0.id == id }) else {
+            return "d  left"
+        }
+        let progress = event.calculateProgress()
+        if event.mode == .countup {
+            return progress.useWeeks ? "wk  since" : "d  since"
+        }
+        if progress.useWeeks {
+            return progress.isPast ? "wk  ago" : "wk  left"
+        }
+        
+        if event.mode == .habit {
+            return "  streak"
+        }
+        
+        return progress.isPast ? "d  ago" : "d  left"
+    }
+}
+
+// MARK: - Minimal Widget Views (No Dot Matrix)
+
+struct MinimalSmallWidgetView: View {
+    let entry: SimpleEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if let item = entry.selectedItems.first {
+                let label = item.displayName(in: entry.customEvents, quarterNumber: entry.timeData.quarterNumber)
+                let (value, _) = getValueAndTotal(item: item, entry: entry)
+                let unit = widgetUnitText(for: item, entry: entry)
+
+                widgetLink(for: item) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(label)
+                            .font(.sabdeviRegular(size: 12))
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+
+                        Text("\(value)\(unit)")
+                            .font(.sabdeviBold(size: 16))
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                    }
+                }
+            } else {
+                Text("No items selected")
+                    .font(.sabdeviRegular(size: 12))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .containerBackground(.fill.tertiary, for: .widget)
+        .widgetURL(widgetHomeURL())
+    }
+}
+
+struct MinimalMediumWidgetView: View {
+    let entry: SimpleEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if entry.selectedItems.isEmpty {
+                Text("No items selected")
+                    .font(.sabdeviRegular(size: 12))
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { index, item in
+                    widgetLink(for: item) {
+                        TextOnlyRow(item: item, entry: entry)
+                    }
+
+                    if index < min(entry.selectedItems.count, 3) - 1 {
+                        Spacer()
+                            .frame(height: 8)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .containerBackground(.fill.tertiary, for: .widget)
+        .widgetURL(widgetHomeURL())
+    }
+}
+
+struct MinimalLargeWidgetView: View {
+    let entry: SimpleEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if entry.selectedItems.isEmpty {
+                Text("No items selected")
+                    .font(.sabdeviRegular(size: 12))
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(Array(entry.selectedItems.prefix(4).enumerated()), id: \.element) { index, item in
+                    widgetLink(for: item) {
+                        TextOnlyRow(item: item, entry: entry)
+                    }
+
+                    if index < min(entry.selectedItems.count, 4) - 1 {
+                        Spacer()
+                            .frame(height: 8)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .containerBackground(.fill.tertiary, for: .widget)
+        .widgetURL(widgetHomeURL())
     }
 }
 
@@ -137,11 +306,14 @@ struct SmallWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let firstItem = entry.selectedItems.first {
-                ProgressRow(item: firstItem, entry: entry)
+                widgetLink(for: firstItem) {
+                    ProgressRow(item: firstItem, entry: entry)
+                }
             }
         }
         .padding()
         .containerBackground(.fill.tertiary, for: .widget)
+        .widgetURL(widgetHomeURL())
     }
 }
 
@@ -163,7 +335,9 @@ struct MediumWidgetView: View {
                 }
             } else {
                 ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { index, item in
-                    TextOnlyRow(item: item, entry: entry)
+                    widgetLink(for: item) {
+                        TextOnlyRow(item: item, entry: entry)
+                    }
                     
                     // Add spacing between items (but not after the last one)
                     if index < min(entry.selectedItems.count, 3) - 1 {
@@ -177,6 +351,7 @@ struct MediumWidgetView: View {
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .containerBackground(.fill.tertiary, for: .widget)
+        .widgetURL(widgetHomeURL())
     }
 }
 
@@ -238,8 +413,10 @@ struct LargeWidgetView: View {
         VStack(alignment: .leading, spacing: 0) {
         
             ForEach(Array(entry.selectedItems.prefix(3).enumerated()), id: \.element) { index, item in
-              TallyProgressRow(item: item, entry: entry)
-                .padding(.vertical, 20.0)
+              widgetLink(for: item) {
+                  TallyProgressRow(item: item, entry: entry)
+                      .padding(.vertical, 20.0)
+              }
                
               
             }
@@ -249,6 +426,7 @@ struct LargeWidgetView: View {
         .padding(.vertical, 10.0)
       
         .containerBackground(.fill.tertiary, for: .widget)
+        .widgetURL(widgetHomeURL())
     }
 }
 
@@ -404,34 +582,25 @@ func getValueAndTotal(item: DisplayItem, entry: SimpleEntry) -> (Int, Int) {
         }
     case .customEvent(let id):
         if let event = entry.customEvents.first(where: { $0.id == id }) {
-            let calendar = Calendar.current
-            let now = Date()
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-            
-            guard let eventDate = dateFormatter.date(from: event.date) else {
-                return (0, 1)
+            let progress = event.calculateProgress()
+            let totalDays = max(1, progress.totalDays)
+            let totalUnits = progress.useWeeks ? max(1, Int(ceil(Double(totalDays) / 7.0))) : totalDays
+
+            if event.mode == .habit {
+                return (event.currentStreak, event.nextMilestone)
             }
             
-            // Parse start date
-            let startDate = dateFormatter.date(from: event.startDate) ?? now
-            
-            let today = calendar.startOfDay(for: now)
-            let eventDay = calendar.startOfDay(for: eventDate)
-            let startDay = calendar.startOfDay(for: startDate)
-            
-            let totalDuration = eventDay.timeIntervalSince(startDay)
-            let totalDays = max(1, Int(totalDuration / (24 * 60 * 60)))
-            
-            let completedDuration = today.timeIntervalSince(startDay)
-            let daysCompleted = max(0, Int(completedDuration / (24 * 60 * 60)))
-            let daysLeft = max(0, totalDays - daysCompleted)
-            
-            if entry.perspective == .halfFull {
-                return (daysCompleted, totalDays)
-            } else {
-                return (daysLeft, totalDays)
+            if event.mode == .countup {
+                let value = progress.useWeeks ? progress.weeksLeft : progress.daysLeft
+                return (value, totalUnits)
             }
+
+            if progress.useWeeks {
+                return (progress.weeksLeft, totalUnits)
+            }
+
+            let value = progress.isPast ? abs(progress.daysLeft) : max(0, progress.daysLeft)
+            return (value, totalUnits)
         }
         return (0, 1)
     }
@@ -488,28 +657,13 @@ func getTotalCount(item: DisplayItem, entry: SimpleEntry) -> Int {
 }
 
 func getCustomEventValues(event: CustomEvent, now: Date) -> (Int, Int) {
-    let calendar = Calendar.current
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"
-    
-    guard let eventDate = dateFormatter.date(from: event.date) else {
-        return (0, 1)
-    }
-    
-    // Parse start date
-    let startDate = dateFormatter.date(from: event.startDate) ?? now
-    
-    let today = calendar.startOfDay(for: now)
-    let eventDay = calendar.startOfDay(for: eventDate)
-    let startDay = calendar.startOfDay(for: startDate)
-    
-    let totalDuration = eventDay.timeIntervalSince(startDay)
-    let totalDays = max(1, Int(totalDuration / (24 * 60 * 60)))
-    
-    let completedDuration = today.timeIntervalSince(startDay)
-    let daysCompleted = max(0, Int(completedDuration / (24 * 60 * 60)))
-    
-    return (daysCompleted, totalDays)
+    let progress = event.calculateProgress()
+    let totalDays = max(1, progress.totalDays)
+    let totalUnits = progress.useWeeks ? max(1, Int(ceil(Double(totalDays) / 7.0))) : totalDays
+    let completedUnits = progress.useWeeks
+        ? min(totalUnits, Int(ceil(Double(max(0, progress.daysCompleted)) / 7.0)))
+        : min(totalUnits, max(0, progress.daysCompleted))
+    return (completedUnits, totalUnits)
 }
 
 // Tally Marks Views
@@ -715,6 +869,7 @@ struct LockScreenCircularView: View {
         }
         .gaugeStyle(.accessoryCircular)
         .containerBackground(.clear, for: .widget)
+        .widgetURL(widgetHomeURL())
     }
 }
 
@@ -754,6 +909,7 @@ struct LockScreenRectangularView: View {
         .padding(.vertical, 5)
         .padding(.horizontal, 8)
         .containerBackground(.clear, for: .widget)
+        .widgetURL(widgetHomeURL())
     }
 }
 
@@ -767,23 +923,48 @@ struct LockScreenInlineView: View {
         Text("Today: \(value)h \(unitText)")
             .font(.sabdeviBold(size: 12)) // Inline might override this, but we try
             .containerBackground(.clear, for: .widget)
+            .widgetURL(widgetHomeURL())
     }
 }
 
 #Preview(as: .systemSmall) {
     TimeLeftTrackerWidget()
 } timeline: {
-    SimpleEntry(date: .now, timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour), perspective: .halfFull, timeMode: .twentyFourHour, selectedItems: [.today, .month, .year], customEvents: [])
+    SimpleEntry(
+        date: .now,
+        timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour),
+        perspective: .halfFull,
+        timeMode: .twentyFourHour,
+        selectedItems: [.today, .month, .year],
+        customEvents: [],
+        widgetStyle: .classic
+    )
 }
 
 #Preview(as: .systemMedium) {
     TimeLeftTrackerWidget()
 } timeline: {
-    SimpleEntry(date: .now, timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour), perspective: .halfFull, timeMode: .twentyFourHour, selectedItems: [.today, .month, .year], customEvents: [])
+    SimpleEntry(
+        date: .now,
+        timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour),
+        perspective: .halfFull,
+        timeMode: .twentyFourHour,
+        selectedItems: [.today, .month, .year],
+        customEvents: [],
+        widgetStyle: .classic
+    )
 }
 
 #Preview(as: .systemLarge) {
     TimeLeftTrackerWidget()
 } timeline: {
-    SimpleEntry(date: .now, timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour), perspective: .halfFull, timeMode: .twentyFourHour, selectedItems: [.today, .month, .year], customEvents: [])
+    SimpleEntry(
+        date: .now,
+        timeData: TimeCalculator.calculateTimeData(timeMode: .twentyFourHour),
+        perspective: .halfFull,
+        timeMode: .twentyFourHour,
+        selectedItems: [.today, .month, .year],
+        customEvents: [],
+        widgetStyle: .classic
+    )
 }

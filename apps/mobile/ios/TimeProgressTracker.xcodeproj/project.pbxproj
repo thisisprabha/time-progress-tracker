@@ -27,6 +27,14 @@
 		7AA33BD12EDD6C1B00BC3033 /* Sabdevi-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 470BAE38F7D7788E552DFD6E /* Sabdevi-Bold.ttf */; };
 		7AA33BD22EDD6C1B00BC3033 /* Sabdevi-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1B75F540707260C838A6B /* Sabdevi-Light.ttf */; };
 		7AA33BD32EDD6C1B00BC3033 /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */; };
+		7ABD3A5A2F34353F00005504 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A582F34353E00005504 /* Theme.swift */; };
+		7ABD3A5B2F34353F00005504 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A572F34353E00005504 /* ShareSheet.swift */; };
+		7ABD3A5C2F34353F00005504 /* EventCSVExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A542F34353E00005504 /* EventCSVExporter.swift */; };
+		7ABD3A5D2F34353F00005504 /* CustomEventsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A532F34353E00005504 /* CustomEventsSection.swift */; };
+		7ABD3A5E2F34353F00005504 /* CalendarImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A522F34353E00005504 /* CalendarImportManager.swift */; };
+		7ABD3A5F2F34353F00005504 /* AppBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A512F34353E00005504 /* AppBackup.swift */; };
+		7ABD3A602F34353F00005504 /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A562F34353E00005504 /* PhotoPicker.swift */; };
+		7ABD3A612F34353F00005504 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A552F34353E00005504 /* NotificationManager.swift */; };
 		9238BA4AFEAF8595BA53F736 /* Sabdevi-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45AF898BFAF831A25031C0F0 /* Sabdevi-Regular.ttf */; };
 		9F64348A38BE579216B33909 /* CustomEventTallyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7505302E61828393C7520B34 /* CustomEventTallyView.swift */; };
 		AE16AE9B92E205D091602468 /* CustomEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09556F403503875A3D4A47D /* CustomEvent.swift */; };
@@ -95,6 +103,15 @@
 		7AA33B6D2EDC228500BC3033 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		7AA33B8A2EDC245F00BC3033 /* TimeLeftTrackerWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeLeftTrackerWidgetExtension.entitlements; sourceTree = "<group>"; };
+		7ABD3A512F34353E00005504 /* AppBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackup.swift; sourceTree = "<group>"; };
+		7ABD3A522F34353E00005504 /* CalendarImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImportManager.swift; sourceTree = "<group>"; };
+		7ABD3A532F34353E00005504 /* CustomEventsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEventsSection.swift; sourceTree = "<group>"; };
+		7ABD3A542F34353E00005504 /* EventCSVExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCSVExporter.swift; sourceTree = "<group>"; };
+		7ABD3A552F34353E00005504 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		7ABD3A562F34353E00005504 /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
+		7ABD3A572F34353E00005504 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		7ABD3A582F34353E00005504 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		7ABD3A592F34353E00005504 /* TimeProgressTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeProgressTracker.entitlements; sourceTree = "<group>"; };
 		9265E2AFF50DC7D2623411C0 /* AddCustomEventView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddCustomEventView.swift; path = TimeProgressTracker/AddCustomEventView.swift; sourceTree = "<group>"; };
 		9B01DEAC63BB3C3C03B5FDD4 /* TimeCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeCalculator.swift; path = TimeProgressTracker/TimeCalculator.swift; sourceTree = "<group>"; };
 		A09556F403503875A3D4A47D /* CustomEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomEvent.swift; path = TimeProgressTracker/CustomEvent.swift; sourceTree = "<group>"; };
@@ -149,6 +166,15 @@
 		13B07FAE1A68108700A75B9A /* TimeProgressTracker */ = {
 			isa = PBXGroup;
 			children = (
+				7ABD3A512F34353E00005504 /* AppBackup.swift */,
+				7ABD3A522F34353E00005504 /* CalendarImportManager.swift */,
+				7ABD3A532F34353E00005504 /* CustomEventsSection.swift */,
+				7ABD3A542F34353E00005504 /* EventCSVExporter.swift */,
+				7ABD3A552F34353E00005504 /* NotificationManager.swift */,
+				7ABD3A562F34353E00005504 /* PhotoPicker.swift */,
+				7ABD3A572F34353E00005504 /* ShareSheet.swift */,
+				7ABD3A582F34353E00005504 /* Theme.swift */,
+				7ABD3A592F34353E00005504 /* TimeProgressTracker.entitlements */,
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				F11748442D0722820044C1D9 /* TimeProgressTracker-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
@@ -386,6 +412,14 @@
 				4C6966654461746153656C66 /* LifeDataSelectionView.swift in Sources */,
 				479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */,
 				2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */,
+				7ABD3A5A2F34353F00005504 /* Theme.swift in Sources */,
+				7ABD3A5B2F34353F00005504 /* ShareSheet.swift in Sources */,
+				7ABD3A5C2F34353F00005504 /* EventCSVExporter.swift in Sources */,
+				7ABD3A5D2F34353F00005504 /* CustomEventsSection.swift in Sources */,
+				7ABD3A5E2F34353F00005504 /* CalendarImportManager.swift in Sources */,
+				7ABD3A5F2F34353F00005504 /* AppBackup.swift in Sources */,
+				7ABD3A602F34353F00005504 /* PhotoPicker.swift in Sources */,
+				7ABD3A612F34353F00005504 /* NotificationManager.swift in Sources */,
 				CE4B06017728E891109E9D00 /* LoadingView.swift in Sources */,
 				BE6861EB9C49AA057C137C7A /* AddCustomEventView.swift in Sources */,
 			);

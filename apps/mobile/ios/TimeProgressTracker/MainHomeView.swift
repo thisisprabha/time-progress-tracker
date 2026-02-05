@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WebKit
+import UIKit
 
 struct MainHomeView: View {
     @EnvironmentObject var appState: AppState
@@ -19,10 +20,37 @@ struct MainHomeView: View {
     @State private var animationRestartTrigger: Int = 0
     var onSVGsLoaded: (() -> Void)? = nil
     var startAnimations: Bool = false
+
+    private var displayItems: [DisplayItem] {
+        var items = appState.selectedDisplayItems
+
+        if let deepLinkID = appState.pendingDeepLinkEventID,
+           appState.customEvents.contains(where: { $0.id == deepLinkID }) {
+            let deepItem = DisplayItem.customEvent(id: deepLinkID)
+            items.removeAll { $0 == deepItem }
+            items.insert(deepItem, at: 0)
+        }
+
+        return items
+    }
     
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            if let data = appState.customBackgroundImageData,
+               let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .overlay(
+                        Color.black.opacity(appState.isDarkMode ? 0.35 : 0.15)
+                            .ignoresSafeArea()
+                    )
+            }
+
+            appState.theme.backgroundColor(isDark: appState.isDarkMode)
+                .opacity(appState.customBackgroundImageData == nil ? 1 : 0.6)
+                .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Animated Header - moved to very top
@@ -78,8 +106,8 @@ struct MainHomeView: View {
                         
                         // Main sections
                         VStack(spacing: 16) {
-                            // Show items in order from selectedDisplayItems (preserves order from settings)
-                            ForEach(Array(appState.selectedDisplayItems.enumerated()), id: \.element) { index, item in
+                            // Show items in order from selectedDisplayItems (with deep-link item pinned first if present)
+                            ForEach(Array(displayItems.enumerated()), id: \.element) { index, item in
                                 Group {
                                     if item == .today {
                                         let isCritical = timeData.hoursLeft < 4
@@ -163,7 +191,7 @@ struct MainHomeView: View {
                             }
                             
                             // Show empty slots with lock icon if less than 3 items
-                            let displayedCount = appState.selectedDisplayItems.count
+                            let displayedCount = displayItems.count
                             let emptySlotsNeeded = 3 - displayedCount
                             
                             if emptySlotsNeeded > 0 {
@@ -333,27 +361,45 @@ struct TallyCounterView: View {
     }
 }
 
+// Helper function to calculate tally marks height
+private func calculateTallyHeight(total: Int) -> CGFloat {
+    let screenWidth = UIScreen.main.bounds.width
+    let cardPadding: CGFloat = 32 // Left + right padding
+    let availableWidth = screenWidth - cardPadding
+    let itemWidth: CGFloat = 16
+    let spacing: CGFloat = 2
+    let itemsPerRow = max(1, Int(availableWidth / (itemWidth + spacing)))
+    let rows = (total + itemsPerRow - 1) / max(1, itemsPerRow)
+    let rowHeight: CGFloat = 24 // 20pt mark + 4pt spacing
+    return CGFloat(rows) * rowHeight
+}
+
 struct TallyMarksView: View {
     let total: Int
     let completed: Int
     
     var body: some View {
-        // Render tally marks in rows (like Android)
-        let itemsPerRow = 18 // Approximate items per row
-        let rows = (total + itemsPerRow - 1) / itemsPerRow
-        
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(0..<rows, id: \.self) { row in
-                HStack(spacing: 2) {
-                    let startIndex = row * itemsPerRow
-                    let endIndex = min(startIndex + itemsPerRow, total)
-                    
-                    ForEach(startIndex..<endIndex, id: \.self) { index in
-                        TallyMarkView(isCompleted: index < completed)
+        GeometryReader { geometry in
+            let availableWidth = geometry.size.width
+            let itemWidth: CGFloat = 16
+            let spacing: CGFloat = 2
+            let itemsPerRow = max(1, Int(availableWidth / (itemWidth + spacing)))
+            let rows = (total + itemsPerRow - 1) / max(1, itemsPerRow)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(0..<rows, id: \.self) { row in
+                    HStack(spacing: spacing) {
+                        let startIndex = row * itemsPerRow
+                        let endIndex = min(startIndex + itemsPerRow, total)
+                        
+                        ForEach(startIndex..<endIndex, id: \.self) { index in
+                            TallyMarkView(isCompleted: index < completed)
+                        }
                     }
                 }
             }
         }
+        .frame(height: calculateTallyHeight(total: total))
     }
 }
 
