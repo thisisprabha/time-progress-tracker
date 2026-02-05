@@ -169,12 +169,11 @@ struct MindsetSettingsView: View {
                     
                     Picker("Mindset", selection: $appState.perspective) {
                         ForEach(Perspective.allCases, id: \.self) { perspective in
-                            Text(perspective == .halfFull ? "Half Full (Focus on Done)" : "Half Empty (Focus on Left)")
+                            Text(perspective == .halfFull ? "Half Full" : "Half Empty")
                                 .tag(perspective)
                         }
                     }
-                    .pickerStyle(.inline)
-                    .labelsHidden()
+                    .pickerStyle(.segmented)
                     .onChange(of: appState.perspective) { _ in
                         appState.saveSettings()
                     }
@@ -292,14 +291,14 @@ struct DisplaySettingsView: View {
                                 Button(role: .destructive) {
                                     deleteEvent(event)
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("Delete", systemImage: "trash.fill")
                                 }
                                 
                                 Button {
                                     togglePin(for: event)
                                 } label: {
                                     let isPinned = appState.selectedDisplayItems.contains(.customEvent(id: event.id))
-                                    Label(isPinned ? "Unpin" : "Pin", systemImage: isPinned ? "pin.slash" : "pin")
+                                    Label(isPinned ? "Unpin" : "Pin", systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
                                 }
                                 .tint(.orange)
                             }

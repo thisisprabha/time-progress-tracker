@@ -27,7 +27,7 @@ enum AppTheme: String, CaseIterable, Codable {
     func accentColor(isDark: Bool) -> Color {
         switch self {
         case .classic:
-            return isDark ? .white : .black
+            return isDark ? .blue : .black
         case .sunrise:
             return Color(red: 0.93, green: 0.47, blue: 0.32)
         case .ocean:

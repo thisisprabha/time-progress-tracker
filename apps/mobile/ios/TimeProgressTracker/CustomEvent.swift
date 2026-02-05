@@ -492,6 +492,7 @@ struct CustomEvent: Identifiable, Codable {
     }
     
     var nextMilestone: Int {
+        if let goal = goalCount { return goal }
         let current = currentStreak
         if current < 7 { return 7 }
         if current < 30 { return 30 }
