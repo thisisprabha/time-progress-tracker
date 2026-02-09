@@ -30,6 +30,9 @@
 		7AB164522F39AB5800AABF5B /* TimeProgressTracker/LeavePlannerCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB164512F39AB5800AABF5B /* TimeProgressTracker/LeavePlannerCardView.swift */; settings = {COMPILER_FLAGS = "-DOBJC_APP_ONLY"; }; };
 		7AB1647F2F39D0A400AABF5B /* WidgetInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB1647E2F39D0A400AABF5B /* WidgetInviteCard.swift */; };
 		7AB164832F39D1F900AABF5B /* WidgetHelpSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB164822F39D1F900AABF5B /* WidgetHelpSheet.swift */; };
+		7AB4C5FD2F3A46C200DC1164 /* QuickCreateEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4C5FC2F3A46C200DC1164 /* QuickCreateEventView.swift */; };
+		7AB4C5FE2F3A46C200DC1164 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4C5FA2F3A46C200DC1164 /* PaywallView.swift */; };
+		7AB4C5FF2F3A46C200DC1164 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4C5FB2F3A46C200DC1164 /* PurchaseManager.swift */; };
 		7ABD3A5A2F34353F00005504 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A582F34353E00005504 /* Theme.swift */; };
 		7ABD3A5B2F34353F00005504 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A572F34353E00005504 /* ShareSheet.swift */; };
 		7ABD3A5C2F34353F00005504 /* EventCSVExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABD3A542F34353E00005504 /* EventCSVExporter.swift */; };
@@ -107,8 +110,11 @@
 		7AA33B6F2EDC228500BC3033 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		7AA33B8A2EDC245F00BC3033 /* TimeLeftTrackerWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeLeftTrackerWidgetExtension.entitlements; sourceTree = "<group>"; };
 		7AB164512F39AB5800AABF5B /* TimeProgressTracker/LeavePlannerCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeProgressTracker/LeavePlannerCardView.swift; sourceTree = "<group>"; };
-7AB1647E2F39D0A400AABF5B /* WidgetInviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetInviteCard.swift; path = TimeProgressTracker/WidgetInviteCard.swift; sourceTree = "<group>"; };
+		7AB1647E2F39D0A400AABF5B /* WidgetInviteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetInviteCard.swift; path = TimeProgressTracker/WidgetInviteCard.swift; sourceTree = "<group>"; };
 		7AB164822F39D1F900AABF5B /* WidgetHelpSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelpSheet.swift; sourceTree = "<group>"; };
+		7AB4C5FA2F3A46C200DC1164 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		7AB4C5FB2F3A46C200DC1164 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
+		7AB4C5FC2F3A46C200DC1164 /* QuickCreateEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCreateEventView.swift; sourceTree = "<group>"; };
 		7ABD3A512F34353E00005504 /* AppBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackup.swift; sourceTree = "<group>"; };
 		7ABD3A522F34353E00005504 /* CalendarImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImportManager.swift; sourceTree = "<group>"; };
 		7ABD3A532F34353E00005504 /* CustomEventsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEventsSection.swift; sourceTree = "<group>"; };
@@ -172,6 +178,9 @@
 		13B07FAE1A68108700A75B9A /* TimeProgressTracker */ = {
 			isa = PBXGroup;
 			children = (
+				7AB4C5FA2F3A46C200DC1164 /* PaywallView.swift */,
+				7AB4C5FB2F3A46C200DC1164 /* PurchaseManager.swift */,
+				7AB4C5FC2F3A46C200DC1164 /* QuickCreateEventView.swift */,
 				7AB164822F39D1F900AABF5B /* WidgetHelpSheet.swift */,
 				7AB1647E2F39D0A400AABF5B /* WidgetInviteCard.swift */,
 				7AB164512F39AB5800AABF5B /* TimeProgressTracker/LeavePlannerCardView.swift */,
@@ -421,6 +430,9 @@
 				BC4D29E046A64DA78B19A6C4 /* FontHelper.swift in Sources */,
 				417564696F506C6179657220 /* AudioPlayer.swift in Sources */,
 				7AB1647F2F39D0A400AABF5B /* WidgetInviteCard.swift in Sources */,
+				7AB4C5FD2F3A46C200DC1164 /* QuickCreateEventView.swift in Sources */,
+				7AB4C5FE2F3A46C200DC1164 /* PaywallView.swift in Sources */,
+				7AB4C5FF2F3A46C200DC1164 /* PurchaseManager.swift in Sources */,
 				4C6966654461746153656C66 /* LifeDataSelectionView.swift in Sources */,
 				479775CBEFB3D42855267D86 /* AppDelegate.swift in Sources */,
 				2EF574CC1BE540761866E262 /* AnimatedHeaderView.swift in Sources */,

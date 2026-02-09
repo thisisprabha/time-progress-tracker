@@ -11,6 +11,7 @@ import UIKit
 
 struct MainHomeView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var purchaseManager: PurchaseManager
     @State private var timeData = TimeCalculator.calculateTimeData(timeMode: .twentyFourHour)
     @State private var timer: Timer?
     @State private var showContent: Bool = false
@@ -20,6 +21,7 @@ struct MainHomeView: View {
     @State private var animationRestartTrigger: Int = 0
     @State private var selectedSection: HomeSection = .countdown
     @State private var showWidgetHelp: Bool = false
+    @State private var showPaywall: Bool = false
     var onSVGsLoaded: (() -> Void)? = nil
     var startAnimations: Bool = false
 
@@ -137,25 +139,21 @@ struct MainHomeView: View {
                                 )
                             }
                         }
-                        .frame(height: 180) // Slightly reduced height to fit better
+                        .frame(height: 140)
                         .padding(.top, 0)
-
-                        // Top spacer to push content to center
-                        Spacer()
-                            .frame(height: 20)
 
                         // Main sections with mini tab
                         SectionPicker(selected: $selectedSection)
                             .padding(.horizontal, 20)
 
                         VStack(spacing: 16) {
-                            SectionContent(
-                                title: selectedSection.title,
-                                items: items(for: selectedSection),
-                                timeData: timeData,
-                                showContent: showContent
-                            )
-                            .environmentObject(appState)
+            SectionContent(
+                title: selectedSection.title,
+                items: items(for: selectedSection),
+                timeData: timeData,
+                showContent: showContent
+            )
+            .environmentObject(appState)
 
                             LeavePlannerCardView()
                                 .environmentObject(appState)
@@ -191,7 +189,6 @@ struct MainHomeView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
                     }
-                    .frame(minHeight: UIScreen.main.bounds.height - 200) // Min height to allow centering
                 }
             }
         }
@@ -228,8 +225,9 @@ struct MainHomeView: View {
                 .environmentObject(appState)
         }
         .sheet(isPresented: $appState.showAddEvent) {
-            AddCustomEventView()
+            AddCustomEventView(initialMode: appState.pendingAddEventMode ?? .countdown)
                 .environmentObject(appState)
+                .environmentObject(purchaseManager)
         }
         .sheet(isPresented: $showWidgetHelp) {
             WidgetHelpSheet(section: selectedSection)
@@ -279,7 +277,7 @@ private struct SectionPicker: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.primary.opacity(0.04))
+                .fill(Color.clear)
         )
     }
 }
@@ -290,6 +288,7 @@ private struct SectionContent: View {
     let timeData: TimeData
     let showContent: Bool
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var purchaseManager: PurchaseManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -298,9 +297,22 @@ private struct SectionContent: View {
                 .foregroundColor(.primary)
 
             if items.isEmpty {
-                EmptyEventSlotView()
-                    .environmentObject(appState)
-                    .frame(maxWidth: .infinity)
+                EmptySectionView(section: title, onCreate: {
+                    switch title.lowercased() {
+                    case "countdowns":
+                        appState.pendingAddEventMode = .countdown
+                    case "count up", "countup":
+                        appState.pendingAddEventMode = .countup
+                    case "habits":
+                        appState.pendingAddEventMode = .habit
+                    default:
+                        appState.pendingAddEventMode = .countdown
+                    }
+                    appState.showAddEvent = true
+                }, onWidgetHelp: {
+                    // handled by parent via binding
+                })
+                .environmentObject(appState)
             } else {
                 ForEach(Array(items.enumerated()), id: \.element) { index, item in
                     Group {
@@ -389,8 +401,58 @@ private struct SectionContent: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.primary.opacity(0.03))
+                .fill(Color.clear)
         )
+    }
+}
+
+private struct EmptySectionView: View {
+    let section: String
+    let onCreate: () -> Void
+    let onWidgetHelp: () -> Void
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(emptyTitle)
+                .font(.sabdeviBold(size: 16))
+            Button(action: onCreate) {
+                Text(primaryCTA)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+
+            Button(action: onWidgetHelp) {
+                Text("Widgets available · Where to find?")
+                    .font(.sabdeviRegular(size: 13))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.clear)
+        )
+    }
+
+    private var emptyTitle: String {
+        switch section.lowercased() {
+        case "countdowns": return "No countdowns yet"
+        case "count up", "countup": return "Nothing to count up yet"
+        case "habits": return "No habits yet"
+        default: return "Nothing here yet"
+        }
+    }
+
+    private var primaryCTA: String {
+        switch section.lowercased() {
+        case "countdowns": return "Create countdown"
+        case "count up", "countup": return "Create count up"
+        case "habits": return "Create habit"
+        default: return "Create item"
+        }
     }
 }
 struct EmptyEventSlotView: View {
@@ -609,6 +671,8 @@ struct LifeProgressCardView: View {
         }
     }
 }
+
+private extension MainHomeView {}
 
 struct HabitStreakCard: View {
     let habit: Habit

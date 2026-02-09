@@ -61,6 +61,7 @@ enum DisplayItem: Hashable, Codable {
     }
 }
 
+
 enum EventCategory: String, Codable, CaseIterable {
     case personal
     case work

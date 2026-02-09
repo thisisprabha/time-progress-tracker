@@ -14,7 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Create SwiftUI view
         let appState = AppState()
-        let contentView = ContentView().environmentObject(appState)
+        let contentView = ContentView()
+            .environmentObject(appState)
         
         // Set root view controller
         window?.rootViewController = UIHostingController(rootView: contentView)

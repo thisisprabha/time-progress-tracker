@@ -39,10 +39,11 @@ class AppState: ObservableObject {
     @Published var perspective: Perspective = .halfFull
     @Published var timeMode: TimeMode = .twentyFourHour
     @Published var selectedDisplayItems: [DisplayItem] = [.today, .month, .year]
-    @Published var hasCompletedOnboarding: Bool = false
+    @Published var hasCompletedOnboarding: Bool = true
     @Published var showSettings: Bool = false
     @Published var settingsFocus: HomeSection = .countdown
     @Published var showAddEvent: Bool = false
+    @Published var pendingAddEventMode: EventMode? = nil
     @Published var customEvents: [CustomEvent] = []
     @Published var watchComplicationItem: DisplayItem = .today
     @Published var isDarkMode: Bool = false
@@ -100,7 +101,9 @@ class AppState: ObservableObject {
         if let savedPerspective = UserDefaults.standard.string(forKey: "userPerspective"),
            let perspective = Perspective(rawValue: savedPerspective) {
             self.perspective = perspective
-            self.hasCompletedOnboarding = true
+        }
+        if UserDefaults.standard.object(forKey: "hasCompletedOnboarding") != nil {
+            self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
         }
         
         if let savedTimeMode = UserDefaults.standard.string(forKey: "timeMode"),
@@ -204,6 +207,7 @@ class AppState: ObservableObject {
     func saveSettings() {
         // Save to standard UserDefaults
         UserDefaults.standard.set(perspective.rawValue, forKey: "userPerspective")
+        UserDefaults.standard.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding")
         UserDefaults.standard.set(timeMode.rawValue, forKey: "timeMode")
         UserDefaults.standard.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
         UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
@@ -247,6 +251,7 @@ class AppState: ObservableObject {
         // Also save to App Group for widget/watch access
         if let sharedDefaults = UserDefaults(suiteName: "group.com.prabhakaran.timeprogresstracker") {
             sharedDefaults.set(perspective.rawValue, forKey: "userPerspective")
+            sharedDefaults.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding")
             sharedDefaults.set(timeMode.rawValue, forKey: "timeMode")
             sharedDefaults.set(selectedDisplayItems.map { $0.rawValue }, forKey: "selectedDisplayItems")
             sharedDefaults.set(isDarkMode, forKey: "isDarkMode")

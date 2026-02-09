@@ -18,25 +18,17 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            // Always render MainHomeView (even if hidden) so SVGs can load
-            if appState.hasCompletedOnboarding {
-                MainHomeView(
-                    onSVGsLoaded: {
-                        print("✅ [ContentView] SVGs loaded callback received")
-                    },
-                    startAnimations: startAnimations
-                )
-                    .opacity(pageFadedIn ? 1 : 0.01) // Use 0.01 instead of 0 so view still renders
-                    .allowsHitTesting(pageFadedIn)
-                    .transition(.opacity)
-                    .zIndex(1)
-            } else {
-                OnboardingView()
-                    .opacity(showLoadingScreen ? 0 : 1)
-                    .allowsHitTesting(!showLoadingScreen)
-                    .transition(.opacity)
-                    .zIndex(1)
-            }
+            // Always render MainHomeView
+            MainHomeView(
+                onSVGsLoaded: {
+                    print("✅ [ContentView] SVGs loaded callback received")
+                },
+                startAnimations: startAnimations
+            )
+                .opacity(pageFadedIn ? 1 : 0.01)
+                .allowsHitTesting(pageFadedIn)
+                .transition(.opacity)
+                .zIndex(1)
             
             // Show loader on top
             if showLoadingScreen {
@@ -47,9 +39,10 @@ struct ContentView: View {
                         // If onboarding is complete, start main screen animation sequence
                         handleAnimationSequence()
                     } else {
-                        // If onboarding not complete, show onboarding after text animation
+                        // If onboarding not complete, just reveal home immediately
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            withAnimation(.easeOut(duration: 0.8)) {
+                            withAnimation(.easeOut(duration: 0.6)) {
+                                pageFadedIn = true
                                 showLoadingScreen = false
                             }
                         }

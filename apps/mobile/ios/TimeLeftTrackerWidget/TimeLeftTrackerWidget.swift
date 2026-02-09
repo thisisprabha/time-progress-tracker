@@ -937,6 +937,7 @@ struct LeaveInsightsEntry: TimelineEntry {
     let rangeText: String
     let daysNeeded: Int
     let strip: [LeaveDay]
+    let isPro: Bool
 }
 
 struct LeaveDay: Identifiable {
@@ -970,7 +971,8 @@ struct LeaveInsightsProvider: TimelineProvider {
             bestText: "Take Friday off for a 4-day break",
             rangeText: "10 Nov - 14 Nov",
             daysNeeded: 1,
-            strip: sampleStrip()
+            strip: sampleStrip(),
+            isPro: false
         )
     }
 
@@ -987,6 +989,7 @@ struct LeaveInsightsProvider: TimelineProvider {
     private func loadEntry() -> LeaveInsightsEntry {
         let cal = Calendar.current
         let defaults = UserDefaults(suiteName: "group.com.prabhakaran.timeprogresstracker")
+        let isPro = defaults?.bool(forKey: "isPro") ?? true
 
         let holidays: [Holiday] = {
             if let data = defaults?.data(forKey: "holidays"),
@@ -1005,7 +1008,8 @@ struct LeaveInsightsProvider: TimelineProvider {
                 bestText: "Add a day off near a holiday",
                 rangeText: "",
                 daysNeeded: 0,
-                strip: sampleStrip()
+                strip: sampleStrip(),
+                isPro: isPro
             )
         }
         let holidayName = nextHoliday.0
@@ -1057,7 +1061,8 @@ struct LeaveInsightsProvider: TimelineProvider {
             bestText: bestText,
             rangeText: rangeText,
             daysNeeded: leaveNeeded,
-            strip: strip
+            strip: strip,
+            isPro: isPro
         )
     }
 
@@ -1139,18 +1144,24 @@ struct LeaveInsightsWidgetView: View {
                 Text(entry.rangeText).font(.system(size: 11)).foregroundColor(.secondary)
             }
 
-            HStack {
-                Text(entry.nextText).font(.system(size: 16, weight: .bold)).lineLimit(1)
-                Spacer()
-                Text(entry.daysNeeded == 0 ? "No leave" : "\(entry.daysNeeded)d leave")
-                    .font(.system(size: 12)).foregroundColor(entry.daysNeeded == 0 ? .green : .orange)
+            if entry.isPro {
+                HStack {
+                    Text(entry.nextText).font(.system(size: 16, weight: .bold)).lineLimit(1)
+                    Spacer()
+                    Text(entry.daysNeeded == 0 ? "No leave" : "\(entry.daysNeeded)d leave")
+                        .font(.system(size: 12)).foregroundColor(entry.daysNeeded == 0 ? .green : .orange)
+                }
+
+                dayStrip
+
+                Text(entry.bestText)
+                    .font(.system(size: 12))
+                    .lineLimit(2)
+            } else {
+                Text("Unlock Pro to see leave plans")
+                    .font(.system(size: 14))
+                    .lineLimit(2)
             }
-
-            dayStrip
-
-            Text(entry.bestText)
-                .font(.system(size: 12))
-                .lineLimit(2)
         }
         .padding(14)
         .containerBackground(.fill.tertiary, for: .widget)
