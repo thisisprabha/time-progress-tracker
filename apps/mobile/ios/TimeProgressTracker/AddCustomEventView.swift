@@ -191,6 +191,11 @@ struct AddCustomEventView: View {
             }
         } else {
             appState.customEvents.append(newEvent)
+
+            // If it's a habit, mirror it into the habits list so streak views/widgets show it
+            if newEvent.mode == .habit {
+                appState.addHabit(name: newEvent.name)
+            }
             
             // Auto-select this event if less than 5 custom events selected
             let customItem = DisplayItem.customEvent(id: newEvent.id)
@@ -234,4 +239,3 @@ enum ReminderPreset: Int, CaseIterable {
 
     var minutes: Int { rawValue }
 }
-

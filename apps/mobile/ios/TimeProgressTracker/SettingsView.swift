@@ -59,6 +59,7 @@ struct SettingsView: View {
                             showModeSelection: $showModeSelectionActionSheet,
                             showCalendarPicker: $showCalendarPicker,
                             presentedSheetItem: $presentedSheetItem,
+                            selectedInitMode: $selectedInitMode,
                             notificationStatus: $notificationStatus,
                             exportURL: $exportURL,
                             showShareSheet: $showShareSheet,
@@ -142,6 +143,11 @@ struct SettingsView: View {
         }
         .preferredColorScheme(appState.isDarkMode ? .dark : .light)
         .font(.system(size: 14))
+        .onAppear {
+            // Jump to the section that was requested from Home
+            if appState.settingsFocus == .countup { selectedTab = .display }
+            if appState.settingsFocus == .habits { selectedTab = .display }
+        }
         .onChange(of: toastMessage) { newValue in
             if newValue != nil {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -227,6 +233,7 @@ struct DisplaySettingsView: View {
     @Binding var showModeSelection: Bool
     @Binding var showCalendarPicker: Bool
     @Binding var presentedSheetItem: EventSheetItem?
+    @Binding var selectedInitMode: EventMode
     
     // Bindings for parent actions
     @Binding var notificationStatus: UNAuthorizationStatus
@@ -237,6 +244,7 @@ struct DisplaySettingsView: View {
     
     // Local filters
     @State private var eventCategoryFilter: EventCategoryFilter = .all
+    @State private var newHabitName: String = ""
     
     var customPinnedCount: Int {
         appState.selectedDisplayItems.filter { item in
@@ -260,128 +268,185 @@ struct DisplaySettingsView: View {
     
     var body: some View {
         List {
-            // 1. Default Events
-            Section {
-                 PredefinedItemRow(item: .today, icon: "sun.max", appState: appState)
-                 PredefinedItemRow(item: .week, icon: "calendar", appState: appState)
-                 PredefinedItemRow(item: .month, icon: "calendar.badge.clock", appState: appState)
-                 PredefinedItemRow(item: .quarter, icon: "chart.pie", appState: appState)
-                 PredefinedItemRow(item: .year, icon: "hourglass", appState: appState)
-            } header: {
-                Text("Default Events (Select max 3)")
-            }
-            
-            // 2. My Events
-            Section {
-                if !appState.customEvents.isEmpty {
-                    if filteredEvents.isEmpty {
-                        Text("No \(eventCategoryFilter.displayName) events added")
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.vertical, 20)
-                    } else {
-                        ForEach(filteredEvents) { event in
-                            Button(action: {
-                                presentedSheetItem = EventSheetItem(event: event)
-                            }) {
-                                EventRowSystem(event: event)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .swipeActions {
-                                Button(role: .destructive) {
-                                    deleteEvent(event)
-                                } label: {
-                                    Label("Delete", systemImage: "trash.fill")
-                                }
-                                
-                                Button {
-                                    togglePin(for: event)
-                                } label: {
-                                    let isPinned = appState.selectedDisplayItems.contains(.customEvent(id: event.id))
-                                    Label(isPinned ? "Unpin" : "Pin", systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
-                                }
-                                .tint(.orange)
-                            }
-                        }
-                    }
-                } else {
-                     Text("No events yet")
-                         .foregroundColor(.secondary)
-                         .frame(maxWidth: .infinity, alignment: .center)
-                         .padding(.vertical, 20)
-                }
-            } header: {
-                HStack {
-                    Text("My Events")
-                    Spacer()
-                    
-                    if !appState.customEvents.isEmpty {
-                        HStack(spacing: 8) {
-                            Text("\(customPinnedCount)/5 Pinned")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                            
-                            Menu {
-                                Picker("Filter", selection: $eventCategoryFilter) {
-                                    ForEach(EventCategoryFilter.allCases, id: \.self) { filter in
-                                        Label(filter.displayName, systemImage: filter.icon).tag(filter)
-                                    }
-                                }
-                            } label: {
-                                Image(systemName: "line.3.horizontal.decrease.circle")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.accentColor)
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // 3. Manage Events
-            Section {
-                Button(action: { showModeSelection = true }) {
-                    Label("Create New Event", systemImage: "plus.circle")
-                        .font(.body)
-                        .foregroundColor(.accentColor)
-                }
-                
-                Button(action: { showCalendarPicker = true }) {
-                    Label("Import from Calendar", systemImage: "calendar.badge.plus")
-                        .font(.body)
-                        .foregroundColor(.primary)
-                }
-            } header: {
-                 Text("Manage Events")
-            }
-            
-            // 4. Life Progress Toggle
-            Section {
-                Toggle("Show Life Progress", isOn: $appState.showLifeProgress)
-                     .onChange(of: appState.showLifeProgress) { _ in appState.saveSettings() }
-            } header: {
-                Text("Life Progress")
-            }
-            
-            // 5. Data & Safety
-            Section {
-                Button("Export Backup") {
-                    do {
-                        exportURL = try AppBackupManager.exportBackup(appState: appState)
-                        showShareSheet = (exportURL != nil)
-                    } catch { importStatusText = "Export failed" }
-                }
-                
-                Button("Import Backup") {
-                    showImportPicker = true
-                }
-                if let status = importStatusText {
-                    Text(status).font(.caption).foregroundColor(.secondary)
-                }
-            } header: {
-                Text("Data & Safety")
-            }
+            countdownSection
+            countUpSection
+            habitSection
+            leaveSection
+            lifeProgressSection
+            dataSection
         }
         .listStyle(.insetGrouped)
+    }
+
+    // MARK: Split Sections
+
+    private var countdownSection: some View {
+        Section {
+            PredefinedItemRow(item: .today, icon: "sun.max", appState: appState)
+            PredefinedItemRow(item: .week, icon: "calendar", appState: appState)
+            PredefinedItemRow(item: .month, icon: "calendar.badge.clock", appState: appState)
+            PredefinedItemRow(item: .quarter, icon: "chart.pie", appState: appState)
+            PredefinedItemRow(item: .year, icon: "hourglass", appState: appState)
+            ForEach(filteredEvents.filter { $0.mode == .countdown }) { event in
+                eventButtonRow(event: event)
+            }
+            Button(action: { showModeSelection = true; selectedInitMode = .countdown }) {
+                Label("Create Countdown", systemImage: "plus.circle")
+            }
+        } header: {
+            Text("Countdowns")
+        }
+    }
+
+    private var countUpSection: some View {
+        Section {
+            ForEach(filteredEvents.filter { $0.mode == .countup }) { event in
+                eventButtonRow(event: event)
+            }
+            Button(action: { showModeSelection = true; selectedInitMode = .countup }) {
+                Label("Create Count Up", systemImage: "plus.circle")
+            }
+        } header: {
+            Text("Count Up")
+        }
+    }
+
+    private var habitSection: some View {
+        Section {
+            ForEach(appState.habits) { habit in
+                habitRow(habit: habit)
+            }
+            HStack {
+                TextField("New habit", text: $newHabitName)
+                    .textFieldStyle(.roundedBorder)
+                Button("Add") {
+                    let trimmed = newHabitName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty else { return }
+                    appState.addHabit(name: trimmed)
+                    // Mirror into custom events for widgets/home feed
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd"
+                    let iso = formatter.string(from: Date())
+                    let habitEvent = CustomEvent(
+                        name: trimmed,
+                        date: iso,
+                        startDate: iso,
+                        category: .personal,
+                        mode: .habit,
+                        recurrence: .none,
+                        timeOfDay: nil,
+                        reminders: [],
+                        streakHistory: [],
+                        goalCount: 90
+                    )
+                    appState.customEvents.append(habitEvent)
+                    appState.saveSettings()
+                    newHabitName = ""
+                }
+                .disabled(newHabitName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            Button(action: { showModeSelection = true; selectedInitMode = .habit }) {
+                Label("Create Habit", systemImage: "plus.circle")
+            }
+        } header: {
+            Text("Habits")
+        }
+    }
+
+    private var leaveSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Next long weekend").font(.caption).foregroundColor(.secondary)
+                Text(appState.leaveInsights.nextLongWeekend).font(.body)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Best leave suggestion").font(.caption).foregroundColor(.secondary)
+                Text(appState.leaveInsights.bestSuggestion).font(.body)
+            }
+            HStack {
+                Text("Balance: \(appState.leaveBalance.remaining)/\(appState.leaveBalance.total)")
+                    .font(.caption)
+                Spacer()
+                Button("Use 1 day") {
+                    if appState.leaveBalance.remaining > 0 {
+                        appState.leaveBalance.used += 1
+                        appState.saveSettings()
+                    }
+                }
+                .font(.caption)
+                .buttonStyle(.bordered)
+            }
+        } header: {
+            Text("Leave Optimizer")
+        }
+    }
+
+    private var lifeProgressSection: some View {
+        Section {
+            Toggle("Show Life Progress", isOn: $appState.showLifeProgress)
+                 .onChange(of: appState.showLifeProgress) { _ in appState.saveSettings() }
+        } header: {
+            Text("Life Progress")
+        }
+    }
+
+    private var dataSection: some View {
+        Section {
+            Button("Export Backup") {
+                do {
+                    exportURL = try AppBackupManager.exportBackup(appState: appState)
+                    showShareSheet = (exportURL != nil)
+                } catch { importStatusText = "Export failed" }
+            }
+
+            Button("Import Backup") { showImportPicker = true }
+            if let status = importStatusText {
+                Text(status).font(.caption).foregroundColor(.secondary)
+            }
+        } header: {
+            Text("Data & Safety")
+        }
+    }
+
+    // MARK: Helpers
+
+    private func eventButtonRow(event: CustomEvent) -> some View {
+        Button(action: {
+            presentedSheetItem = EventSheetItem(event: event)
+        }) {
+            EventRowSystem(event: event)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .swipeActions {
+            Button(role: .destructive) { deleteEvent(event) } label: {
+                Label("Delete", systemImage: "trash.fill")
+            }
+            Button { togglePin(for: event) } label: {
+                let isPinned = appState.selectedDisplayItems.contains(.customEvent(id: event.id))
+                Label(isPinned ? "Unpin" : "Pin", systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
+            }
+            .tint(.orange)
+        }
+    }
+
+    private func habitRow(habit: Habit) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(habit.name).font(.body)
+                Text("Current \(habit.currentStreak()) • Longest \(habit.longestStreak()) • \(habit.successRate())% success")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            Button { appState.checkInHabit(id: habit.id) } label: {
+                Text(habit.checkedInToday() ? "Done" : "Check-in").font(.caption)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.accentColor)
+            Button(role: .destructive) { appState.removeHabit(id: habit.id) } label: {
+                Image(systemName: "trash").foregroundColor(.red)
+            }
+        }
     }
     
     private func togglePin(for event: CustomEvent) {
@@ -712,4 +777,3 @@ struct EventSheetItem: Identifiable {
     var event: CustomEvent? = nil
     var initialMode: EventMode = .countdown
 }
-

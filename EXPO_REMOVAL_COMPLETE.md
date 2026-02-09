@@ -65,3 +65,6 @@ If you see any errors about missing Pods or Expo:
 
 The project is now completely independent of Expo/React Native for iOS! 🎉
 
+
+
+

@@ -58,7 +58,8 @@ struct Provider: TimelineProvider {
         var customEvents: [CustomEvent] = []
         if let eventsData = sharedDefaults?.data(forKey: "customEvents"),
            let events = try? JSONDecoder().decode([CustomEvent].self, from: eventsData) {
-            customEvents = events
+            // Hide habits/count-up events in the main progress widget per product decision.
+            customEvents = events.filter { $0.mode == .countdown }
         }
         
         let timeData = TimeCalculator.calculateTimeData(timeMode: timeMode)
@@ -924,6 +925,292 @@ struct LockScreenInlineView: View {
             .font(.sabdeviBold(size: 12)) // Inline might override this, but we try
             .containerBackground(.clear, for: .widget)
             .widgetURL(widgetHomeURL())
+    }
+}
+
+// MARK: - Leave Insights Widget
+
+struct LeaveInsightsEntry: TimelineEntry {
+    let date: Date
+    let nextText: String
+    let bestText: String
+    let rangeText: String
+    let daysNeeded: Int
+    let strip: [LeaveDay]
+}
+
+struct LeaveDay: Identifiable {
+    let id = UUID()
+    let label: String
+    let day: String
+    let type: DayType
+}
+
+enum DayType { case holiday, weekend, weekday }
+
+struct Holiday: Codable {
+    let name: String
+    let dateString: String
+    var date: Date? {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        return df.date(from: dateString)
+    }
+    init(name: String, dateString: String) {
+        self.name = name
+        self.dateString = dateString
+    }
+}
+
+struct LeaveInsightsProvider: TimelineProvider {
+    func placeholder(in context: Context) -> LeaveInsightsEntry {
+        LeaveInsightsEntry(
+            date: Date(),
+            nextText: "Diwali • Nov 12",
+            bestText: "Take Friday off for a 4-day break",
+            rangeText: "10 Nov - 14 Nov",
+            daysNeeded: 1,
+            strip: sampleStrip()
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (LeaveInsightsEntry) -> ()) {
+        completion(loadEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<LeaveInsightsEntry>) -> ()) {
+        let entry = loadEntry()
+        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 2, to: Date()) ?? Date().addingTimeInterval(7200)
+        completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
+    }
+
+    private func loadEntry() -> LeaveInsightsEntry {
+        let cal = Calendar.current
+        let defaults = UserDefaults(suiteName: "group.com.prabhakaran.timeprogresstracker")
+
+        let holidays: [Holiday] = {
+            if let data = defaults?.data(forKey: "holidays"),
+               let decoded = try? JSONDecoder().decode([Holiday].self, from: data) {
+                return decoded
+            }
+            return defaultHolidays()
+        }()
+
+        // Find next holiday >= today
+        let today = cal.startOfDay(for: Date())
+        guard let nextHoliday = holidays.compactMap({ ($0.name, $0.date) }).first(where: { $0.1 != nil && $0.1! >= today }) else {
+            return LeaveInsightsEntry(
+                date: Date(),
+                nextText: "Plan a long weekend",
+                bestText: "Add a day off near a holiday",
+                rangeText: "",
+                daysNeeded: 0,
+                strip: sampleStrip()
+            )
+        }
+        let holidayName = nextHoliday.0
+        let holidayDate = nextHoliday.1 ?? today
+
+        // Build 5-day window around holiday: -2 to +2 days
+        var strip: [LeaveDay] = []
+        var leaveNeeded = 0
+        let dfWeek = DateFormatter(); dfWeek.dateFormat = "EE"
+        let dfDay = DateFormatter(); dfDay.dateFormat = "d"
+        for offset in -2...2 {
+            guard let date = cal.date(byAdding: .day, value: offset, to: holidayDate) else { continue }
+            let label = dfWeek.string(from: date)
+            let dayText = dfDay.string(from: date)
+            let type: DayType
+            if cal.isDate(date, inSameDayAs: holidayDate) {
+                type = .holiday
+            } else if cal.isDateInWeekend(date) {
+                type = .weekend
+            } else {
+                type = .weekday; leaveNeeded += 1
+            }
+            strip.append(LeaveDay(label: label, day: dayText, type: type))
+        }
+
+        let fmt = DateFormatter(); fmt.dateFormat = "MMM d"
+        let rangeText = "\(fmt.string(from: strip.first?.labelDate(cal: cal, ref: holidayDate) ?? holidayDate)) - \(fmt.string(from: strip.last?.labelDate(cal: cal, ref: holidayDate) ?? holidayDate))"
+
+        // Next / best text
+        let nextText = "\(holidayName) • \(fmt.string(from: holidayDate))"
+        let bestText: String = {
+            let weekday = cal.component(.weekday, from: holidayDate)
+            if weekday == 6 { // Fri
+                return "Take Monday off for a 4-day break"
+            } else if weekday == 2 { // Mon
+                return "Take Friday off for a 4-day break"
+            } else if weekday == 3 { // Tue
+                return "Take Monday off and coast into the holiday"
+            } else if weekday == 5 { // Thu
+                return "Take Friday off to extend the weekend"
+            } else {
+                return "Add 1 day off around the holiday"
+            }
+        }()
+
+        return LeaveInsightsEntry(
+            date: Date(),
+            nextText: nextText,
+            bestText: bestText,
+            rangeText: rangeText,
+            daysNeeded: leaveNeeded,
+            strip: strip
+        )
+    }
+
+    private func defaultHolidays() -> [Holiday] {
+        return [
+            Holiday(name: "Republic Day", dateString: "2026-01-26"),
+            Holiday(name: "Ambedkar Jayanti", dateString: "2026-04-14"),
+            Holiday(name: "May Day", dateString: "2026-05-01"),
+            Holiday(name: "Independence Day", dateString: "2026-08-15"),
+            Holiday(name: "Gandhi Jayanti", dateString: "2026-10-02"),
+            Holiday(name: "Dussehra", dateString: "2026-10-24"),
+            Holiday(name: "Diwali", dateString: "2026-11-12"),
+            Holiday(name: "Christmas", dateString: "2026-12-25")
+        ]
+    }
+
+    private func sampleStrip() -> [LeaveDay] {
+        [
+            LeaveDay(label: "Fri", day: "10", type: .weekday),
+            LeaveDay(label: "Sat", day: "11", type: .weekend),
+            LeaveDay(label: "Sun", day: "12", type: .weekend),
+            LeaveDay(label: "Mon", day: "13", type: .holiday),
+            LeaveDay(label: "Tue", day: "14", type: .weekday)
+        ]
+    }
+}
+
+private extension LeaveDay {
+    func labelDate(cal: Calendar, ref: Date) -> Date {
+        // Reconstruct date using the ref weekday order; used only for range text
+        return ref
+    }
+}
+
+struct LeaveInsightsWidgetView: View {
+    let entry: LeaveInsightsProvider.Entry
+    @Environment(\.widgetFamily) var family
+
+    var body: some View {
+        switch family {
+        case .accessoryRectangular:
+            VStack(alignment: .leading, spacing: 4) {
+                Text(entry.nextText).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                Text(entry.bestText).font(.system(size: 11)).lineLimit(1)
+            }
+            .containerBackground(.clear, for: .widget)
+        case .accessoryInline:
+            Text(entry.bestText).font(.system(size: 12)).containerBackground(.clear, for: .widget)
+        case .systemSmall:
+            smallView
+        default:
+            mediumView
+        }
+    }
+
+    private var smallView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Next Leave")
+                .font(.sabdeviRegular(size: 11))
+                .foregroundColor(.secondary)
+            Text(entry.nextText)
+                .font(.sabdeviBold(size: 15))
+                .lineLimit(1)
+            if let days = daysUntilHoliday() {
+                Text("in \(days)d")
+                    .font(.sabdeviRegular(size: 11))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(12)
+        .containerBackground(.fill.tertiary, for: .widget)
+    }
+
+    private var mediumView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Leave Optimizer").font(.sabdeviRegular(size: 12))
+                Spacer()
+                Text(entry.rangeText).font(.system(size: 11)).foregroundColor(.secondary)
+            }
+
+            HStack {
+                Text(entry.nextText).font(.system(size: 16, weight: .bold)).lineLimit(1)
+                Spacer()
+                Text(entry.daysNeeded == 0 ? "No leave" : "\(entry.daysNeeded)d leave")
+                    .font(.system(size: 12)).foregroundColor(entry.daysNeeded == 0 ? .green : .orange)
+            }
+
+            dayStrip
+
+            Text(entry.bestText)
+                .font(.system(size: 12))
+                .lineLimit(2)
+        }
+        .padding(14)
+        .containerBackground(.fill.tertiary, for: .widget)
+    }
+
+    private var dayStrip: some View {
+        HStack(spacing: 10) {
+            ForEach(entry.strip) { day in
+                VStack(spacing: 4) {
+                    Text(day.label).font(.system(size: 11, weight: .medium)).foregroundColor(color(day.type).text)
+                    Text(day.day)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(color(day.type).text)
+                        .frame(width: 30, height: 30)
+                        .background(color(day.type).bg)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(color(day.type).border, lineWidth: 1))
+                        .cornerRadius(6)
+                }
+            }
+        }
+    }
+
+    private func color(_ type: DayType) -> (bg: Color, border: Color, text: Color) {
+        switch type {
+        case .holiday:
+            return (Color.green.opacity(0.15), Color.green.opacity(0.7), .green)
+        case .weekend:
+            return (Color.yellow.opacity(0.2), Color.orange.opacity(0.7), .orange)
+        case .weekday:
+            return (Color.gray.opacity(0.15), Color.gray.opacity(0.4), .primary)
+        }
+    }
+
+    private func daysUntilHoliday() -> Int? {
+        // Parse nextText which is "Holiday • MMM d"
+        let parts = entry.nextText.split(separator: "•").map { $0.trimmingCharacters(in: .whitespaces) }
+        guard parts.count == 2 else { return nil }
+        let df = DateFormatter(); df.dateFormat = "MMM d"
+        guard let date = df.date(from: parts[1]) else { return nil }
+        let cal = Calendar.current
+        let now = cal.startOfDay(for: Date())
+        // Move the parsed month/day to the current year
+        var comps = cal.dateComponents([.month, .day], from: date)
+        comps.year = cal.component(.year, from: now)
+        let target = cal.date(from: comps) ?? date
+        let days = cal.dateComponents([.day], from: now, to: target).day
+        return days
+    }
+}
+
+struct LeaveInsightsWidget: Widget {
+    let kind: String = "LeaveInsightsWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: LeaveInsightsProvider()) { entry in
+            LeaveInsightsWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Leave Optimizer")
+        .description("Next long weekend + best leave suggestion.")
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
 }
 

@@ -18,6 +18,8 @@ struct MainHomeView: View {
     @State private var cloudsStarted: Bool = false
     @State private var birdsStarted: Bool = false
     @State private var animationRestartTrigger: Int = 0
+    @State private var selectedSection: HomeSection = .countdown
+    @State private var showWidgetHelp: Bool = false
     var onSVGsLoaded: (() -> Void)? = nil
     var startAnimations: Bool = false
 
@@ -32,6 +34,44 @@ struct MainHomeView: View {
         }
 
         return items
+    }
+
+    // Split items into sections
+    private var countdownItems: [DisplayItem] {
+        displayItems.filter { item in
+            switch item {
+            case .today, .week, .month, .quarter, .year:
+                return true
+            case .customEvent(let id):
+                return appState.customEvents.first(where: { $0.id == id })?.mode == .countdown
+            }
+        }
+    }
+
+    private var countUpItems: [DisplayItem] {
+        displayItems.filter { item in
+            if case .customEvent(let id) = item {
+                return appState.customEvents.first(where: { $0.id == id })?.mode == .countup
+            }
+            return false
+        }
+    }
+
+    private var habitItems: [DisplayItem] {
+        displayItems.filter { item in
+            if case .customEvent(let id) = item {
+                return appState.customEvents.first(where: { $0.id == id })?.mode == .habit
+            }
+            return false
+        }
+    }
+
+    private func items(for section: HomeSection) -> [DisplayItem] {
+        switch section {
+        case .countdown: return countdownItems
+        case .countup: return countUpItems
+        case .habits: return habitItems
+        }
     }
     
     var body: some View {
@@ -103,138 +143,53 @@ struct MainHomeView: View {
                         // Top spacer to push content to center
                         Spacer()
                             .frame(height: 20)
-                        
-                        // Main sections
+
+                        // Main sections with mini tab
+                        SectionPicker(selected: $selectedSection)
+                            .padding(.horizontal, 20)
+
                         VStack(spacing: 16) {
-                            // Show items in order from selectedDisplayItems (with deep-link item pinned first if present)
-                            ForEach(Array(displayItems.enumerated()), id: \.element) { index, item in
-                                Group {
-                                    if item == .today {
-                                        let isCritical = timeData.hoursLeft < 4
-                                        TallyCounterView(
-                                            label: "Today",
-                                            value: appState.perspective == .halfFull
-                                                ? "\(timeData.hoursCompleted)"
-                                                : "\(timeData.hoursLeft)",
-                                            unit: appState.perspective == .halfFull
-                                                ? "hrs  done"
-                                                : "hrs  left",
-                                            total: appState.timeMode == .nineToFive ? 8 : 24,
-                                            completed: timeData.hoursCompleted,
-                                            textColor: isCritical ? .primary : .primary
-                                        )
-                                    } else if item == .week {
-                                        TallyCounterView(
-                                            label: "This  Week",
-                                            value: appState.perspective == .halfFull
-                                                ? "\(timeData.daysCompleted)"
-                                                : "\(timeData.daysLeft)",
-                                            unit: appState.perspective == .halfFull
-                                                ? "d  done"
-                                                : "d  left",
-                                            total: 7,
-                                            completed: timeData.daysCompleted
-                                        )
-                                    } else if item == .month {
-                                        let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())?.count ?? 30
-                                        TallyCounterView(
-                                            label: "This  Month",
-                                            value: appState.perspective == .halfFull
-                                                ? "\(timeData.daysCompleted)"
-                                                : "\(timeData.daysLeft)",
-                                            unit: appState.perspective == .halfFull
-                                                ? "d  done"
-                                                : "d  left",
-                                            total: daysInMonth,
-                                            completed: timeData.daysCompleted
-                                        )
-                                    } else if item == .quarter {
-                                        TallyCounterView(
-                                            label: "Q\(timeData.quarterNumber)",
-                                            value: appState.perspective == .halfFull
-                                                ? "\(timeData.weeksCompleted)"
-                                                : "\(timeData.weeksLeft)",
-                                            unit: appState.perspective == .halfFull
-                                                ? "wk  done"
-                                                : "wk  left",
-                                            total: 13,
-                                            completed: timeData.weeksCompleted
-                                        )
-                                    } else if item == .year {
-                                        let isCritical = timeData.yearProgress >= 0.9
-                                        TallyCounterView(
-                                            label: "This  Year",
-                                            value: appState.perspective == .halfFull
-                                                ? "\(Int(timeData.yearProgress * 100))"
-                                                : "\(Int(timeData.yearPercentLeft))",
-                                            unit: appState.perspective == .halfFull
-                                                ? "%  done"
-                                                : "%  left",
-                                            total: 12,
-                                            completed: Int(timeData.yearProgress * 12),
-                                            textColor: isCritical ? .primary : .primary
-                                        )
-                                    } else if case .customEvent(let eventId) = item {
-                                        // Show specific custom event
-                                        if let event = appState.customEvents.first(where: { $0.id == eventId }) {
-                                            CustomEventTallyView(event: event)
-                                                .environmentObject(appState)
-                                        }
-                                    }
-                                }
+                            SectionContent(
+                                title: selectedSection.title,
+                                items: items(for: selectedSection),
+                                timeData: timeData,
+                                showContent: showContent
+                            )
+                            .environmentObject(appState)
+
+                            LeavePlannerCardView()
+                                .environmentObject(appState)
                                 .opacity(showContent ? 1 : 0)
                                 .offset(y: showContent ? 0 : 20)
                                 .animation(
-                                    .easeOut(duration: 0.6).delay(Double(index) * 0.2),
+                                    .easeOut(duration: 0.6).delay(0.6),
                                     value: showContent
                                 )
+
+                            WidgetInviteCard {
+                                showWidgetHelp = true
                             }
-                            
-                            // Show empty slots with lock icon if less than 3 items
-                            let displayedCount = displayItems.count
-                            let emptySlotsNeeded = 3 - displayedCount
-                            
-                            if emptySlotsNeeded > 0 {
-                                ForEach(0..<emptySlotsNeeded, id: \.self) { index in
-                                    EmptyEventSlotView()
-                                        .environmentObject(appState)
-                                        .opacity(showContent ? 1 : 0)
-                                        .offset(y: showContent ? 0 : 20)
-                                        .animation(
-                                            .easeOut(duration: 0.6).delay(Double(displayedCount + index) * 0.2),
-                                            value: showContent
-                                        )
-                                }
+                            .opacity(showContent ? 1 : 0)
+                            .offset(y: showContent ? 0 : 20)
+                            .animation(
+                                .easeOut(duration: 0.6).delay(0.65),
+                                value: showContent
+                            )
+
+                            Button(action: {
+                                appState.settingsFocus = selectedSection
+                                appState.saveSettings()
+                                appState.showSettings = true
+                            }) {
+                                Text(selectedSection.customizeLabel)
+                                    .font(.sabdeviRegular(size: 12))
+                                    .foregroundColor(.secondary)
+                                    .underline()
                             }
-                            
-                            // Life Progress card - always shown as 4th section (last)
-                            if appState.showLifeProgress {
-                                LifeProgressCardView()
-                                    .environmentObject(appState)
-                                    .opacity(showContent ? 1 : 0)
-                                    .offset(y: showContent ? 0 : 20)
-                                    .animation(
-                                        .easeOut(duration: 0.6).delay(Double(displayedCount + emptySlotsNeeded) * 0.2),
-                                        value: showContent
-                                    )
-                            }
+                            .padding(.bottom, 20)
                         }
                         .padding(.horizontal, 20)
-                        
-                        // Bottom spacer
-                        Spacer()
-                            .frame(height: 20)
-                        
-                        // Customize button at bottom
-                        Button(action: {
-                            appState.showSettings = true
-                        }) {
-                            Text("Customize")
-                                .font(.sabdeviRegular(size: 12))
-                                .foregroundColor(.secondary)
-                                .underline()
-                        }
-                        .padding(.bottom, 20)
+                        .padding(.top, 8)
                     }
                     .frame(minHeight: UIScreen.main.bounds.height - 200) // Min height to allow centering
                 }
@@ -276,6 +231,10 @@ struct MainHomeView: View {
             AddCustomEventView()
                 .environmentObject(appState)
         }
+        .sheet(isPresented: $showWidgetHelp) {
+            WidgetHelpSheet(section: selectedSection)
+                .presentationDetents([.medium])
+        }
     }
     
     private func startSectionReveal() {
@@ -292,6 +251,148 @@ struct MainHomeView: View {
     }
 }
 
+private struct SectionPicker: View {
+    @Binding var selected: HomeSection
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(HomeSection.allCases, id: \.self) { section in
+                Button(action: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        selected = section
+                    }
+                }) {
+                    Text(section.title)
+                        .font(.sabdeviBold(size: 13))
+                        .foregroundColor(selected == section ? .primary : .secondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(selected == section ? Color.primary.opacity(0.1) : Color.clear)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.primary.opacity(0.04))
+        )
+    }
+}
+
+private struct SectionContent: View {
+    let title: String
+    let items: [DisplayItem]
+    let timeData: TimeData
+    let showContent: Bool
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.sabdeviBold(size: 16))
+                .foregroundColor(.primary)
+
+            if items.isEmpty {
+                EmptyEventSlotView()
+                    .environmentObject(appState)
+                    .frame(maxWidth: .infinity)
+            } else {
+                ForEach(Array(items.enumerated()), id: \.element) { index, item in
+                    Group {
+                        switch item {
+                        case .today:
+                            let isCritical = timeData.hoursLeft < 4
+                            TallyCounterView(
+                                label: "Today",
+                                value: appState.perspective == .halfFull
+                                    ? "\(timeData.hoursCompleted)"
+                                    : "\(timeData.hoursLeft)",
+                                unit: appState.perspective == .halfFull
+                                    ? "hrs  done"
+                                    : "hrs  left",
+                                total: appState.timeMode == .nineToFive ? 8 : 24,
+                                completed: timeData.hoursCompleted,
+                                textColor: isCritical ? .primary : .primary
+                            )
+                        case .week:
+                            TallyCounterView(
+                                label: "This  Week",
+                                value: appState.perspective == .halfFull
+                                    ? "\(timeData.daysCompleted)"
+                                    : "\(timeData.daysLeft)",
+                                unit: appState.perspective == .halfFull
+                                    ? "d  done"
+                                    : "d  left",
+                                total: 7,
+                                completed: timeData.daysCompleted
+                            )
+                        case .month:
+                            let daysInMonth = Calendar.current.range(of: .day, in: .month, for: Date())?.count ?? 30
+                            TallyCounterView(
+                                label: "This  Month",
+                                value: appState.perspective == .halfFull
+                                    ? "\(timeData.daysCompleted)"
+                                    : "\(timeData.daysLeft)",
+                                unit: appState.perspective == .halfFull
+                                    ? "d  done"
+                                    : "d  left",
+                                total: daysInMonth,
+                                completed: timeData.daysCompleted
+                            )
+                        case .quarter:
+                            TallyCounterView(
+                                label: "Q\(timeData.quarterNumber)",
+                                value: appState.perspective == .halfFull
+                                    ? "\(timeData.weeksCompleted)"
+                                    : "\(timeData.weeksLeft)",
+                                unit: appState.perspective == .halfFull
+                                    ? "wk  done"
+                                    : "wk  left",
+                                total: 13,
+                                completed: timeData.weeksCompleted
+                            )
+                        case .year:
+                            let isCritical = timeData.yearProgress >= 0.9
+                            TallyCounterView(
+                                label: "This  Year",
+                                value: appState.perspective == .halfFull
+                                    ? "\(Int(timeData.yearProgress * 100))"
+                                    : "\(Int(timeData.yearPercentLeft))",
+                                unit: appState.perspective == .halfFull
+                                    ? "%  done"
+                                    : "%  left",
+                                total: 12,
+                                completed: Int(timeData.yearProgress * 12),
+                                textColor: isCritical ? .primary : .primary
+                            )
+                        case .customEvent(let eventId):
+                            if let event = appState.customEvents.first(where: { $0.id == eventId }) {
+                                CustomEventTallyView(event: event)
+                                    .environmentObject(appState)
+                            }
+                        }
+                    }
+                    .opacity(showContent ? 1 : 0)
+                    .offset(y: showContent ? 0 : 20)
+                    .animation(
+                        .easeOut(duration: 0.6).delay(Double(index) * 0.15),
+                        value: showContent
+                    )
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.primary.opacity(0.03))
+        )
+    }
+}
 struct EmptyEventSlotView: View {
     @EnvironmentObject var appState: AppState
     
@@ -506,5 +607,62 @@ struct LifeProgressCardView: View {
             LifeDataSelectionView(age: appState.userAge, lifeExpectancy: appState.lifeExpectancy)
                 .environmentObject(appState)
         }
+    }
+}
+
+struct HabitStreakCard: View {
+    let habit: Habit
+
+    var body: some View {
+        let streak = habit.currentStreak()
+        let longest = habit.longestStreak()
+        let success = habit.successRate()
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Streak")
+                .font(.sabdeviBold(size: 14))
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(streak)")
+                    .font(.sabdeviBold(size: 42))
+                Text("days")
+                    .font(.sabdeviRegular(size: 14))
+            }
+            Text("Longest \(longest) • \(success)% success")
+                .font(.sabdeviRegular(size: 12))
+                .foregroundColor(.secondary)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemBackground))
+        )
+    }
+}
+
+struct LeaveSuggestionCard: View {
+    let insights: LeaveInsights
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Leave Optimizer")
+                .font(.sabdeviBold(size: 14))
+            Text("Next long weekend")
+                .font(.sabdeviRegular(size: 12))
+                .foregroundColor(.secondary)
+            Text(insights.nextLongWeekend)
+                .font(.sabdeviBold(size: 16))
+            Divider()
+            Text("Best suggestion")
+                .font(.sabdeviRegular(size: 12))
+                .foregroundColor(.secondary)
+            Text(insights.bestSuggestion)
+                .font(.sabdeviBold(size: 16))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemBackground))
+        )
     }
 }

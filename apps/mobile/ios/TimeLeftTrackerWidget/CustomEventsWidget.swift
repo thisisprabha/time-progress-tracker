@@ -8,6 +8,14 @@
 import WidgetKit
 import SwiftUI
 
+// Lightweight mirror of Habit so widgets can decode without linking app target types
+struct HabitMirror: Codable, Identifiable {
+    let id: String
+    let name: String
+    let startDate: String
+    let checkIns: Set<String>
+}
+
 // MARK: - Providers
 
 struct CustomEventsProvider: TimelineProvider {
@@ -50,6 +58,28 @@ struct CustomEventsProvider: TimelineProvider {
             customEvents = events
         }
 
+        // If habits were saved separately, mirror them into CustomEvent for the Habits widget
+        if modeFilter == .habit,
+           let habitsData = sharedDefaults?.data(forKey: "habits"),
+           let habits = try? JSONDecoder().decode([HabitMirror].self, from: habitsData) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let habitEvents = habits.map { habit -> CustomEvent in
+                CustomEvent(
+                    id: habit.id,
+                    name: habit.name,
+                    date: habit.startDate,
+                    startDate: habit.startDate,
+                    category: .personal,
+                    mode: .habit,
+                    recurrence: .none,
+                    timeOfDay: nil,
+                    streakHistory: habit.checkIns
+                )
+            }
+            customEvents.append(contentsOf: habitEvents)
+        }
+
         let widgetStyle = WidgetStyle(rawValue: sharedDefaults?.string(forKey: "widgetStyle") ?? "classic") ?? .classic
         let now = Date()
 
@@ -57,6 +87,9 @@ struct CustomEventsProvider: TimelineProvider {
         var filteredEvents = customEvents
         if let filter = modeFilter {
             filteredEvents = customEvents.filter { $0.mode == filter }
+        } else {
+            // Default: countdown only for the general widget
+            filteredEvents = customEvents.filter { $0.mode == .countdown }
         }
 
         // Sort by relevance

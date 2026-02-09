@@ -5,8 +5,31 @@
 //  Native iOS App - Main Entry Point
 //
 
+import Foundation
 import SwiftUI
 import WidgetKit
+
+enum HomeSection: String, CaseIterable, Codable {
+    case countdown
+    case countup
+    case habits
+
+    var title: String {
+        switch self {
+        case .countdown: return "Countdowns"
+        case .countup: return "Count up"
+        case .habits: return "Habits"
+        }
+    }
+
+    var customizeLabel: String {
+        switch self {
+        case .countdown: return "Customize Countdowns"
+        case .countup: return "Customize Count Ups"
+        case .habits: return "Customize Habits"
+        }
+    }
+}
 
 // Note: Using AppDelegate approach instead of @main for compatibility with existing project structure
 // The AppDelegate.swift file handles the app lifecycle and creates the SwiftUI view
@@ -18,6 +41,7 @@ class AppState: ObservableObject {
     @Published var selectedDisplayItems: [DisplayItem] = [.today, .month, .year]
     @Published var hasCompletedOnboarding: Bool = false
     @Published var showSettings: Bool = false
+    @Published var settingsFocus: HomeSection = .countdown
     @Published var showAddEvent: Bool = false
     @Published var customEvents: [CustomEvent] = []
     @Published var watchComplicationItem: DisplayItem = .today
@@ -30,6 +54,10 @@ class AppState: ObservableObject {
     @Published var theme: AppTheme = .classic
     @Published var customBackgroundImageData: Data? = nil
     @Published var showLifeProgress: Bool = true
+    @Published var habits: [Habit] = []
+    @Published var leaveBalance: LeaveBalance = LeaveBalance(total: 20, used: 0)
+    @Published var leaveInsights: LeaveInsights = LeaveInsights(nextLongWeekend: "—", bestSuggestion: "—")
+    @Published var holidays: [Holiday] = []
     
     init() {
         print("✅ [AppState] AppState initialized")
@@ -43,6 +71,28 @@ class AppState: ObservableObject {
         if let eventsData = UserDefaults.standard.data(forKey: "customEvents"),
            let events = try? JSONDecoder().decode([CustomEvent].self, from: eventsData) {
             self.customEvents = events
+        }
+
+        if let habitsData = UserDefaults.standard.data(forKey: "habits"),
+           let decoded = try? JSONDecoder().decode([Habit].self, from: habitsData) {
+            self.habits = decoded
+        }
+
+        if let balanceData = UserDefaults.standard.data(forKey: "leaveBalance"),
+           let decoded = try? JSONDecoder().decode(LeaveBalance.self, from: balanceData) {
+            self.leaveBalance = decoded
+        }
+
+        if let insightsData = UserDefaults.standard.data(forKey: "leaveInsights"),
+           let decoded = try? JSONDecoder().decode(LeaveInsights.self, from: insightsData) {
+            self.leaveInsights = decoded
+        }
+
+        if let holidayData = UserDefaults.standard.data(forKey: "holidays"),
+           let decoded = try? JSONDecoder().decode([Holiday].self, from: holidayData) {
+            self.holidays = decoded
+        } else {
+            self.holidays = AppState.defaultHolidays
         }
         
         // Keep all events for unlimited history and count-up tracking.
@@ -147,6 +197,8 @@ class AppState: ObservableObject {
         if UserDefaults.standard.object(forKey: "showLifeProgress") != nil {
             self.showLifeProgress = UserDefaults.standard.bool(forKey: "showLifeProgress")
         }
+
+        recomputeLeaveInsights()
     }
     
     func saveSettings() {
@@ -171,6 +223,23 @@ class AppState: ObservableObject {
         if let eventsData = try? JSONEncoder().encode(customEvents) {
             UserDefaults.standard.set(eventsData, forKey: "customEvents")
         }
+
+        if let habitsData = try? JSONEncoder().encode(habits) {
+            UserDefaults.standard.set(habitsData, forKey: "habits")
+        }
+
+        if let balanceData = try? JSONEncoder().encode(leaveBalance) {
+            UserDefaults.standard.set(balanceData, forKey: "leaveBalance")
+        }
+
+        recomputeLeaveInsights()
+        if let insightsData = try? JSONEncoder().encode(leaveInsights) {
+            UserDefaults.standard.set(insightsData, forKey: "leaveInsights")
+        }
+
+        if let holidaysData = try? JSONEncoder().encode(holidays) {
+            UserDefaults.standard.set(holidaysData, forKey: "holidays")
+        }
         
         // Save watch complication item
         UserDefaults.standard.set(watchComplicationItem.rawValue, forKey: "watchComplicationItem")
@@ -190,6 +259,14 @@ class AppState: ObservableObject {
             if let eventsData = try? JSONEncoder().encode(customEvents) {
                 sharedDefaults.set(eventsData, forKey: "customEvents")
             }
+            if let habitsData = try? JSONEncoder().encode(habits) {
+                sharedDefaults.set(habitsData, forKey: "habits")
+            }
+            if let insightsData = try? JSONEncoder().encode(leaveInsights) {
+                sharedDefaults.set(insightsData, forKey: "leaveInsights")
+            }
+            sharedDefaults.set(leaveInsights.nextLongWeekend, forKey: "leave_next_long_weekend")
+            sharedDefaults.set(leaveInsights.bestSuggestion, forKey: "leave_best_suggestion")
         }
 
         Task {
@@ -203,6 +280,10 @@ class AppState: ObservableObject {
     func toggleCheckIn(for event: CustomEvent) {
         if let index = customEvents.firstIndex(where: { $0.id == event.id }) {
             customEvents[index].toggleCheckIn()
+            // Mirror to habit with same name if exists
+            if event.mode == .habit, let habitIndex = habits.firstIndex(where: { $0.name == event.name }) {
+                habits[habitIndex] = habits[habitIndex].checkingInToday()
+            }
             saveSettings()
             WidgetCenter.shared.reloadAllTimelines()
         }
@@ -233,6 +314,95 @@ class AppState: ObservableObject {
             }
         }
     }
+
+    // MARK: - Habits
+    func checkInHabit(id: String) {
+        guard let index = habits.firstIndex(where: { $0.id == id }) else { return }
+        habits[index] = habits[index].checkingInToday()
+        saveSettings()
+    }
+
+    func addHabit(name: String, startDate: Date = Date()) {
+        let habit = Habit(name: name, startDate: startDate)
+        habits.append(habit)
+        saveSettings()
+    }
+
+    func removeHabit(id: String) {
+        if let habit = habits.first(where: { $0.id == id }) {
+            // Also remove mirrored custom event with same name/mode if present
+            customEvents.removeAll { $0.mode == .habit && $0.name == habit.name }
+        }
+        habits.removeAll { $0.id == id }
+        saveSettings()
+    }
+
+    // MARK: - Leave Insights
+    func recomputeLeaveInsights(now: Date = Date()) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+
+        let sortedHolidays = holidays.compactMap { holiday -> (Holiday, Date)? in
+            guard let date = holiday.date else { return nil }
+            return (holiday, calendar.startOfDay(for: date))
+        }
+        .filter { $0.1 >= today }
+        .sorted { $0.1 < $1.1 }
+
+        // Next long weekend: upcoming holiday that falls on Fri or Mon
+        let nextLongWeekend = sortedHolidays.first(where: { (_, date) in
+            let weekday = calendar.component(.weekday, from: date)
+            return weekday == 6 || weekday == 2 // Friday or Monday
+        })
+
+        let nextLongWeekendText: String
+        if let (holiday, date) = nextLongWeekend {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+            let formatted = formatter.string(from: date)
+            nextLongWeekendText = "\(holiday.name) • \(formatted)"
+        } else {
+            nextLongWeekendText = "No long weekend found"
+        }
+
+        // Best leave suggestion: nearest upcoming holiday, suggest one adjacent day to make 3-4 day stretch
+        var bestSuggestion: String = "Add 1 day to create a long weekend"
+        if let (holiday, date) = sortedHolidays.first {
+            let weekday = calendar.component(.weekday, from: date)
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+
+            if weekday == 6 { // Friday holiday: take Monday
+                let monday = calendar.date(byAdding: .day, value: 3, to: date) ?? date
+                bestSuggestion = "Take Monday off around \(holiday.name) (\(formatter.string(from: monday)))"
+            } else if weekday == 2 { // Monday holiday: take Friday
+                let friday = calendar.date(byAdding: .day, value: -3, to: date) ?? date
+                bestSuggestion = "Take Friday off around \(holiday.name) (\(formatter.string(from: friday)))"
+            } else if weekday == 3 { // Tuesday -> take Monday
+                let monday = calendar.date(byAdding: .day, value: -1, to: date) ?? date
+                bestSuggestion = "Take Monday off around \(holiday.name) (\(formatter.string(from: monday)))"
+            } else if weekday == 5 { // Thursday -> take Friday
+                let friday = calendar.date(byAdding: .day, value: 1, to: date) ?? date
+                bestSuggestion = "Take Friday off around \(holiday.name) (\(formatter.string(from: friday)))"
+            } else {
+                let adjacent = calendar.date(byAdding: .day, value: -1, to: date) ?? date
+                bestSuggestion = "Plan 1 day off near \(holiday.name) (\(formatter.string(from: adjacent)))"
+            }
+        }
+
+        leaveInsights = LeaveInsights(nextLongWeekend: nextLongWeekendText, bestSuggestion: bestSuggestion)
+    }
+
+    static let defaultHolidays: [Holiday] = [
+        Holiday(name: "Republic Day", dateString: "2026-01-26"),
+        Holiday(name: "Ambedkar Jayanti", dateString: "2026-04-14"),
+        Holiday(name: "May Day", dateString: "2026-05-01"),
+        Holiday(name: "Independence Day", dateString: "2026-08-15"),
+        Holiday(name: "Gandhi Jayanti", dateString: "2026-10-02"),
+        Holiday(name: "Dussehra", dateString: "2026-10-24"),
+        Holiday(name: "Diwali", dateString: "2026-11-12"),
+        Holiday(name: "Christmas", dateString: "2026-12-25")
+    ]
 }
 
 enum Perspective: String, CaseIterable {

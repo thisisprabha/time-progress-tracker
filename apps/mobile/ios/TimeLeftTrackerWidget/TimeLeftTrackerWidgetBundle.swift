@@ -15,6 +15,7 @@ struct TimeLeftTrackerWidgetBundle: WidgetBundle {
         CountdownWidget()
         CountUpWidget()
         HabitWidget()
+        LeaveInsightsWidget()
     }
     // Removed Control and LiveActivity widgets - not needed for time progress tracking
 }

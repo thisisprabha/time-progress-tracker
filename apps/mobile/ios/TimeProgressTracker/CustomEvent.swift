@@ -27,6 +27,125 @@ enum EventRecurrence: String, Codable, CaseIterable {
     case yearly
 }
 
+// MARK: - Habits / Streaks
+
+struct Habit: Identifiable, Codable {
+    let id: String
+    var name: String
+    var startDate: String // ISO yyyy-MM-dd
+    var checkIns: Set<String> // ISO dates checked in
+
+    init(id: String = UUID().uuidString, name: String, startDate: Date = Date(), checkIns: Set<String> = []) {
+        let formatter = Habit.isoFormatter
+        self.id = id
+        self.name = name
+        self.startDate = formatter.string(from: startDate)
+        self.checkIns = checkIns
+    }
+
+    func checkedInToday(asOf date: Date = Date()) -> Bool {
+        checkIns.contains(Habit.isoFormatter.string(from: date))
+    }
+
+    func checkingInToday(asOf date: Date = Date()) -> Habit {
+        var copy = self
+        copy.checkIns.insert(Habit.isoFormatter.string(from: date))
+        return copy
+    }
+
+    func currentStreak(asOf date: Date = Date()) -> Int {
+        let fmt = Habit.isoFormatter
+        var streak = 0
+        var cursor = date
+        while checkIns.contains(fmt.string(from: cursor)) {
+            streak += 1
+            guard let prev = Calendar.current.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = prev
+        }
+        return streak
+    }
+
+    func longestStreak() -> Int {
+        let fmt = Habit.isoFormatter
+        let dates = checkIns.compactMap { fmt.date(from: $0) }.sorted()
+        var longest = 0
+        var run = 0
+        var prev: Date?
+        for date in dates {
+            if let p = prev,
+               Calendar.current.isDate(date, inSameDayAs: Calendar.current.date(byAdding: .day, value: 1, to: p) ?? date) {
+                run += 1
+            } else {
+                run = 1
+            }
+            longest = max(longest, run)
+            prev = date
+        }
+        return longest
+    }
+
+    func successRate(asOf date: Date = Date()) -> Int {
+        let fmt = Habit.isoFormatter
+        guard let start = fmt.date(from: startDate) else { return 0 }
+        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: start), to: Calendar.current.startOfDay(for: date)).day ?? 0
+        guard days > 0 else { return 100 }
+        let rate = Double(checkIns.count) / Double(days) * 100.0
+        return min(100, max(0, Int(rate.rounded())))
+    }
+
+    func milestoneReached(asOf date: Date = Date()) -> Int? {
+        let streak = currentStreak(asOf: date)
+        for milestone in [90, 30, 7] where streak >= milestone {
+            return milestone
+        }
+        return nil
+    }
+
+    private static var isoFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        df.timeZone = .current
+        return df
+    }()
+}
+
+// MARK: - Leave Optimizer Models
+
+struct Holiday: Identifiable, Codable {
+    let id: String
+    let name: String
+    let dateString: String // yyyy-MM-dd
+
+    init(id: String = UUID().uuidString, name: String, dateString: String) {
+        self.id = id
+        self.name = name
+        self.dateString = dateString
+    }
+
+    var date: Date? {
+        Holiday.formatter.date(from: dateString)
+    }
+
+    private static let formatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        df.timeZone = .current
+        return df
+    }()
+}
+
+struct LeaveBalance: Codable {
+    var total: Int
+    var used: Int
+
+    var remaining: Int { max(0, total - used) }
+}
+
+struct LeaveInsights: Codable {
+    var nextLongWeekend: String
+    var bestSuggestion: String
+}
+
 struct EventReminder: Identifiable, Codable, Hashable {
     let id: String
     let offsetMinutes: Int
