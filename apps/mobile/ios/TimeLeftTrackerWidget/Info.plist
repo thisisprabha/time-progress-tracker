@@ -2,16 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.77</string>
+	<key>CFBundleVersion</key>
+	<string>77</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>
 	<key>UIAppFonts</key>
-	    <array>
-        <string>Sabdevi-Regular.ttf</string>
-        <string>Sabdevi-Bold.ttf</string>
-        <string>Sabdevi-Light.ttf</string>
-    </array>
+	<array>
+		<string>Sabdevi-Regular.ttf</string>
+		<string>Sabdevi-Bold.ttf</string>
+		<string>Sabdevi-Light.ttf</string>
+	</array>
 </dict>
 </plist>
