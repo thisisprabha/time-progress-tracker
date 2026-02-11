@@ -11,7 +11,6 @@ import UIKit
 
 struct MainHomeView: View {
     @EnvironmentObject var appState: AppState
-    @EnvironmentObject var purchaseManager: PurchaseManager
     @State private var timeData = TimeCalculator.calculateTimeData(timeMode: .twentyFourHour)
     @State private var timer: Timer?
     @State private var showContent: Bool = false
@@ -22,6 +21,7 @@ struct MainHomeView: View {
     @State private var selectedSection: HomeSection = .countdown
     @State private var showWidgetHelp: Bool = false
     @State private var showPaywall: Bool = false
+    private let showHeaderAnimations: Bool = false
     var onSVGsLoaded: (() -> Void)? = nil
     var startAnimations: Bool = false
 
@@ -95,56 +95,66 @@ struct MainHomeView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // Top tab bar (back to original placement)
+                SectionPicker(selected: $selectedSection)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+
                 // Main content - scrollable
                 ScrollView {
                     VStack(spacing: 0) {
-                        // Animated Header - moved inside ScrollView to hide on scroll
-                        Group {
-                            if appState.isDarkMode {
-                                AnimatedHeaderView(
-                                    onSVGsLoaded: {
-                                        onSVGsLoaded?()
-                                    },
-                                    startAnimations: startAnimations,
-                                    animationRestartTrigger: animationRestartTrigger,
-                                    onSunStarted: {
-                                        sunStarted = true
-                                        startSectionReveal()
-                                    },
-                                    onCloudsStarted: {
-                                        cloudsStarted = true
-                                    },
-                                    onBirdsStarted: {
-                                        birdsStarted = true
-                                    }
-                                )
-                                .colorInvert()
-                            } else {
-                                AnimatedHeaderView(
-                                    onSVGsLoaded: {
-                                        onSVGsLoaded?()
-                                    },
-                                    startAnimations: startAnimations,
-                                    animationRestartTrigger: animationRestartTrigger,
-                                    onSunStarted: {
-                                        sunStarted = true
-                                        startSectionReveal()
-                                    },
-                                    onCloudsStarted: {
-                                        cloudsStarted = true
-                                    },
-                                    onBirdsStarted: {
-                                        birdsStarted = true
-                                    }
-                                )
+                        // Header animations are disabled per request; keep spacer for layout
+                        if showHeaderAnimations {
+                            Group {
+                                if appState.isDarkMode {
+                                    AnimatedHeaderView(
+                                        onSVGsLoaded: {
+                                            onSVGsLoaded?()
+                                        },
+                                        startAnimations: startAnimations,
+                                        animationRestartTrigger: animationRestartTrigger,
+                                        onSunStarted: {
+                                            sunStarted = true
+                                            startSectionReveal()
+                                        },
+                                        onCloudsStarted: {
+                                            cloudsStarted = true
+                                        },
+                                        onBirdsStarted: {
+                                            birdsStarted = true
+                                        }
+                                    )
+                                    .colorInvert()
+                                } else {
+                                    AnimatedHeaderView(
+                                        onSVGsLoaded: {
+                                            onSVGsLoaded?()
+                                        },
+                                        startAnimations: startAnimations,
+                                        animationRestartTrigger: animationRestartTrigger,
+                                        onSunStarted: {
+                                            sunStarted = true
+                                            startSectionReveal()
+                                        },
+                                        onCloudsStarted: {
+                                            cloudsStarted = true
+                                        },
+                                        onBirdsStarted: {
+                                            birdsStarted = true
+                                        }
+                                    )
+                                }
                             }
+                            .frame(height: 140)
+                            .padding(.top, 0)
+                        } else {
+                            Color.clear
+                                .frame(height: 16)
+                                .onAppear {
+                                    // Ensure content reveals when header is hidden
+                                    startSectionReveal()
+                                }
                         }
-                        .frame(height: 140)
-                        .padding(.top, 0)
-
-                        // Main sections with mini tab
-                        SectionPicker(selected: $selectedSection)
-                            .padding(.horizontal, 20)
 
                         VStack(spacing: 16) {
             SectionContent(
@@ -191,11 +201,15 @@ struct MainHomeView: View {
                     }
                 }
             }
-        }
+
+            }
         .onAppear {
             updateTimeData()
             timer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { _ in
                 updateTimeData()
+            }
+            if !showHeaderAnimations {
+                showContent = true
             }
         }
         .onChange(of: sunStarted) { started in
@@ -215,6 +229,10 @@ struct MainHomeView: View {
                 sunStarted = false
                 // Trigger animation restart
                 animationRestartTrigger += 1
+                if !showHeaderAnimations {
+                    // Immediately reveal content when header is hidden
+                    showContent = true
+                }
             }
         }
         .onDisappear {
@@ -227,7 +245,6 @@ struct MainHomeView: View {
         .sheet(isPresented: $appState.showAddEvent) {
             AddCustomEventView(initialMode: appState.pendingAddEventMode ?? .countdown)
                 .environmentObject(appState)
-                .environmentObject(purchaseManager)
         }
         .sheet(isPresented: $showWidgetHelp) {
             WidgetHelpSheet(section: selectedSection)
@@ -249,36 +266,73 @@ struct MainHomeView: View {
     }
 }
 
+// Compact segmented control for switching between countdown, count up, and habits
 private struct SectionPicker: View {
     @Binding var selected: HomeSection
 
     var body: some View {
         HStack(spacing: 10) {
             ForEach(HomeSection.allCases, id: \.self) { section in
-                Button(action: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                         selected = section
                     }
-                }) {
+                } label: {
                     Text(section.title)
                         .font(.sabdeviBold(size: 13))
-                        .foregroundColor(selected == section ? .primary : .secondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(selected == section ? Color.primary.opacity(0.1) : Color.clear)
-                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.88)
+                        .allowsTightening(true)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .foregroundStyle(selected == section ? .primary : .secondary)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(selected == section ? Color.primary.opacity(0.08) : Color.secondary.opacity(0.06))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(selected == section ? Color.primary.opacity(0.25) : Color.clear, lineWidth: 1)
+                        )
+                )
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(6)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.clear)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.primary.opacity(0.04))
+                .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 6)
         )
+    }
+}
+
+private struct BottomSectionBar: View {
+    @Binding var selected: HomeSection
+
+    var body: some View {
+        HStack(spacing: 24) {
+            ForEach(HomeSection.allCases, id: \.self) { section in
+                VStack(spacing: 6) {
+                    Text(section.title)
+                        .font(.sabdeviBold(size: 14))
+                        .foregroundColor(selected == section ? .white : .secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    Capsule().fill(selected == section ? Color.white.opacity(0.2) : Color.clear)
+                )
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                        selected = section
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 6)
+        .background(Color.black)
     }
 }
 

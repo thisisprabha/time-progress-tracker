@@ -23,6 +23,7 @@ struct SettingsView: View {
     
     // Add/Edit Event State
     @State private var presentedSheetItem: EventSheetItem? = nil
+    @State private var selectedHolidayTemplate: String = ""
     @State private var showModeSelectionActionSheet: Bool = false
     @State private var selectedInitMode: EventMode = .countdown
     
@@ -64,8 +65,10 @@ struct SettingsView: View {
                             exportURL: $exportURL,
                             showShareSheet: $showShareSheet,
                             showImportPicker: $showImportPicker,
-                            importStatusText: $importStatusText
-                        )
+                            importStatusText: $importStatusText,
+                            selectedHolidayTemplate: $selectedHolidayTemplate,
+                            toastMessage: $toastMessage
+                         )
                     } else if selectedTab == .mindset {
                         MindsetSettingsView()
                     } else {
@@ -100,17 +103,9 @@ struct SettingsView: View {
                     .font(.system(.body))
                 }
             }
-            .confirmationDialog("What kind of event?", isPresented: $showModeSelectionActionSheet, titleVisibility: .visible) {
-                 Button("Countdown (e.g. Birthday)") {
-                     presentedSheetItem = EventSheetItem(initialMode: .countdown)
-                 }
-                 Button("Count Up (e.g. Sobriety)") {
-                     presentedSheetItem = EventSheetItem(initialMode: .countup)
-                 }
-                 Button("Habit (e.g. Daily Run)") {
-                     presentedSheetItem = EventSheetItem(initialMode: .habit)
-                 }
-                 Button("Cancel", role: .cancel) {}
+            .onAppear {
+                // Sync picker with the last saved template so reopening settings shows current country
+                selectedHolidayTemplate = appState.selectedHolidayTemplateID ?? ""
             }
             .sheet(item: $presentedSheetItem) { item in
                 AddCustomEventView(initialMode: item.initialMode, existingEvent: item.event)
@@ -241,6 +236,8 @@ struct DisplaySettingsView: View {
     @Binding var showShareSheet: Bool
     @Binding var showImportPicker: Bool
     @Binding var importStatusText: String?
+    @Binding var selectedHolidayTemplate: String
+    @Binding var toastMessage: String?
     
     // Local filters
     @State private var eventCategoryFilter: EventCategoryFilter = .all
@@ -290,7 +287,7 @@ struct DisplaySettingsView: View {
             ForEach(filteredEvents.filter { $0.mode == .countdown }) { event in
                 eventButtonRow(event: event)
             }
-            Button(action: { showModeSelection = true; selectedInitMode = .countdown }) {
+            Button(action: { presentedSheetItem = EventSheetItem(initialMode: .countdown) }) {
                 Label("Create Countdown", systemImage: "plus.circle")
             }
         } header: {
@@ -303,7 +300,7 @@ struct DisplaySettingsView: View {
             ForEach(filteredEvents.filter { $0.mode == .countup }) { event in
                 eventButtonRow(event: event)
             }
-            Button(action: { showModeSelection = true; selectedInitMode = .countup }) {
+            Button(action: { presentedSheetItem = EventSheetItem(initialMode: .countup) }) {
                 Label("Create Count Up", systemImage: "plus.circle")
             }
         } header: {
@@ -345,7 +342,7 @@ struct DisplaySettingsView: View {
                 }
                 .disabled(newHabitName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            Button(action: { showModeSelection = true; selectedInitMode = .habit }) {
+            Button(action: { presentedSheetItem = EventSheetItem(initialMode: .habit) }) {
                 Label("Create Habit", systemImage: "plus.circle")
             }
         } header: {
@@ -355,27 +352,27 @@ struct DisplaySettingsView: View {
 
     private var leaveSection: some View {
         Section {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Next long weekend").font(.caption).foregroundColor(.secondary)
-                Text(appState.leaveInsights.nextLongWeekend).font(.body)
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Best leave suggestion").font(.caption).foregroundColor(.secondary)
-                Text(appState.leaveInsights.bestSuggestion).font(.body)
-            }
-            HStack {
-                Text("Balance: \(appState.leaveBalance.remaining)/\(appState.leaveBalance.total)")
-                    .font(.caption)
-                Spacer()
-                Button("Use 1 day") {
-                    if appState.leaveBalance.remaining > 0 {
-                        appState.leaveBalance.used += 1
-                        appState.saveSettings()
-                    }
+            Picker("Country", selection: $selectedHolidayTemplate) {
+                Text("Select country").tag("")
+                ForEach(HolidayTemplateLibrary.shared.templates) { template in
+                    Text("\(template.flag)  \(template.name)").tag(template.id)
                 }
-                .font(.caption)
-                .buttonStyle(.bordered)
             }
+            .onChange(of: selectedHolidayTemplate) { newValue in
+                applyHolidayTemplate(id: newValue)
+            }
+
+            if !selectedHolidayTemplate.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Next long weekend").font(.caption).foregroundColor(.secondary)
+                    Text(appState.leaveInsights.nextLongWeekend).font(.body)
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Best leave suggestion").font(.caption).foregroundColor(.secondary)
+                    Text(appState.leaveInsights.bestSuggestion).font(.body)
+                }
+            }
+            // Balance hidden per request
         } header: {
             Text("Leave Optimizer")
         }
@@ -385,6 +382,10 @@ struct DisplaySettingsView: View {
         Section {
             Toggle("Show Life Progress", isOn: $appState.showLifeProgress)
                  .onChange(of: appState.showLifeProgress) { _ in appState.saveSettings() }
+            Stepper("Age: \(appState.userAge)", value: $appState.userAge, in: 1...120)
+                .onChange(of: appState.userAge) { _ in appState.saveSettings() }
+            Stepper("Life expectancy: \(appState.lifeExpectancy)", value: $appState.lifeExpectancy, in: 40...120)
+                .onChange(of: appState.lifeExpectancy) { _ in appState.saveSettings() }
         } header: {
             Text("Life Progress")
         }
@@ -421,11 +422,13 @@ struct DisplaySettingsView: View {
             Button(role: .destructive) { deleteEvent(event) } label: {
                 Label("Delete", systemImage: "trash.fill")
             }
+            .tint(Color.red)
+
             Button { togglePin(for: event) } label: {
                 let isPinned = appState.selectedDisplayItems.contains(.customEvent(id: event.id))
                 Label(isPinned ? "Unpin" : "Pin", systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
             }
-            .tint(.orange)
+            .tint(Color.orange)
         }
     }
 
@@ -468,6 +471,18 @@ struct DisplaySettingsView: View {
         appState.selectedDisplayItems.removeAll { $0 == customItem }
         appState.customEvents.removeAll { $0.id == event.id }
         appState.saveSettings()
+    }
+
+    private func applyHolidayTemplate(id: String) {
+        guard let template = HolidayTemplateLibrary.shared.templates.first(where: { $0.id == id }) else {
+            selectedHolidayTemplate = ""
+            return
+        }
+        appState.holidays = template.holidays
+        appState.selectedHolidayTemplateID = template.id
+        appState.recomputeLeaveInsights()
+        appState.saveSettings()
+        toastMessage = "Loaded \(template.name)"
     }
 }
 

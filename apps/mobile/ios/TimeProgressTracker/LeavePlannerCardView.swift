@@ -32,7 +32,8 @@ struct LeavePlannerCardView: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(uiColor: .secondarySystemBackground))
+                .fill(appState.isDarkMode ? Color.white.opacity(0.06) : Color(UIColor.secondarySystemBackground))
+                .shadow(color: Color.black.opacity(appState.isDarkMode ? 0.2 : 0.08), radius: 12, x: 0, y: 6)
         )
         .onAppear { rebuild() }
     }

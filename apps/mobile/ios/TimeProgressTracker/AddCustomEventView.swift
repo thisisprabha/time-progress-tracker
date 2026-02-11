@@ -10,7 +10,6 @@ import SwiftUI
 struct AddCustomEventView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var purchaseManager: PurchaseManager
     
     // Edit Mode support
     var existingEvent: CustomEvent?
@@ -163,12 +162,6 @@ struct AddCustomEventView: View {
     }
     
     private func save() {
-        if !purchaseManager.isPro && appState.customEvents.count >= 3 && existingEvent == nil {
-            appState.pendingAddEventMode = selectedMode
-            appState.showAddEvent = false
-            NotificationCenter.default.post(name: Notification.Name("ShowPaywall"), object: nil)
-            return
-        }
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"

@@ -59,6 +59,7 @@ class AppState: ObservableObject {
     @Published var leaveBalance: LeaveBalance = LeaveBalance(total: 20, used: 0)
     @Published var leaveInsights: LeaveInsights = LeaveInsights(nextLongWeekend: "—", bestSuggestion: "—")
     @Published var holidays: [Holiday] = []
+    @Published var selectedHolidayTemplateID: String? = nil
     
     init() {
         print("✅ [AppState] AppState initialized")
@@ -92,8 +93,10 @@ class AppState: ObservableObject {
         if let holidayData = UserDefaults.standard.data(forKey: "holidays"),
            let decoded = try? JSONDecoder().decode([Holiday].self, from: holidayData) {
             self.holidays = decoded
-        } else {
-            self.holidays = AppState.defaultHolidays
+        }
+        if let templateID = UserDefaults.standard.string(forKey: "selectedHolidayTemplateID") {
+            self.selectedHolidayTemplateID = templateID
+            applyHolidayTemplate(id: templateID, save: false)
         }
         
         // Keep all events for unlimited history and count-up tracking.
@@ -241,6 +244,12 @@ class AppState: ObservableObject {
             UserDefaults.standard.set(insightsData, forKey: "leaveInsights")
         }
 
+        if let templateID = selectedHolidayTemplateID {
+            UserDefaults.standard.set(templateID, forKey: "selectedHolidayTemplateID")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "selectedHolidayTemplateID")
+        }
+
         if let holidaysData = try? JSONEncoder().encode(holidays) {
             UserDefaults.standard.set(holidaysData, forKey: "holidays")
         }
@@ -267,11 +276,17 @@ class AppState: ObservableObject {
             if let habitsData = try? JSONEncoder().encode(habits) {
                 sharedDefaults.set(habitsData, forKey: "habits")
             }
-            if let insightsData = try? JSONEncoder().encode(leaveInsights) {
-                sharedDefaults.set(insightsData, forKey: "leaveInsights")
+        if let insightsData = try? JSONEncoder().encode(leaveInsights) {
+            sharedDefaults.set(insightsData, forKey: "leaveInsights")
+        }
+        sharedDefaults.set(leaveInsights.nextLongWeekend, forKey: "leave_next_long_weekend")
+        sharedDefaults.set(leaveInsights.bestSuggestion, forKey: "leave_best_suggestion")
+            if let holidaysData = try? JSONEncoder().encode(holidays) {
+                sharedDefaults.set(holidaysData, forKey: "holidays")
             }
-            sharedDefaults.set(leaveInsights.nextLongWeekend, forKey: "leave_next_long_weekend")
-            sharedDefaults.set(leaveInsights.bestSuggestion, forKey: "leave_best_suggestion")
+            if let templateID = selectedHolidayTemplateID {
+                sharedDefaults.set(templateID, forKey: "selectedHolidayTemplateID")
+            }
         }
 
         Task {
@@ -396,6 +411,25 @@ class AppState: ObservableObject {
         }
 
         leaveInsights = LeaveInsights(nextLongWeekend: nextLongWeekendText, bestSuggestion: bestSuggestion)
+    }
+
+    func applyHolidayTemplate(id: String, save: Bool = true) {
+        guard let template = HolidayTemplateLibrary.shared.templates.first(where: { $0.id == id }) else { return }
+        holidays = template.holidays
+        selectedHolidayTemplateID = id
+        recomputeLeaveInsights()
+        if save { saveSettings() }
+        // Mirror to UserDefaults immediately so home refresh sees latest country
+        UserDefaults.standard.set(id, forKey: "selectedHolidayTemplateID")
+        if let holidaysData = try? JSONEncoder().encode(holidays) {
+            UserDefaults.standard.set(holidaysData, forKey: "holidays")
+        }
+        if let sharedDefaults = UserDefaults(suiteName: "group.com.prabhakaran.timeprogresstracker") {
+            sharedDefaults.set(id, forKey: "selectedHolidayTemplateID")
+            if let holidaysData = try? JSONEncoder().encode(holidays) {
+                sharedDefaults.set(holidaysData, forKey: "holidays")
+            }
+        }
     }
 
     static let defaultHolidays: [Holiday] = [
